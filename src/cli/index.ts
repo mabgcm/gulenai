@@ -1,5 +1,8 @@
 import { buildDefaultSourceConfig, loadConfig } from "../config/env.js";
 import { logger } from "../config/logger.js";
+import { formatAnswer } from "../answer/answerFormatter.js";
+import { OpenAiChatCompletionClient } from "../answer/openAiChatClient.js";
+import { StrictRagAnswerEngine } from "../answer/strictRagAnswerEngine.js";
 import { ChunkingPipeline } from "../chunking/chunkingPipeline.js";
 import { MarkdownChunker } from "../chunking/chunker.js";
 import { ChunkStore } from "../chunking/chunkStore.js";
@@ -355,6 +358,41 @@ const prompt = async (): Promise<void> => {
   );
 };
 
+const answer = async (): Promise<void> => {
+  const config = loadConfig();
+  const args = process.argv.slice(3);
+  const { query, options } = parseSearchOptions(args);
+  if (query.length === 0) {
+    throw new Error('Usage: pnpm answer "question" [--topK 8] [--threshold 0.5]');
+  }
+
+  const embeddingModel = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
+  const chunkStore = new ChunkContentStore();
+  const engine = new RetrievalEngine(
+    config.QDRANT_COLLECTION,
+    new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, embeddingModel),
+    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY),
+    () => chunkStore.readByChunkId()
+  );
+  const maxContextTokens = parseNumberFlag(
+    args,
+    "--maxContextTokens",
+    config.PROMPT_MAX_CONTEXT_TOKENS,
+    (value) => Number.isInteger(value) && value >= 0
+  );
+  const result = await new StrictRagAnswerEngine(
+    new OpenAiChatCompletionClient(config.OPENAI_API_KEY),
+    new OpenAiTokenCounter()
+  ).answer(query, await engine.search(query, options), {
+    model: config.OPENAI_CHAT_MODEL,
+    temperature: config.TEMPERATURE,
+    maxOutputTokens: config.MAX_OUTPUT_TOKENS,
+    maxContextTokens
+  });
+
+  process.stdout.write(`${formatAnswer(query, result)}\n`);
+};
+
 const buildRetrievalDiagnostics = (): RetrievalDiagnostics => {
   const config = loadConfig();
   const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
@@ -437,6 +475,9 @@ const main = async (): Promise<void> => {
     case "prompt":
       await prompt();
       break;
+    case "answer":
+      await answer();
+      break;
     case "diagnose":
       await diagnose();
       break;
@@ -451,7 +492,7 @@ const main = async (): Promise<void> => {
       break;
     default:
       throw new Error(
-        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|prompt|diagnose|validate-search|inspect|crawl-report|reset>"
+        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|prompt|answer|diagnose|validate-search|inspect|crawl-report|reset>"
       );
   }
 };

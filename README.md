@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, Qdrant vector-store synchronization, semantic retrieval, and prompt assembly.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, Qdrant vector-store synchronization, semantic retrieval, prompt assembly, and strict RAG answer generation.
 
 The architecture target is:
 
@@ -48,6 +48,7 @@ Implemented:
 - HTML dataset inspection via `pnpm inspect`
 - Prompt assembly from retrieved chunks without calling an LLM, with token-budget trimming and `data/prompts/prompt.md` / `prompt.json` output
 - Retrieval diagnostics for Qdrant/index/vector consistency and search validation reports
+- Strict RAG answer generation with OpenAI Chat Completions, context-only answers, confidence scoring, and internal used/ignored chunk tracking
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
 - Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, semantic retrieval, crawl quality, and prompt assembly
 
@@ -100,6 +101,9 @@ CHUNK_MAX_TOKENS=1000
 CHUNK_OVERLAP_TOKENS=150
 OPENAI_API_KEY=
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_CHAT_MODEL=gpt-4o-mini
+TEMPERATURE=0
+MAX_OUTPUT_TOKENS=800
 EMBEDDING_BATCH_SIZE=64
 EMBEDDING_CONCURRENCY=2
 EMBEDDING_RETRIES=3
@@ -137,6 +141,8 @@ pnpm search "user question"
 pnpm search "user question" --topK 5 --threshold 0.5 --language tr
 pnpm prompt "user question"
 pnpm prompt "user question" --topK 5 --threshold 0.5 --language tr --maxContextTokens 4000
+pnpm answer "user question"
+pnpm answer "user question" --topK 5 --threshold 0.5 --maxContextTokens 4000
 pnpm diagnose
 pnpm validate-search "user question"
 pnpm validate-search "user question" --language tr
@@ -144,7 +150,7 @@ pnpm inspect
 pnpm crawl-report
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `diagnose`, `validate-search`, `inspect`, `crawl-report`, and `reset` are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `answer`, `diagnose`, `validate-search`, `inspect`, `crawl-report`, and `reset` are implemented.
 
 ## Crawl Strategy
 
@@ -451,6 +457,33 @@ The prompt contains `SYSTEM`, `QUESTION`, `RETRIEVED CONTEXT`, and `INSTRUCTIONS
 ```
 
 Prompt assembly does not call a chat/completions API and does not generate an answer.
+
+Strict RAG answer generation uses the assembled prompt and retrieved chunks to call the OpenAI Chat Completions API:
+
+```bash
+pnpm answer "İhlas nedir?"
+```
+
+Answer generation is intentionally strict. The system prompt requires the model to answer only from supplied context, never use outside knowledge, never guess, never hallucinate, and never fabricate references. When the retrieved context is insufficient, the answer must be exactly:
+
+```text
+The indexed sources do not contain enough information to answer this question.
+```
+
+The structured answer result contains:
+
+```json
+{
+  "answer": "string",
+  "confidence": 94,
+  "usedChunks": [],
+  "ignoredChunks": [],
+  "estimatedTokens": 1234,
+  "model": "gpt-4o-mini"
+}
+```
+
+`usedChunks` and `ignoredChunks` are preserved internally for the future citation engine. Citations are not rendered yet.
 
 Retrieval diagnostics validate that the local manifests, embedding files, and Qdrant collection are in sync:
 
