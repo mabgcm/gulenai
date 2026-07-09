@@ -44,6 +44,8 @@ Implemented:
 - Batched, concurrent embedding jobs with exponential backoff, rate-limit retry handling, resume support, progress reporting, and temporary vector files under `data/embeddings`
 - Qdrant collection creation, vector uploads, deletion synchronization, resumable sync, retry handling, and vector status reporting
 - Semantic retrieval over Qdrant with query embeddings, topK, score thresholds, payload filters, duplicate removal, adjacent chunk merging, and deterministic ranking
+- Crawl strategy and content selection for language-scoped crawls, include/exclude regex patterns, category/index-page detection, content quality scoring, normalized-text and similarity-hash duplicate detection, and crawl quality reports
+- HTML dataset inspection via `pnpm inspect`
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
 - Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, and semantic retrieval
 
@@ -79,6 +81,12 @@ CRAWL_SEEDS=https://fgulen.com
 CRAWL_ALLOWED_DOMAINS=fgulen.com
 CRAWL_INCLUDE_PATHS=/
 CRAWL_EXCLUDE_PATHS=/wp-admin,/wp-login.php,/search
+CRAWL_INCLUDE_PATTERNS=
+CRAWL_EXCLUDE_PATTERNS=[?&]start=
+CRAWL_LANGUAGES=tr
+CRAWL_QUALITY_THRESHOLD=45
+CRAWL_MIN_WORD_COUNT=120
+CRAWL_DUPLICATE_SIMHASH_DISTANCE=3
 CRAWL_MAX_PAGES=1000
 CRAWL_MAX_DEPTH=4
 CRAWL_CONCURRENCY=3
@@ -109,6 +117,8 @@ To add another website later, change the seed, allowed domains, and path filters
 
 ```bash
 pnpm crawl
+pnpm crawl --language tr
+pnpm crawl --language tr --language en
 pnpm reset
 pnpm extract
 pnpm markdown
@@ -122,9 +132,51 @@ pnpm qdrant --resume
 pnpm qdrant status
 pnpm search "user question"
 pnpm search "user question" --topK 5 --threshold 0.5 --language tr
+pnpm inspect
+pnpm crawl-report
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, and `reset` are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `inspect`, `crawl-report`, and `reset` are implemented.
+
+## Crawl Strategy
+
+The crawler still visits category, table-of-contents, archive, tag, and language landing pages so their outgoing links can be discovered. Those pages are no longer saved to `data/raw` unless they pass the content selection policy. Downstream extraction, Markdown conversion, chunking, indexing, embedding, and Qdrant upload therefore operate only on selected knowledge pages.
+
+Language scope can be configured in `.env`:
+
+```env
+CRAWL_LANGUAGES=tr,en
+```
+
+It can also be overridden per run:
+
+```bash
+pnpm crawl --language tr
+pnpm crawl --language tr --language en
+```
+
+Path and regex rules are both supported:
+
+```env
+CRAWL_INCLUDE_PATHS=/tr,/en
+CRAWL_EXCLUDE_PATHS=/search,/wp-admin
+CRAWL_INCLUDE_PATTERNS=/tr/.+
+CRAWL_EXCLUDE_PATTERNS=([?&]start=|category|tag|archive)
+```
+
+Content quality scoring uses word count, OpenAI-compatible token count, text density, heading density, navigation ratio, link density, duplicate percentage, and boilerplate ratio. Pages below `CRAWL_QUALITY_THRESHOLD`, pages below `CRAWL_MIN_WORD_COUNT`, and detected low-value page types are skipped. Duplicate pages are detected by normalized text hash and a 64-bit similarity hash; only the highest-quality copy is kept.
+
+Every crawl writes:
+
+```text
+data/crawl/quality-decisions.json
+reports/crawl-quality.html
+reports/crawl-quality.md
+```
+
+The crawl quality report includes total pages visited, indexed pages, skipped pages, duplicate pages, category pages, low-quality pages, average quality score, average word count, average token count, top 20 lowest-quality pages, top 20 highest-quality pages, and language distribution.
+
+`pnpm inspect` writes `reports/dataset-inspection.html`, an HTML inventory of the currently generated dataset with clickable source links.
 
 ## Data Layout
 

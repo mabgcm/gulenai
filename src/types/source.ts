@@ -4,7 +4,12 @@ export interface SourceConfig {
   readonly allowedDomains: readonly string[];
   readonly includePaths: readonly string[];
   readonly excludePaths: readonly string[];
+  readonly includePatterns: readonly string[];
+  readonly excludePatterns: readonly string[];
   readonly languages: readonly string[];
+  readonly qualityThreshold: number;
+  readonly minWordCount: number;
+  readonly duplicateSimHashDistance: number;
   readonly maxPages: number;
   readonly maxDepth: number;
   readonly concurrency: number;

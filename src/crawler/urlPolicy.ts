@@ -5,9 +5,13 @@ const stripTrailingSlash = (path: string): string =>
 
 export class UrlPolicy {
   private readonly allowedDomains: ReadonlySet<string>;
+  private readonly includePatterns: readonly RegExp[];
+  private readonly excludePatterns: readonly RegExp[];
 
   public constructor(private readonly source: SourceConfig) {
     this.allowedDomains = new Set(source.allowedDomains.map((domain) => domain.toLowerCase()));
+    this.includePatterns = source.includePatterns.map((pattern) => new RegExp(pattern));
+    this.excludePatterns = source.excludePatterns.map((pattern) => new RegExp(pattern));
   }
 
   public normalize(input: string, baseUrl?: string): string | null {
@@ -30,7 +34,10 @@ export class UrlPolicy {
         "utm_term",
         "utm_content",
         "fbclid",
-        "gclid"
+        "gclid",
+        "tmpl",
+        "print",
+        "layout"
       ];
       for (const param of removableParams) {
         url.searchParams.delete(param);
@@ -63,6 +70,19 @@ export class UrlPolicy {
 
     const excluded = this.source.excludePaths.some((path) => url.pathname.startsWith(path));
     if (excluded) {
+      return false;
+    }
+
+    const urlText = normalized;
+    if (this.includePatterns.length > 0) {
+      const included = this.includePatterns.some((pattern) => pattern.test(urlText));
+      if (!included) {
+        return false;
+      }
+    }
+
+    const patternExcluded = this.excludePatterns.some((pattern) => pattern.test(urlText));
+    if (patternExcluded) {
       return false;
     }
 

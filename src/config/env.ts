@@ -20,6 +20,24 @@ const integerFromEnv = (fallback: number) =>
       return parsed;
     });
 
+const numberFromEnv = (fallback: number) =>
+  z
+    .string()
+    .optional()
+    .transform((value, context) => {
+      if (value === undefined || value.trim() === "") {
+        return fallback;
+      }
+
+      const parsed = Number.parseFloat(value);
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        context.addIssue({ code: z.ZodIssueCode.custom, message: "Expected a positive number" });
+        return z.NEVER;
+      }
+
+      return parsed;
+    });
+
 const booleanFromEnv = (fallback: boolean) =>
   z
     .string()
@@ -75,7 +93,12 @@ const envSchema = z.object({
   CRAWL_ALLOWED_DOMAINS: csv(["fgulen.com"]),
   CRAWL_INCLUDE_PATHS: csv(["/"]),
   CRAWL_EXCLUDE_PATHS: csv(["/wp-admin", "/wp-login.php", "/search"]),
+  CRAWL_INCLUDE_PATTERNS: csv([]),
+  CRAWL_EXCLUDE_PATTERNS: csv(["[?&]start="]),
   CRAWL_LANGUAGES: csv([]),
+  CRAWL_QUALITY_THRESHOLD: numberFromEnv(45),
+  CRAWL_MIN_WORD_COUNT: integerFromEnv(120),
+  CRAWL_DUPLICATE_SIMHASH_DISTANCE: integerFromEnv(3),
   CRAWL_MAX_PAGES: integerFromEnv(1000),
   CRAWL_MAX_DEPTH: integerFromEnv(4),
   CRAWL_CONCURRENCY: integerFromEnv(3),
@@ -104,7 +127,12 @@ export const buildDefaultSourceConfig = (config: AppConfig): SourceConfig => ({
   allowedDomains: config.CRAWL_ALLOWED_DOMAINS,
   includePaths: config.CRAWL_INCLUDE_PATHS,
   excludePaths: config.CRAWL_EXCLUDE_PATHS,
+  includePatterns: config.CRAWL_INCLUDE_PATTERNS,
+  excludePatterns: config.CRAWL_EXCLUDE_PATTERNS,
   languages: config.CRAWL_LANGUAGES,
+  qualityThreshold: config.CRAWL_QUALITY_THRESHOLD,
+  minWordCount: config.CRAWL_MIN_WORD_COUNT,
+  duplicateSimHashDistance: config.CRAWL_DUPLICATE_SIMHASH_DISTANCE,
   maxPages: config.CRAWL_MAX_PAGES,
   maxDepth: config.CRAWL_MAX_DEPTH,
   concurrency: Math.max(1, config.CRAWL_CONCURRENCY),

@@ -7,6 +7,7 @@ import { MarkdownDocumentReader } from "../chunking/markdownDocumentReader.js";
 import { OpenAiTokenCounter } from "../chunking/tokenCounter.js";
 import { Crawler } from "../crawler/crawler.js";
 import { PlaywrightFetcher } from "../crawler/fetcher.js";
+import { CrawlQualityReporter } from "../crawlQuality/crawlQualityReporter.js";
 import { ChunkPayloadReader } from "../embedding/chunkPayloadReader.js";
 import { OpenAiEmbeddingClient } from "../embedding/embeddingClient.js";
 import { EmbeddingPipeline } from "../embedding/embeddingPipeline.js";
@@ -20,6 +21,7 @@ import { ChunkIndexReader } from "../indexing/chunkIndexReader.js";
 import { IndexPipeline } from "../indexing/indexPipeline.js";
 import { ManifestStore } from "../indexing/manifestStore.js";
 import { formatIndexStatus } from "../indexing/statusFormatter.js";
+import { DatasetInspectionReport } from "../inspection/datasetInspectionReport.js";
 import { CleanHtmlReader } from "../markdown/cleanHtmlReader.js";
 import { MarkdownConverter } from "../markdown/markdownConverter.js";
 import { MarkdownPipeline } from "../markdown/markdownPipeline.js";
@@ -39,7 +41,14 @@ import { CrawlStore } from "../storage/crawlStore.js";
 
 const crawl = async (): Promise<void> => {
   const config = loadConfig();
-  const source = buildDefaultSourceConfig(config);
+  const languages = collectFlagValues(process.argv.slice(3), "--language");
+  const source = {
+    ...buildDefaultSourceConfig(config),
+    languages:
+      languages.length > 0
+        ? languages.map((language) => language.toLowerCase())
+        : config.CRAWL_LANGUAGES
+  };
   const store = new CrawlStore();
   const fetcher = new PlaywrightFetcher(source.userAgent);
   const crawler = new Crawler(source, fetcher, store, logger);
@@ -136,6 +145,23 @@ const status = async (): Promise<void> => {
   process.stdout.write(`${formatIndexStatus(summary)}\n`);
 };
 
+const inspect = async (): Promise<void> => {
+  const outputPath = await new DatasetInspectionReport().write();
+  process.stdout.write(`Inspection report written: ${outputPath}\n`);
+};
+
+const crawlQualityReport = async (): Promise<void> => {
+  const store = new CrawlStore();
+  const state = await store.loadQualityState();
+  if (state === null) {
+    throw new Error("No crawl quality decisions found. Run `pnpm crawl` first.");
+  }
+  const summary = await new CrawlQualityReporter().write(state.decisions);
+  process.stdout.write(
+    `Crawl quality report written: reports/crawl-quality.html\nIndexed pages: ${summary.indexedPages}\nSkipped pages: ${summary.skippedPages}\n`
+  );
+};
+
 const qdrant = async (): Promise<void> => {
   const config = loadConfig();
   const pipeline = new QdrantSyncPipeline(
@@ -164,6 +190,20 @@ const qdrant = async (): Promise<void> => {
 const valueAfterFlag = (args: readonly string[], flag: string): string | undefined => {
   const index = args.indexOf(flag);
   return index < 0 ? undefined : args[index + 1];
+};
+
+const collectFlagValues = (args: readonly string[], flag: string): readonly string[] => {
+  const values: string[] = [];
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === flag) {
+      const value = args[index + 1];
+      if (value !== undefined) {
+        values.push(value);
+      }
+      index += 1;
+    }
+  }
+  return values;
 };
 
 const parseNumberFlag = (
@@ -305,9 +345,15 @@ const main = async (): Promise<void> => {
     case "search":
       await search();
       break;
+    case "inspect":
+      await inspect();
+      break;
+    case "crawl-report":
+      await crawlQualityReport();
+      break;
     default:
       throw new Error(
-        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|reset>"
+        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|inspect|crawl-report|reset>"
       );
   }
 };

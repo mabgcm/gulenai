@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crawl Quality Report</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #1d1d1f; background: #f7f7f4; line-height: 1.45; }
+    header { background: #fff; border-bottom: 1px solid #deded8; padding: 30px 40px 18px; }
+    main { max-width: 1320px; margin: 0 auto; padding: 28px 40px 56px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    h2 { margin-top: 34px; padding-bottom: 8px; border-bottom: 1px solid #deded8; font-size: 22px; }
+    .muted { color: #666b73; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+    .metric { background: #fff; border: 1px solid #deded8; border-radius: 8px; padding: 14px; }
+    .metric strong { display: block; font-size: 24px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #deded8; font-size: 13px; }
+    th, td { border-bottom: 1px solid #deded8; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eeeeea; position: sticky; top: 0; }
+    .num { text-align: right; white-space: nowrap; }
+    a { color: #275f86; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Crawl Quality Report</h1>
+    <p class="muted">Generated 2026-07-09T06:39:26.267Z. Category and low-value pages may still be visited for link discovery, but are excluded from raw indexing.</p>
+  </header>
+  <main>
+    <section class="grid">
+      <div class="metric"><span class="muted">Total pages visited</span><strong>2</strong></div>
+      <div class="metric"><span class="muted">Indexed pages</span><strong>1</strong></div>
+      <div class="metric"><span class="muted">Skipped pages</span><strong>1</strong></div>
+      <div class="metric"><span class="muted">Duplicate pages</span><strong>0</strong></div>
+      <div class="metric"><span class="muted">Category pages</span><strong>0</strong></div>
+      <div class="metric"><span class="muted">Low-quality pages</span><strong>0</strong></div>
+      <div class="metric"><span class="muted">Average quality score</span><strong>76.5</strong></div>
+      <div class="metric"><span class="muted">Average word count</span><strong>82.5</strong></div>
+      <div class="metric"><span class="muted">Average token count</span><strong>164</strong></div>
+    </section>
+    <h2>Language Distribution</h2>
+    <ul><li><strong>tr</strong>: 2</li></ul>
+    <h2>Top 20 Lowest-Quality Pages</h2>
+    <table>
+  <thead><tr><th>Score</th><th>Status</th><th>Class</th><th>Words</th><th>Tokens</th><th>Links</th><th>Reason</th><th>URL</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="num">54</td>
+      <td>skipped</td>
+      <td>language-selector</td>
+      <td class="num">5</td>
+      <td class="num">7</td>
+      <td class="num">2</td>
+      <td>classified as language-selector</td>
+      <td><a href="https://fgulen.com/tr">Category</a><br><code>https://fgulen.com/tr</code></td>
+    </tr>
+<tr>
+      <td class="num">99</td>
+      <td>indexed</td>
+      <td>article</td>
+      <td class="num">160</td>
+      <td class="num">321</td>
+      <td class="num">0</td>
+      <td>quality threshold passed</td>
+      <td><a href="https://fgulen.com/tr/article">Article</a><br><code>https://fgulen.com/tr/article</code></td>
+    </tr>
+  </tbody>
+</table>
+    <h2>Top 20 Highest-Quality Pages</h2>
+    <table>
+  <thead><tr><th>Score</th><th>Status</th><th>Class</th><th>Words</th><th>Tokens</th><th>Links</th><th>Reason</th><th>URL</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="num">99</td>
+      <td>indexed</td>
+      <td>article</td>
+      <td class="num">160</td>
+      <td class="num">321</td>
+      <td class="num">0</td>
+      <td>quality threshold passed</td>
+      <td><a href="https://fgulen.com/tr/article">Article</a><br><code>https://fgulen.com/tr/article</code></td>
+    </tr>
+<tr>
+      <td class="num">54</td>
+      <td>skipped</td>
+      <td>language-selector</td>
+      <td class="num">5</td>
+      <td class="num">7</td>
+      <td class="num">2</td>
+      <td>classified as language-selector</td>
+      <td><a href="https://fgulen.com/tr">Category</a><br><code>https://fgulen.com/tr</code></td>
+    </tr>
+  </tbody>
+</table>
+  </main>
+</body>
+</html>

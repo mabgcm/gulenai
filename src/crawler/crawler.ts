@@ -1,4 +1,7 @@
 import type { Logger } from "../config/logger.js";
+import { ContentQualityAnalyzer } from "../crawlQuality/contentQualityAnalyzer.js";
+import { CrawlQualityReporter } from "../crawlQuality/crawlQualityReporter.js";
+import { CrawlQualityTracker } from "../crawlQuality/qualityTracker.js";
 import type { CrawlStore } from "../storage/crawlStore.js";
 import type { CrawledPage, CrawlFailure, CrawlTarget, SourceConfig } from "../types/source.js";
 import { sleep } from "../utils/time.js";
@@ -23,6 +26,8 @@ export class Crawler {
   private savedPages = 0;
   private robots: RobotsRules | null = null;
   private lastRequestAt = 0;
+  private readonly analyzer: ContentQualityAnalyzer;
+  private readonly qualityTracker: CrawlQualityTracker;
 
   public constructor(
     private readonly source: SourceConfig,
@@ -31,10 +36,16 @@ export class Crawler {
     private readonly logger: Logger
   ) {
     this.policy = new UrlPolicy(source);
+    this.analyzer = new ContentQualityAnalyzer({
+      qualityThreshold: source.qualityThreshold,
+      minWordCount: source.minWordCount
+    });
+    this.qualityTracker = new CrawlQualityTracker(source.duplicateSimHashDistance);
   }
 
   public async run(): Promise<CrawlResult> {
     await this.store.init();
+    this.qualityTracker.restore(await this.store.loadQualityState());
     await this.restoreOrSeedQueue();
     await this.loadRobotsAndSitemaps();
 
@@ -55,6 +66,8 @@ export class Crawler {
     );
     await Promise.all(workers);
     await this.persistState();
+    const summary = await new CrawlQualityReporter().write(this.qualityTracker.state().decisions);
+    this.logger.info(summary, "Crawl quality report written");
 
     return {
       savedPages: this.savedPages,
@@ -230,8 +243,21 @@ export class Crawler {
     this.visited.add(canonicalOrFinal);
 
     if (page.status >= 200 && page.status < 300 && page.contentType.includes("text/html")) {
-      await this.store.saveRawPage({ ...page, canonicalUrl: canonical });
-      this.savedPages += 1;
+      const pageForStorage = { ...page, canonicalUrl: canonical };
+      const analysis = this.analyzer.analyze(canonicalOrFinal, page.html, page.title);
+      const rawId = this.store.rawPageIdForUrl(canonicalOrFinal);
+      const rawPath = this.store.rawPathForId(rawId);
+      const resolution = this.qualityTracker.decide(pageForStorage, analysis, rawId, rawPath);
+
+      if (resolution.previous !== null) {
+        await this.store.removeRawPageById(resolution.previous.rawId);
+        this.savedPages = Math.max(0, this.savedPages - 1);
+      }
+
+      if (resolution.decision.status === "indexed") {
+        await this.store.saveRawPage(pageForStorage);
+        this.savedPages += 1;
+      }
     }
 
     if (depth >= this.source.maxDepth) {
@@ -248,6 +274,9 @@ export class Crawler {
 
   private async persistState(): Promise<void> {
     const state = this.store.buildState(this.queue, this.visited, this.failures, this.savedPages);
-    await this.store.saveState(state);
+    await Promise.all([
+      this.store.saveState(state),
+      this.store.saveQualityState(this.qualityTracker.state())
+    ]);
   }
 }

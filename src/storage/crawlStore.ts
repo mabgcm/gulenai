@@ -1,5 +1,6 @@
-import { appendFile, rm, writeFile } from "node:fs/promises";
+import { appendFile, rm, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import type { CrawlQualityState } from "../crawlQuality/types.js";
 import type { CrawledPage, CrawlFailure, CrawlState, CrawlTarget } from "../types/source.js";
 import { ensureDir, readJson, writeJson } from "../utils/fs.js";
 import { sha256, shortHash } from "../utils/hash.js";
@@ -24,6 +25,7 @@ export class CrawlStore {
   private readonly visitedPath: string;
   private readonly failuresPath: string;
   private readonly rawIndexPath: string;
+  private readonly qualityPath: string;
 
   public constructor(private readonly dataDir = "data") {
     this.crawlDir = join(dataDir, "crawl");
@@ -32,6 +34,7 @@ export class CrawlStore {
     this.visitedPath = join(this.crawlDir, "visited.txt");
     this.failuresPath = join(this.crawlDir, "failures.json");
     this.rawIndexPath = join(this.crawlDir, "raw-index.jsonl");
+    this.qualityPath = join(this.crawlDir, "quality-decisions.json");
   }
 
   public async init(): Promise<void> {
@@ -73,6 +76,31 @@ export class CrawlStore {
     return metadata;
   }
 
+  public rawPageIdForUrl(url: string): string {
+    return shortHash(url);
+  }
+
+  public rawPathForId(id: string): string {
+    return join(this.rawDir, `${id}.html`);
+  }
+
+  public async removeRawPageById(id: string): Promise<void> {
+    await unlink(this.rawPathForId(id)).catch((error: unknown) => {
+      if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+        return;
+      }
+      throw error;
+    });
+  }
+
+  public async loadQualityState(): Promise<CrawlQualityState | null> {
+    return readJson<CrawlQualityState>(this.qualityPath);
+  }
+
+  public async saveQualityState(state: CrawlQualityState): Promise<void> {
+    await writeJson(this.qualityPath, state);
+  }
+
   public async reset(): Promise<void> {
     await rm(this.dataDir, { recursive: true, force: true });
     await Promise.all([
@@ -80,6 +108,8 @@ export class CrawlStore {
       ensureDir(join(this.dataDir, "clean")),
       ensureDir(join(this.dataDir, "markdown")),
       ensureDir(join(this.dataDir, "chunks")),
+      ensureDir(join(this.dataDir, "index")),
+      ensureDir(join(this.dataDir, "embeddings")),
       ensureDir(join(this.dataDir, "crawl"))
     ]);
   }
