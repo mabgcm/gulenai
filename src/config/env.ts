@@ -55,6 +55,22 @@ const envSchema = z.object({
   QDRANT_BATCH_SIZE: integerFromEnv(64),
   QDRANT_CONCURRENCY: integerFromEnv(2),
   QDRANT_RETRIES: integerFromEnv(3),
+  SEARCH_TOP_K: integerFromEnv(8),
+  SEARCH_SCORE_THRESHOLD: z
+    .string()
+    .optional()
+    .transform((value, context) => {
+      if (value === undefined || value.trim() === "") {
+        return 0;
+      }
+
+      const parsed = Number.parseFloat(value);
+      if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) {
+        context.addIssue({ code: z.ZodIssueCode.custom, message: "Expected a number from 0 to 1" });
+        return z.NEVER;
+      }
+      return parsed;
+    }),
   CRAWL_SEEDS: csv(["https://fgulen.com"]),
   CRAWL_ALLOWED_DOMAINS: csv(["fgulen.com"]),
   CRAWL_INCLUDE_PATHS: csv(["/"]),

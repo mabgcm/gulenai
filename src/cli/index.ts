@@ -29,13 +29,13 @@ import { RestQdrantVectorClient } from "../qdrant/qdrantClient.js";
 import { QdrantIndexStore } from "../qdrant/qdrantIndexStore.js";
 import { QdrantSyncPipeline } from "../qdrant/qdrantPipeline.js";
 import { formatQdrantStatus } from "../qdrant/statusFormatter.js";
+import { ChunkContentStore } from "../search/chunkContentStore.js";
+import { OpenAiQueryEmbeddingClient } from "../search/queryEmbeddingClient.js";
+import { QdrantVectorSearchClient } from "../search/qdrantSearchClient.js";
+import { RetrievalEngine } from "../search/retrievalEngine.js";
+import { formatSearchResults } from "../search/searchFormatter.js";
+import type { SearchFilters, SearchOptions } from "../search/types.js";
 import { CrawlStore } from "../storage/crawlStore.js";
-
-const notImplemented = (command: string): never => {
-  throw new Error(
-    `${command} is planned for the next ingestion stage. The crawler is implemented in this increment.`
-  );
-};
 
 const crawl = async (): Promise<void> => {
   const config = loadConfig();
@@ -161,6 +161,116 @@ const qdrant = async (): Promise<void> => {
   process.stdout.write(`${formatQdrantStatus(await pipeline.sync())}\n`);
 };
 
+const valueAfterFlag = (args: readonly string[], flag: string): string | undefined => {
+  const index = args.indexOf(flag);
+  return index < 0 ? undefined : args[index + 1];
+};
+
+const parseNumberFlag = (
+  args: readonly string[],
+  flag: string,
+  fallback: number,
+  validate: (value: number) => boolean
+): number => {
+  const value = valueAfterFlag(args, flag);
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || !validate(parsed)) {
+    throw new Error(`Invalid ${flag} value`);
+  }
+
+  return parsed;
+};
+
+const parseSearchOptions = (args: readonly string[]): { query: string; options: SearchOptions } => {
+  const config = loadConfig();
+  const flagNames = new Set([
+    "--topK",
+    "--threshold",
+    "--language",
+    "--documentId",
+    "--title",
+    "--url",
+    "--sourceFile"
+  ]);
+  const queryParts: string[] = [];
+
+  for (let index = 0; index < args.length; index += 1) {
+    const item = args[index];
+    if (item === undefined) {
+      continue;
+    }
+    if (flagNames.has(item)) {
+      index += 1;
+      continue;
+    }
+    queryParts.push(item);
+  }
+
+  const filters: SearchFilters = {};
+  const language = valueAfterFlag(args, "--language");
+  const documentId = valueAfterFlag(args, "--documentId");
+  const title = valueAfterFlag(args, "--title");
+  const url = valueAfterFlag(args, "--url");
+  const sourceFile = valueAfterFlag(args, "--sourceFile");
+  if (language !== undefined) {
+    Object.assign(filters, { language });
+  }
+  if (documentId !== undefined) {
+    Object.assign(filters, { documentId });
+  }
+  if (title !== undefined) {
+    Object.assign(filters, { title });
+  }
+  if (url !== undefined) {
+    Object.assign(filters, { url });
+  }
+  if (sourceFile !== undefined) {
+    Object.assign(filters, { sourceFile });
+  }
+
+  return {
+    query: queryParts.join(" ").trim(),
+    options: {
+      topK: parseNumberFlag(
+        args,
+        "--topK",
+        config.SEARCH_TOP_K,
+        (value) => Number.isInteger(value) && value > 0
+      ),
+      threshold: parseNumberFlag(
+        args,
+        "--threshold",
+        config.SEARCH_SCORE_THRESHOLD,
+        (value) => value >= 0 && value <= 1
+      ),
+      filters
+    }
+  };
+};
+
+const search = async (): Promise<void> => {
+  const config = loadConfig();
+  const { query, options } = parseSearchOptions(process.argv.slice(3));
+  if (query.length === 0) {
+    throw new Error('Usage: pnpm search "user question" [--topK 8] [--threshold 0.5]');
+  }
+
+  const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
+  const chunkStore = new ChunkContentStore();
+  const engine = new RetrievalEngine(
+    config.QDRANT_COLLECTION,
+    new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, model),
+    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY),
+    () => chunkStore.readByChunkId()
+  );
+
+  process.stdout.write(`${formatSearchResults(await engine.search(query, options))}\n`);
+};
+
 const main = async (): Promise<void> => {
   const command = process.argv[2];
 
@@ -193,7 +303,7 @@ const main = async (): Promise<void> => {
       await qdrant();
       break;
     case "search":
-      notImplemented(command);
+      await search();
       break;
     default:
       throw new Error(

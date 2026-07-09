@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, and Qdrant vector-store synchronization; later increments will fill in semantic search.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, Qdrant vector-store synchronization, and semantic retrieval.
 
 The architecture target is:
 
@@ -43,12 +43,9 @@ Implemented:
 - OpenAI embedding generation for pending chunks only
 - Batched, concurrent embedding jobs with exponential backoff, rate-limit retry handling, resume support, progress reporting, and temporary vector files under `data/embeddings`
 - Qdrant collection creation, vector uploads, deletion synchronization, resumable sync, retry handling, and vector status reporting
+- Semantic retrieval over Qdrant with query embeddings, topK, score thresholds, payload filters, duplicate removal, adjacent chunk merging, and deterministic ranking
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, and Qdrant sync
-
-Not yet implemented as CLI stages:
-
-- `search`
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, and semantic retrieval
 
 ## Requirements
 
@@ -102,6 +99,8 @@ QDRANT_COLLECTION=fgulen
 QDRANT_BATCH_SIZE=64
 QDRANT_CONCURRENCY=2
 QDRANT_RETRIES=3
+SEARCH_TOP_K=8
+SEARCH_SCORE_THRESHOLD=0.0
 ```
 
 To add another website later, change the seed, allowed domains, and path filters. The crawler does not contain `fgulen.com`-specific logic.
@@ -121,10 +120,11 @@ pnpm embed --resume
 pnpm qdrant
 pnpm qdrant --resume
 pnpm qdrant status
-pnpm search
+pnpm search "user question"
+pnpm search "user question" --topK 5 --threshold 0.5 --language tr
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, and `reset` are implemented.
 
 ## Data Layout
 
@@ -319,6 +319,53 @@ Collection: fgulen
 Vectors: 25342
 Pending uploads: 14
 Deleted vectors: 3
+```
+
+Semantic retrieval embeds the user query with `OPENAI_EMBEDDING_MODEL`, searches Qdrant, loads matching Markdown from `data/chunks`, removes duplicate chunk hits, merges adjacent chunks from the same document when appropriate, and prints ranked context candidates. It does not generate answers.
+
+Supported search filters:
+
+```bash
+pnpm search "ihlas nedir?" --language tr
+pnpm search "sincerity" --sourceFile en/article.md
+pnpm search "merhamet" --documentId document-id --title "Kırık Testi"
+pnpm search "sabır" --url https://fgulen.com/example
+```
+
+Search results include:
+
+```json
+{
+  "chunkId": "deterministic-chunk-id",
+  "documentId": "deterministic-document-id",
+  "title": "Kırık Testi",
+  "url": "https://fgulen.com/example",
+  "headingPath": ["İhlas", "Samimiyet"],
+  "similarityScore": 0.94,
+  "markdown": "# İhlas\n\n...",
+  "metadata": {
+    "chunkIds": ["chunk-1", "chunk-2"],
+    "sourceFile": "tr/article.md",
+    "language": "tr",
+    "chunkIndex": 0,
+    "totalChunks": 10,
+    "tokenCount": 900,
+    "contentHash": "sha256",
+    "merged": true
+  }
+}
+```
+
+CLI output:
+
+```text
+Top Results
+
+1.
+Score: 0.94
+Book: Kırık Testi
+Heading:
+İhlas -> Samimiyet
 ```
 
 ## Development
