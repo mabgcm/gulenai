@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com` and content extraction from crawled raw HTML; later increments will fill in markdown conversion, embeddings, Qdrant indexing, and semantic search.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, and Markdown conversion; later increments will fill in chunking, embeddings, Qdrant indexing, and semantic search.
 
 The architecture target is:
 
@@ -29,12 +29,15 @@ Implemented:
 - Main article detection using semantic selectors, with Mozilla Readability fallback
 - Clean HTML persistence under `data/clean`, preserving the `data/raw` directory structure
 - Per-document metadata sidecars with title, URL, language, author, published date, crawl date, content hash, reading time, and word count
+- Markdown conversion from `data/clean`
+- AI-friendly Markdown normalization for headings, whitespace, line endings, URLs, Unicode, images, lists, blockquotes, tables, and horizontal rules
+- Markdown persistence under `data/markdown`, preserving the `data/clean` directory structure
+- Metadata sidecar copying alongside generated Markdown files
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, and markdown chunking
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, and markdown chunking
 
 Not yet implemented as CLI stages:
 
-- `markdown`
 - `chunk`
 - `embed`
 - `index`
@@ -97,7 +100,7 @@ pnpm index
 pnpm search
 ```
 
-`crawl`, `extract`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
+`crawl`, `extract`, `markdown`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
 
 ## Data Layout
 
@@ -105,7 +108,7 @@ pnpm search
 data/
   raw/         raw HTML pages
   clean/       cleaned article HTML and .metadata.json sidecars
-  markdown/    markdown documents, future stage
+  markdown/    markdown documents and copied .metadata.json sidecars
   chunks/      chunk JSON, future stage
   crawl/
     state.json
@@ -139,6 +142,15 @@ Metadata shape:
   "extractionMethod": "semantic"
 }
 ```
+
+For each clean HTML file, Markdown conversion writes:
+
+```text
+data/markdown/<same-relative-path>.md
+data/markdown/<same-relative-path>.metadata.json
+```
+
+Markdown conversion preserves headings, paragraphs, emphasis, strong text, links, blockquotes, ordered and unordered lists, nested lists, tables, images with alt text, and horizontal rules. It removes invisible content, empty elements, redundant whitespace, and duplicated blank lines.
 
 ## Development
 

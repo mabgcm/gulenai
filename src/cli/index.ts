@@ -6,6 +6,10 @@ import { ArticleExtractor } from "../extract/articleExtractor.js";
 import { CleanDocumentStore } from "../extract/cleanDocumentStore.js";
 import { ExtractionPipeline } from "../extract/extractionPipeline.js";
 import { RawDocumentReader } from "../extract/rawDocumentReader.js";
+import { CleanHtmlReader } from "../markdown/cleanHtmlReader.js";
+import { MarkdownConverter } from "../markdown/markdownConverter.js";
+import { MarkdownPipeline } from "../markdown/markdownPipeline.js";
+import { MarkdownStore } from "../markdown/markdownStore.js";
 import { CrawlStore } from "../storage/crawlStore.js";
 
 const notImplemented = (command: string): never => {
@@ -46,6 +50,17 @@ const extract = async (): Promise<void> => {
   logger.info(result, "Extraction complete");
 };
 
+const markdown = async (): Promise<void> => {
+  const pipeline = new MarkdownPipeline(
+    new CleanHtmlReader(),
+    new MarkdownConverter(),
+    new MarkdownStore(),
+    logger
+  );
+  const result = await pipeline.run();
+  logger.info(result, "Markdown conversion complete");
+};
+
 const main = async (): Promise<void> => {
   const command = process.argv[2];
 
@@ -60,6 +75,8 @@ const main = async (): Promise<void> => {
       await extract();
       break;
     case "markdown":
+      await markdown();
+      break;
     case "chunk":
     case "embed":
     case "index":
