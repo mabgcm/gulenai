@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, and intelligent chunking; later increments will fill in embeddings, Qdrant indexing, and semantic search.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, and document indexing; later increments will fill in embeddings, Qdrant indexing, and semantic search.
 
 The architecture target is:
 
@@ -37,13 +37,15 @@ Implemented:
 - OpenAI-compatible token counting using `cl100k_base`
 - Semantic chunk boundaries that preserve headings, paragraphs, blockquotes, ordered and unordered lists, nested lists, tables, and fenced code blocks
 - Deterministic chunk IDs and JSON chunk persistence under `data/chunks`
+- Document and chunk manifests under `data/index`
+- Change detection for new, unchanged, changed, and deleted documents
+- Chunk-level embedding status tracking so future embedding jobs can process only pending chunks
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, and intelligent chunking
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, and document indexing
 
 Not yet implemented as CLI stages:
 
 - `embed`
-- `index`
 - `search`
 
 ## Requirements
@@ -99,12 +101,13 @@ pnpm reset
 pnpm extract
 pnpm markdown
 pnpm chunk
-pnpm embed
 pnpm index
+pnpm status
+pnpm embed
 pnpm search
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
 
 ## Data Layout
 
@@ -114,6 +117,7 @@ data/
   clean/       cleaned article HTML and .metadata.json sidecars
   markdown/    markdown documents and copied .metadata.json sidecars
   chunks/      semantic chunk JSON files
+  index/       document and chunk manifests
   crawl/
     state.json
     visited.txt
@@ -185,6 +189,57 @@ Chunk JSON shape:
 ```
 
 Default chunking targets 800 tokens, allows up to 1000 tokens, and carries 150 tokens of block-level overlap when possible.
+
+Document indexing reads chunk JSON files and writes:
+
+```text
+data/index/documents.json
+data/index/chunks.json
+data/index/summary.json
+```
+
+Document manifest entries contain:
+
+```json
+{
+  "documentId": "deterministic-document-id",
+  "sourceFile": "en/article.md",
+  "url": "https://fgulen.com/example",
+  "title": "Article title",
+  "language": "en",
+  "crawlDate": "2026-07-09T00:00:00.000Z",
+  "contentHash": "sha256",
+  "totalChunks": 5,
+  "version": 2,
+  "status": "changed",
+  "lastIndexedAt": "2026-07-09T01:02:03.000Z"
+}
+```
+
+Chunk manifest entries contain:
+
+```json
+{
+  "chunkId": "deterministic-chunk-id",
+  "documentId": "deterministic-document-id",
+  "chunkIndex": 0,
+  "tokenCount": 782,
+  "contentHash": "sha256",
+  "embeddingStatus": "pending",
+  "embeddedAt": null,
+  "vectorId": null
+}
+```
+
+`pnpm status` prints the latest index summary:
+
+```text
+Documents: 1428
+Chunks: 24562
+Pending embeddings: 37
+Changed documents: 5
+Deleted documents: 1
+```
 
 ## Development
 

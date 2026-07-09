@@ -17,6 +17,7 @@
     "chunk": "tsx src/cli/index.ts chunk",
     "embed": "tsx src/cli/index.ts embed",
     "index": "tsx src/cli/index.ts index",
+    "status": "tsx src/cli/index.ts status",
     "search": "tsx src/cli/index.ts search",
     "reset": "tsx src/cli/index.ts reset"
   },

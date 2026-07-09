@@ -11,6 +11,10 @@ import { ArticleExtractor } from "../extract/articleExtractor.js";
 import { CleanDocumentStore } from "../extract/cleanDocumentStore.js";
 import { ExtractionPipeline } from "../extract/extractionPipeline.js";
 import { RawDocumentReader } from "../extract/rawDocumentReader.js";
+import { ChunkIndexReader } from "../indexing/chunkIndexReader.js";
+import { IndexPipeline } from "../indexing/indexPipeline.js";
+import { ManifestStore } from "../indexing/manifestStore.js";
+import { formatIndexStatus } from "../indexing/statusFormatter.js";
 import { CleanHtmlReader } from "../markdown/cleanHtmlReader.js";
 import { MarkdownConverter } from "../markdown/markdownConverter.js";
 import { MarkdownPipeline } from "../markdown/markdownPipeline.js";
@@ -85,6 +89,21 @@ const chunk = async (): Promise<void> => {
   logger.info(result, "Chunking complete");
 };
 
+const index = async (): Promise<void> => {
+  const pipeline = new IndexPipeline(new ChunkIndexReader(), new ManifestStore(), logger);
+  const summary = await pipeline.run();
+  process.stdout.write(`${formatIndexStatus(summary)}\n`);
+};
+
+const status = async (): Promise<void> => {
+  const store = new ManifestStore();
+  const summary = await store.loadSummary();
+  if (summary === null) {
+    throw new Error("No index summary found. Run `pnpm index` first.");
+  }
+  process.stdout.write(`${formatIndexStatus(summary)}\n`);
+};
+
 const main = async (): Promise<void> => {
   const command = process.argv[2];
 
@@ -104,13 +123,18 @@ const main = async (): Promise<void> => {
     case "chunk":
       await chunk();
       break;
-    case "embed":
     case "index":
+      await index();
+      break;
+    case "status":
+      await status();
+      break;
+    case "embed":
     case "search":
       notImplemented(command);
       break;
     default:
-      throw new Error("Usage: pnpm <crawl|extract|markdown|chunk|embed|index|search|reset>");
+      throw new Error("Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|search|reset>");
   }
 };
 

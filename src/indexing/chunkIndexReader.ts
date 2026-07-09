@@ -1,0 +1,83 @@
+import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { ChunkJsonDocument, ChunkJsonMetadata } from "./types.js";
+
+const walkJsonFiles = async (directory: string): Promise<readonly string[]> => {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files: string[] = [];
+
+  for (const entry of entries) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await walkJsonFiles(path)));
+    } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".json")) {
+      files.push(path);
+    }
+  }
+
+  return files.sort();
+};
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const nullableString = (value: unknown): string | null =>
+  typeof value === "string" && value.trim().length > 0 ? value : null;
+
+const parseMetadata = (value: unknown, path: string): ChunkJsonMetadata => {
+  if (!isObject(value)) {
+    throw new Error(`Invalid chunk metadata in ${path}`);
+  }
+
+  if (
+    typeof value.id !== "string" ||
+    typeof value.sourceFile !== "string" ||
+    typeof value.chunkIndex !== "number" ||
+    typeof value.totalChunks !== "number" ||
+    typeof value.tokenCount !== "number" ||
+    typeof value.contentHash !== "string"
+  ) {
+    throw new Error(`Invalid chunk metadata fields in ${path}`);
+  }
+
+  return {
+    id: value.id,
+    sourceFile: value.sourceFile,
+    title: nullableString(value.title),
+    url: nullableString(value.url),
+    language: nullableString(value.language),
+    crawlDate: nullableString(value.crawlDate),
+    chunkIndex: value.chunkIndex,
+    totalChunks: value.totalChunks,
+    tokenCount: value.tokenCount,
+    contentHash: value.contentHash
+  };
+};
+
+const parseChunkJson = (content: string, path: string): ChunkJsonDocument => {
+  const parsed = JSON.parse(content) as unknown;
+  if (!isObject(parsed)) {
+    throw new Error(`Invalid chunk JSON in ${path}`);
+  }
+
+  if (typeof parsed.markdown !== "string" || typeof parsed.plainText !== "string") {
+    throw new Error(`Invalid chunk JSON content in ${path}`);
+  }
+
+  return {
+    metadata: parseMetadata(parsed.metadata, path),
+    markdown: parsed.markdown,
+    plainText: parsed.plainText
+  };
+};
+
+export class ChunkIndexReader {
+  public constructor(private readonly chunksDir = "data/chunks") {}
+
+  public async readAll(): Promise<readonly ChunkJsonDocument[]> {
+    const files = await walkJsonFiles(this.chunksDir);
+    return Promise.all(
+      files.map(async (path) => parseChunkJson(await readFile(path, "utf8"), path))
+    );
+  }
+}
