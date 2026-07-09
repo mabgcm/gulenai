@@ -7,6 +7,11 @@ import { MarkdownDocumentReader } from "../chunking/markdownDocumentReader.js";
 import { OpenAiTokenCounter } from "../chunking/tokenCounter.js";
 import { Crawler } from "../crawler/crawler.js";
 import { PlaywrightFetcher } from "../crawler/fetcher.js";
+import { ChunkPayloadReader } from "../embedding/chunkPayloadReader.js";
+import { OpenAiEmbeddingClient } from "../embedding/embeddingClient.js";
+import { EmbeddingPipeline } from "../embedding/embeddingPipeline.js";
+import { EmbeddingVectorStore } from "../embedding/embeddingVectorStore.js";
+import { EmbeddingIndexManifestStore } from "../embedding/indexManifestStore.js";
 import { ArticleExtractor } from "../extract/articleExtractor.js";
 import { CleanDocumentStore } from "../extract/cleanDocumentStore.js";
 import { ExtractionPipeline } from "../extract/extractionPipeline.js";
@@ -95,6 +100,28 @@ const index = async (): Promise<void> => {
   process.stdout.write(`${formatIndexStatus(summary)}\n`);
 };
 
+const embed = async (): Promise<void> => {
+  const config = loadConfig();
+  const resume = process.argv.includes("--resume");
+  const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
+  const pipeline = new EmbeddingPipeline(
+    new EmbeddingIndexManifestStore(),
+    new ChunkPayloadReader(),
+    new EmbeddingVectorStore(),
+    new OpenAiEmbeddingClient(config.OPENAI_API_KEY, model, config.EMBEDDING_RETRIES, logger),
+    {
+      model,
+      batchSize: Math.max(1, config.EMBEDDING_BATCH_SIZE),
+      concurrency: Math.max(1, config.EMBEDDING_CONCURRENCY),
+      retries: config.EMBEDDING_RETRIES,
+      resume
+    },
+    logger
+  );
+  const result = await pipeline.run();
+  logger.info(result, "Embedding complete");
+};
+
 const status = async (): Promise<void> => {
   const store = new ManifestStore();
   const summary = await store.loadSummary();
@@ -130,6 +157,8 @@ const main = async (): Promise<void> => {
       await status();
       break;
     case "embed":
+      await embed();
+      break;
     case "search":
       notImplemented(command);
       break;

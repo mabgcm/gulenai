@@ -67,7 +67,11 @@ const envSchema = z.object({
   CHUNK_SIZE_TOKENS: integerFromEnv(800),
   CHUNK_MAX_TOKENS: integerFromEnv(1000),
   CHUNK_OVERLAP_TOKENS: integerFromEnv(150),
+  OPENAI_EMBEDDING_MODEL: z.string().default("text-embedding-3-small"),
   EMBEDDING_MODEL: z.string().default("text-embedding-3-small"),
+  EMBEDDING_BATCH_SIZE: integerFromEnv(64),
+  EMBEDDING_CONCURRENCY: integerFromEnv(2),
+  EMBEDDING_RETRIES: integerFromEnv(3),
   LOG_LEVEL: z.string().default("info")
 });
 

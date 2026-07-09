@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, and document indexing; later increments will fill in embeddings, Qdrant indexing, and semantic search.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, and embedding generation; later increments will fill in Qdrant indexing and semantic search.
 
 The architecture target is:
 
@@ -40,12 +40,13 @@ Implemented:
 - Document and chunk manifests under `data/index`
 - Change detection for new, unchanged, changed, and deleted documents
 - Chunk-level embedding status tracking so future embedding jobs can process only pending chunks
+- OpenAI embedding generation for pending chunks only
+- Batched, concurrent embedding jobs with exponential backoff, rate-limit retry handling, resume support, progress reporting, and temporary vector files under `data/embeddings`
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, and document indexing
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, and embedding jobs
 
 Not yet implemented as CLI stages:
 
-- `embed`
 - `search`
 
 ## Requirements
@@ -89,6 +90,11 @@ CRAWL_RESPECT_ROBOTS=true
 CHUNK_SIZE_TOKENS=800
 CHUNK_MAX_TOKENS=1000
 CHUNK_OVERLAP_TOKENS=150
+OPENAI_API_KEY=
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_BATCH_SIZE=64
+EMBEDDING_CONCURRENCY=2
+EMBEDDING_RETRIES=3
 ```
 
 To add another website later, change the seed, allowed domains, and path filters. The crawler does not contain `fgulen.com`-specific logic.
@@ -104,10 +110,11 @@ pnpm chunk
 pnpm index
 pnpm status
 pnpm embed
+pnpm embed --resume
 pnpm search
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
 
 ## Data Layout
 
@@ -118,6 +125,7 @@ data/
   markdown/    markdown documents and copied .metadata.json sidecars
   chunks/      semantic chunk JSON files
   index/       document and chunk manifests
+  embeddings/  temporary embedding vector JSON files
   crawl/
     state.json
     visited.txt
@@ -227,6 +235,8 @@ Chunk manifest entries contain:
   "contentHash": "sha256",
   "embeddingStatus": "pending",
   "embeddedAt": null,
+  "embeddingModel": null,
+  "embeddingDimensions": null,
   "vectorId": null
 }
 ```
@@ -239,6 +249,35 @@ Chunks: 24562
 Pending embeddings: 37
 Changed documents: 5
 Deleted documents: 1
+```
+
+Embedding reads `data/index/chunks.json`, loads only chunks marked `pending`, and writes one vector file per chunk:
+
+```text
+data/embeddings/<chunk-id>.json
+```
+
+Embedding vector files contain:
+
+```json
+{
+  "chunkId": "deterministic-chunk-id",
+  "contentHash": "sha256",
+  "model": "text-embedding-3-small",
+  "dimensions": 1536,
+  "embedding": [0.01, -0.02],
+  "embeddedAt": "2026-07-09T01:02:03.000Z"
+}
+```
+
+After each successful batch, `data/index/chunks.json` is updated with `embeddingStatus`, `embeddedAt`, `embeddingModel`, `embeddingDimensions`, and `vectorId: null`. `pnpm embed --resume` reuses matching vector files when an interrupted job already wrote embeddings for the same chunk hash and model.
+
+Progress is printed during embedding:
+
+```text
+Pending chunks: 542
+Completed: 421
+Remaining: 121
 ```
 
 ## Development

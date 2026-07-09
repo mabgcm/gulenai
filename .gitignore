@@ -7,9 +7,11 @@ data/markdown/*
 data/chunks/*
 data/crawl/*
 data/index/*
+data/embeddings/*
 !data/raw/.gitkeep
 !data/clean/.gitkeep
 !data/markdown/.gitkeep
 !data/chunks/.gitkeep
 !data/crawl/.gitkeep
 !data/index/.gitkeep
+!data/embeddings/.gitkeep
