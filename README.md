@@ -47,6 +47,7 @@ Implemented:
 - Crawl strategy and content selection for language-scoped crawls, include/exclude regex patterns, category/index-page detection, content quality scoring, normalized-text and similarity-hash duplicate detection, and crawl quality reports
 - HTML dataset inspection via `pnpm inspect`
 - Prompt assembly from retrieved chunks without calling an LLM, with token-budget trimming and `data/prompts/prompt.md` / `prompt.json` output
+- Retrieval diagnostics for Qdrant/index/vector consistency and search validation reports
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
 - Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, semantic retrieval, crawl quality, and prompt assembly
 
@@ -136,11 +137,14 @@ pnpm search "user question"
 pnpm search "user question" --topK 5 --threshold 0.5 --language tr
 pnpm prompt "user question"
 pnpm prompt "user question" --topK 5 --threshold 0.5 --language tr --maxContextTokens 4000
+pnpm diagnose
+pnpm validate-search "user question"
+pnpm validate-search "user question" --language tr
 pnpm inspect
 pnpm crawl-report
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `inspect`, `crawl-report`, and `reset` are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `diagnose`, `validate-search`, `inspect`, `crawl-report`, and `reset` are implemented.
 
 ## Crawl Strategy
 
@@ -447,6 +451,27 @@ The prompt contains `SYSTEM`, `QUESTION`, `RETRIEVED CONTEXT`, and `INSTRUCTIONS
 ```
 
 Prompt assembly does not call a chat/completions API and does not generate an answer.
+
+Retrieval diagnostics validate that the local manifests, embedding files, and Qdrant collection are in sync:
+
+```bash
+pnpm diagnose
+```
+
+The command reports Qdrant connectivity, collection existence, vector count, embedding model and dimensions, indexed documents, indexed chunks, embedded chunks, pending chunks, missing vectors, and orphan vectors. It writes:
+
+```text
+reports/retrieval-validation.html
+```
+
+To validate a specific query before answer generation:
+
+```bash
+pnpm validate-search "ihlas nedir?"
+pnpm validate-search "sincerity" --language en
+```
+
+`validate-search` prints the generated query embedding dimension and the top 20 retrieved chunks with similarity score, title, heading path, URL, chunk ID, and the first 200 characters of chunk text. If no results are returned, it explains the likely cause, such as an empty collection, pending embeddings, missing Qdrant vectors, or a Qdrant payload-index requirement for filtered searches.
 
 ## Development
 

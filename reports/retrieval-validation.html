@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retrieval Validation Report</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #f7f7f4; color: #1d1d1f; line-height: 1.45; }
+    header { background: #fff; border-bottom: 1px solid #deded8; padding: 30px 40px 18px; }
+    main { max-width: 1280px; margin: 0 auto; padding: 28px 40px 56px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    h2 { margin-top: 34px; border-bottom: 1px solid #deded8; padding-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .metric { background: #fff; border: 1px solid #deded8; border-radius: 8px; padding: 14px; }
+    .metric strong { display: block; font-size: 24px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #deded8; font-size: 13px; }
+    th, td { border-bottom: 1px solid #deded8; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eeeeea; }
+    .num { text-align: right; white-space: nowrap; }
+    .muted { color: #666b73; }
+    a { color: #275f86; text-decoration: none; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    pre { white-space: pre-wrap; background: #f0f2f4; border: 1px solid #deded8; border-radius: 8px; padding: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Retrieval Validation Report</h1>
+    <p class="muted">Generated 2026-07-09T12:09:25.452Z. This report validates retrieval readiness only; it does not call a chat model.</p>
+  </header>
+  <main>
+    <h2>Diagnostics</h2>
+    <section class="grid">
+      <div class="metric"><span class="muted">Qdrant connected</span><strong>yes</strong></div>
+      <div class="metric"><span class="muted">Collection exists</span><strong>yes</strong></div>
+      <div class="metric"><span class="muted">Vectors</span><strong>25</strong></div>
+      <div class="metric"><span class="muted">Embedding model</span><strong>text-embedding-3-small</strong></div>
+      <div class="metric"><span class="muted">Dimensions</span><strong>1536</strong></div>
+      <div class="metric"><span class="muted">Documents</span><strong>13</strong></div>
+      <div class="metric"><span class="muted">Chunks</span><strong>97</strong></div>
+      <div class="metric"><span class="muted">Embedded chunks</span><strong>0</strong></div>
+      <div class="metric"><span class="muted">Pending chunks</span><strong>97</strong></div>
+      <div class="metric"><span class="muted">Missing vectors</span><strong>0</strong></div>
+      <div class="metric"><span class="muted">Orphan vectors</span><strong>25</strong></div>
+    </section>
+    
+    <h2>Search Validation</h2>
+    <p><strong>Query:</strong> İhlas nedir?</p>
+    <p><strong>Generated query embedding dimension:</strong> 1536</p>
+    <pre>No results returned.
+Likely cause: Qdrant rejected the filtered search because a payload index is missing for one of the filter fields.</pre>
+  </main>
+</body>
+</html>

@@ -8,6 +8,14 @@ import { OpenAiTokenCounter } from "../chunking/tokenCounter.js";
 import { Crawler } from "../crawler/crawler.js";
 import { PlaywrightFetcher } from "../crawler/fetcher.js";
 import { CrawlQualityReporter } from "../crawlQuality/crawlQualityReporter.js";
+import { RestQdrantDiagnosticsClient } from "../diagnostics/qdrantDiagnosticsClient.js";
+import { RetrievalDiagnostics } from "../diagnostics/retrievalDiagnostics.js";
+import {
+  formatDiagnostics,
+  formatValidationSearch,
+  RetrievalValidationReportWriter
+} from "../diagnostics/retrievalValidationReport.js";
+import { SearchValidator } from "../diagnostics/validateSearch.js";
 import { ChunkPayloadReader } from "../embedding/chunkPayloadReader.js";
 import { OpenAiEmbeddingClient } from "../embedding/embeddingClient.js";
 import { EmbeddingPipeline } from "../embedding/embeddingPipeline.js";
@@ -347,6 +355,51 @@ const prompt = async (): Promise<void> => {
   );
 };
 
+const buildRetrievalDiagnostics = (): RetrievalDiagnostics => {
+  const config = loadConfig();
+  const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
+  return new RetrievalDiagnostics(
+    config.QDRANT_COLLECTION,
+    model,
+    new QdrantIndexStore(),
+    new EmbeddingVectorReader(),
+    new RestQdrantDiagnosticsClient(config.QDRANT_URL, config.QDRANT_API_KEY)
+  );
+};
+
+const diagnose = async (): Promise<void> => {
+  const diagnostics = await buildRetrievalDiagnostics().run();
+  const outputPath = await new RetrievalValidationReportWriter().write({
+    diagnostics,
+    validation: null
+  });
+  process.stdout.write(`${formatDiagnostics(diagnostics)}\n\nReport: ${outputPath}\n`);
+};
+
+const validateSearch = async (): Promise<void> => {
+  const config = loadConfig();
+  const { query, options } = parseSearchOptions(process.argv.slice(3));
+  if (query.length === 0) {
+    throw new Error('Usage: pnpm validate-search "query" [--language tr]');
+  }
+
+  const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
+  const diagnostics = await buildRetrievalDiagnostics().run();
+  const validation = await new SearchValidator(
+    config.QDRANT_COLLECTION,
+    new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, model),
+    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY),
+    new ChunkContentStore()
+  ).validate(query, options.filters, diagnostics);
+  const outputPath = await new RetrievalValidationReportWriter().write({
+    diagnostics,
+    validation
+  });
+  process.stdout.write(
+    `${formatValidationSearch(validation)}\n\n${formatDiagnostics(diagnostics)}\n\nReport: ${outputPath}\n`
+  );
+};
+
 const main = async (): Promise<void> => {
   const command = process.argv[2];
 
@@ -384,6 +437,12 @@ const main = async (): Promise<void> => {
     case "prompt":
       await prompt();
       break;
+    case "diagnose":
+      await diagnose();
+      break;
+    case "validate-search":
+      await validateSearch();
+      break;
     case "inspect":
       await inspect();
       break;
@@ -392,7 +451,7 @@ const main = async (): Promise<void> => {
       break;
     default:
       throw new Error(
-        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|prompt|inspect|crawl-report|reset>"
+        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|prompt|diagnose|validate-search|inspect|crawl-report|reset>"
       );
   }
 };

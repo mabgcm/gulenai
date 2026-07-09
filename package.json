@@ -21,6 +21,8 @@
     "qdrant": "tsx src/cli/index.ts qdrant",
     "search": "tsx src/cli/index.ts search",
     "prompt": "tsx src/cli/index.ts prompt",
+    "diagnose": "tsx src/cli/index.ts diagnose",
+    "validate-search": "tsx src/cli/index.ts validate-search",
     "inspect": "tsx src/cli/index.ts inspect",
     "crawl-report": "tsx src/cli/index.ts crawl-report",
     "reset": "tsx src/cli/index.ts reset"
