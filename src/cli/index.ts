@@ -24,6 +24,11 @@ import { CleanHtmlReader } from "../markdown/cleanHtmlReader.js";
 import { MarkdownConverter } from "../markdown/markdownConverter.js";
 import { MarkdownPipeline } from "../markdown/markdownPipeline.js";
 import { MarkdownStore } from "../markdown/markdownStore.js";
+import { EmbeddingVectorReader, QdrantChunkPayloadReader } from "../qdrant/qdrantDataReaders.js";
+import { RestQdrantVectorClient } from "../qdrant/qdrantClient.js";
+import { QdrantIndexStore } from "../qdrant/qdrantIndexStore.js";
+import { QdrantSyncPipeline } from "../qdrant/qdrantPipeline.js";
+import { formatQdrantStatus } from "../qdrant/statusFormatter.js";
 import { CrawlStore } from "../storage/crawlStore.js";
 
 const notImplemented = (command: string): never => {
@@ -131,6 +136,31 @@ const status = async (): Promise<void> => {
   process.stdout.write(`${formatIndexStatus(summary)}\n`);
 };
 
+const qdrant = async (): Promise<void> => {
+  const config = loadConfig();
+  const pipeline = new QdrantSyncPipeline(
+    new QdrantIndexStore(),
+    new EmbeddingVectorReader(),
+    new QdrantChunkPayloadReader(),
+    new RestQdrantVectorClient(config.QDRANT_URL, config.QDRANT_API_KEY),
+    {
+      collection: config.QDRANT_COLLECTION,
+      batchSize: Math.max(1, config.QDRANT_BATCH_SIZE),
+      concurrency: Math.max(1, config.QDRANT_CONCURRENCY),
+      retries: config.QDRANT_RETRIES,
+      resume: process.argv.includes("--resume")
+    },
+    logger
+  );
+
+  if (process.argv[3] === "status") {
+    process.stdout.write(`${formatQdrantStatus(await pipeline.status())}\n`);
+    return;
+  }
+
+  process.stdout.write(`${formatQdrantStatus(await pipeline.sync())}\n`);
+};
+
 const main = async (): Promise<void> => {
   const command = process.argv[2];
 
@@ -159,11 +189,16 @@ const main = async (): Promise<void> => {
     case "embed":
       await embed();
       break;
+    case "qdrant":
+      await qdrant();
+      break;
     case "search":
       notImplemented(command);
       break;
     default:
-      throw new Error("Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|search|reset>");
+      throw new Error(
+        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|reset>"
+      );
   }
 };
 

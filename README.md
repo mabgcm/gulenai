@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, and embedding generation; later increments will fill in Qdrant indexing and semantic search.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, and Qdrant vector-store synchronization; later increments will fill in semantic search.
 
 The architecture target is:
 
@@ -42,8 +42,9 @@ Implemented:
 - Chunk-level embedding status tracking so future embedding jobs can process only pending chunks
 - OpenAI embedding generation for pending chunks only
 - Batched, concurrent embedding jobs with exponential backoff, rate-limit retry handling, resume support, progress reporting, and temporary vector files under `data/embeddings`
+- Qdrant collection creation, vector uploads, deletion synchronization, resumable sync, retry handling, and vector status reporting
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, and embedding jobs
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, and Qdrant sync
 
 Not yet implemented as CLI stages:
 
@@ -95,6 +96,12 @@ OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_BATCH_SIZE=64
 EMBEDDING_CONCURRENCY=2
 EMBEDDING_RETRIES=3
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=
+QDRANT_COLLECTION=fgulen
+QDRANT_BATCH_SIZE=64
+QDRANT_CONCURRENCY=2
+QDRANT_RETRIES=3
 ```
 
 To add another website later, change the seed, allowed domains, and path filters. The crawler does not contain `fgulen.com`-specific logic.
@@ -111,10 +118,13 @@ pnpm index
 pnpm status
 pnpm embed
 pnpm embed --resume
+pnpm qdrant
+pnpm qdrant --resume
+pnpm qdrant status
 pnpm search
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
 
 ## Data Layout
 
@@ -278,6 +288,37 @@ Progress is printed during embedding:
 Pending chunks: 542
 Completed: 421
 Remaining: 121
+```
+
+Qdrant sync reads `data/embeddings`, `data/chunks`, and `data/index/chunks.json`. It automatically creates `QDRANT_COLLECTION` if needed, detects vector dimensions from the first pending vector, uploads only vectors with `vectorId: null` or `embeddingStatus: pending`, and removes vectors for deleted documents.
+
+Qdrant payload contains:
+
+```json
+{
+  "chunkId": "deterministic-chunk-id",
+  "documentId": "deterministic-document-id",
+  "url": "https://fgulen.com/example",
+  "title": "Article title",
+  "language": "en",
+  "headingPath": ["Book", "Chapter", "Section"],
+  "chunkIndex": 0,
+  "totalChunks": 5,
+  "tokenCount": 782,
+  "contentHash": "sha256",
+  "sourceFile": "en/article.md"
+}
+```
+
+After upload, `data/index/chunks.json` is updated with the deterministic Qdrant point ID in `vectorId`, plus `embeddingStatus`, `embeddedAt`, `embeddingModel`, and `embeddingDimensions`. `pnpm qdrant --resume` is safe after interruption because each successful batch persists index state.
+
+`pnpm qdrant status` prints:
+
+```text
+Collection: fgulen
+Vectors: 25342
+Pending uploads: 14
+Deleted vectors: 3
 ```
 
 ## Development

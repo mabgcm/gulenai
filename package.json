@@ -18,6 +18,7 @@
     "embed": "tsx src/cli/index.ts embed",
     "index": "tsx src/cli/index.ts index",
     "status": "tsx src/cli/index.ts status",
+    "qdrant": "tsx src/cli/index.ts qdrant",
     "search": "tsx src/cli/index.ts search",
     "reset": "tsx src/cli/index.ts reset"
   },
