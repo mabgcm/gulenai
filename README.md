@@ -157,9 +157,10 @@ pnpm validate-search "user question" --language tr
 pnpm inspect
 pnpm crawl-report
 pnpm api
+pnpm mcp
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `answer`, `diagnose`, `validate-search`, `inspect`, `crawl-report`, `api`, and `reset` are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `answer`, `diagnose`, `validate-search`, `inspect`, `crawl-report`, `api`, `mcp`, and `reset` are implemented.
 
 ## Crawl Strategy
 
@@ -610,6 +611,100 @@ Errors use a consistent JSON shape:
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Request validation failed"
+  }
+}
+```
+
+## MCP Server
+
+The standalone MCP server exposes the Knowledge Engine over STDIO:
+
+```bash
+pnpm mcp
+```
+
+Server information:
+
+```text
+Name: FGulen AI
+Version: 1.0
+Description: Knowledge Engine powered by FGulen AI.
+```
+
+MCP tools:
+
+- `search`: accepts `question`, optional `topK`, optional `language`; returns retrieved chunks, scores, and metadata.
+- `answer`: accepts `question`, optional `topK`, optional `language`; returns answer, confidence, and citations.
+- `sources`: accepts `question`, optional `language`; returns citations only.
+- `document`: accepts `documentId`; returns document metadata.
+- `chunk`: accepts `chunkId`; returns chunk metadata.
+
+MCP resources:
+
+- `knowledge://stats`
+- `knowledge://version`
+- `knowledge://languages`
+- `knowledge://collection`
+
+MCP prompts:
+
+- `answer-question`
+- `search-only`
+- `citation-report`
+
+Example client command:
+
+```bash
+/usr/local/bin/node --import tsx src/mcp/server.ts
+```
+
+ChatGPT connector configuration:
+
+```json
+{
+  "name": "FGulen AI",
+  "transport": {
+    "type": "stdio",
+    "command": "/usr/local/bin/node",
+    "args": ["--import", "tsx", "/absolute/path/to/gulenai/src/mcp/server.ts"]
+  }
+}
+```
+
+Claude Desktop configuration:
+
+```json
+{
+  "mcpServers": {
+    "fgulen-ai": {
+      "command": "/usr/local/bin/node",
+      "args": ["--import", "tsx", "/absolute/path/to/gulenai/src/mcp/server.ts"],
+      "env": {
+        "OPENAI_API_KEY": "your-openai-key",
+        "QDRANT_URL": "your-qdrant-url",
+        "QDRANT_API_KEY": "your-qdrant-api-key",
+        "QDRANT_COLLECTION": "fgulen"
+      }
+    }
+  }
+}
+```
+
+Codex CLI configuration follows the same STDIO command pattern:
+
+```json
+{
+  "mcp_servers": {
+    "fgulen-ai": {
+      "command": "/usr/local/bin/node",
+      "args": ["--import", "tsx", "/absolute/path/to/gulenai/src/mcp/server.ts"],
+      "env": {
+        "OPENAI_API_KEY": "your-openai-key",
+        "QDRANT_URL": "your-qdrant-url",
+        "QDRANT_API_KEY": "your-qdrant-api-key",
+        "QDRANT_COLLECTION": "fgulen"
+      }
+    }
   }
 }
 ```

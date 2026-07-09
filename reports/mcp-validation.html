@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP Validation Report</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #f7f7f4; color: #1d1d1f; line-height: 1.45; }
+    header { background: #fff; border-bottom: 1px solid #deded8; padding: 30px 40px 18px; }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 40px 56px; }
+    section { background: #fff; border: 1px solid #deded8; border-radius: 8px; padding: 18px; margin: 16px 0; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    .muted { color: #666b73; }
+    .metric { display: inline-block; margin-right: 18px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #fafafa; border: 1px solid #ecece7; border-radius: 6px; padding: 12px; max-height: 420px; overflow: auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MCP Validation Report</h1>
+    <p class="muted">Generated 2026-07-09T13:01:02.943Z using STDIO command <code>/usr/local/bin/node --import tsx src/mcp/server.ts</code>.</p>
+    <p class="muted">MCP Inspector CLI was invoked with --cli --method tools/list, but @modelcontextprotocol/inspector 0.22.0 failed before connecting because its package.json import lacks a JSON import assertion in this environment. The STDIO server was validated with the official MCP SDK client.</p>
+  </header>
+  <main>
+    <section>
+      <h2>tools: list</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 8 ms</span></p>
+      <h3>Request</h3>
+      <pre>{}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;tools&quot;: [
+    {
+      &quot;name&quot;: &quot;search&quot;,
+      &quot;title&quot;: &quot;Search&quot;,
+      &quot;description&quot;: &quot;Search the indexed knowledge base and return retrieved chunks with scores.&quot;,
+      &quot;inputSchema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;question&quot;: {
+            &quot;description&quot;: &quot;User question to search or answer.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;topK&quot;: {
+            &quot;description&quot;: &quot;Maximum number of chunks.&quot;,
+            &quot;type&quot;: &quot;integer&quot;,
+            &quot;exclusiveMinimum&quot;: 0,
+            &quot;maximum&quot;: 50
+          },
+          &quot;language&quot;: {
+            &quot;description&quot;: &quot;Optional language filter, e.g. tr or en.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          }
+        },
+        &quot;required&quot;: [
+          &quot;question&quot;
+        ],
+        &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;
+      },
+      &quot;execution&quot;: {
+        &quot;taskSupport&quot;: &quot;forbidden&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;answer&quot;,
+      &quot;title&quot;: &quot;Answer&quot;,
+      &quot;description&quot;: &quot;Generate a strict RAG answer with confidence and citations.&quot;,
+      &quot;inputSchema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;question&quot;: {
+            &quot;description&quot;: &quot;User question to search or answer.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;topK&quot;: {
+            &quot;description&quot;: &quot;Maximum number of chunks.&quot;,
+            &quot;type&quot;: &quot;integer&quot;,
+            &quot;exclusiveMinimum&quot;: 0,
+            &quot;maximum&quot;: 50
+          },
+          &quot;language&quot;: {
+            &quot;description&quot;: &quot;Optional language filter, e.g. tr or en.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          }
+        },
+        &quot;required&quot;: [
+          &quot;question&quot;
+        ],
+        &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;
+      },
+      &quot;execution&quot;: {
+        &quot;taskSupport&quot;: &quot;forbidden&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;sources&quot;,
+      &quot;title&quot;: &quot;Sources&quot;,
+      &quot;description&quot;: &quot;Return citations only for a question.&quot;,
+      &quot;inputSchema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;question&quot;: {
+            &quot;description&quot;: &quot;User question to search or answer.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;language&quot;: {
+            &quot;description&quot;: &quot;Optional language filter, e.g. tr or en.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          }
+        },
+        &quot;required&quot;: [
+          &quot;question&quot;
+        ],
+        &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;
+      },
+      &quot;execution&quot;: {
+        &quot;taskSupport&quot;: &quot;forbidden&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;document&quot;,
+      &quot;title&quot;: &quot;Document&quot;,
+      &quot;description&quot;: &quot;Return document metadata by documentId.&quot;,
+      &quot;inputSchema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;documentId&quot;: {
+            &quot;description&quot;: &quot;Document identifier from the index.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          }
+        },
+        &quot;required&quot;: [
+          &quot;documentId&quot;
+        ],
+        &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;
+      },
+      &quot;execution&quot;: {
+        &quot;taskSupport&quot;: &quot;forbidden&quot;
+      }
+    },
+    {
+      &quot;name&quot;: &quot;chunk&quot;,
+      &quot;title&quot;: &quot;Chunk&quot;,
+      &quot;description&quot;: &quot;Return chunk metadata by chunkId.&quot;,
+      &quot;inputSchema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;chunkId&quot;: {
+            &quot;description&quot;: &quot;Chunk identifier from the index.&quot;,
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          }
+        },
+        &quot;required&quot;: [
+          &quot;chunkId&quot;
+        ],
+        &quot;$schema&quot;: &quot;http://json-schema.org/draft-07/schema#&quot;
+      },
+      &quot;execution&quot;: {
+        &quot;taskSupport&quot;: &quot;forbidden&quot;
+      }
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>tools: search</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 5221 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;,
+  &quot;topK&quot;: 3
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;content&quot;: [
+    {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;results\&quot;: [\n    {\n      \&quot;chunkId\&quot;: \&quot;69629b3bde94c960\&quot;,\n      \&quot;documentId\&quot;: \&quot;ff1879fc70ce9de5\&quot;,\n      \&quot;title\&quot;: \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n      \&quot;url\&quot;: \&quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi\&quot;,\n      \&quot;headingPath\&quot;: [\n        \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n        \&quot;**İhlas ve Rıza**\&quot;,\n        \&quot;**İhlas Nasıl Kazanılır**\&quot;\n      ],\n      \&quot;similarityScore\&quot;: 0.5842446,\n      \&quot;markdown\&quot;: \&quot;## **İhlas ve Rıza**\\n\\n### **İhlas Nasıl Kazanılır**\\n\\nYeni bir ihya hareketinin, insanlığın ve Müslümanlığın yeniden layık olduğu veçhile temsil edilmesinin peşinde koşanların yapmaları gereken temel vazife, bu kulluk şuurunu canlandırabilmektir. Mesele sadece insanları namaza alıştırma değildir; tabir-i caizse onları “namaz delisi” yapabilmektir. Hadis-i şerifte ifade edildiği gibi, mescitten çıktıktan sonra kalbini mescitte bırakan, bir sonraki namazı iple çeken namaz delileri. Öyle ki onlar mesela öğle namazından çıktıktan sonra, “Yahu niye bu müezzinler bir an evvel ikindi ezanını okumuyorlar! Okusalar da koşa koşa gidip bir kere daha Cenab-ı Hakk’ın dergâh-ı huzurunda kemerbeste-i ubudiyet içinde el pençe divan dursak, başımızı yere koyup yüzümüzü Hakk’ın kapısının eşiğine sürsek, O’nun büyüklüğünü kendi küçüklüğümüzü ifade etsek!” diyecek ölçüde ibadete kilitli yaşamalılar. Sadece namaz değil, orucun da, infakın da, diğer ibadetlerin de delisi olmalılar. Bütün ibadetleri ihlasla ve şuurlu bir şekilde yerine getirme noktasında çok kararlı durmalılar.\\n\\nİhlas dolu böyle bir kulluk şuurunun zıddı ise, ibadetleri aradan çıkarma mülâhazasıyla yerine getirmedir. Yani, kalbi ürpermeden, yaptığı ibadeti beyninin bütün nöronlarında duymadan, hatta kimin karşısında durduğunun dahi farkına varmadan gafletle ibadet yapmaktır. İnsanda en azından ibadetlerini şuurlu yapabilme noktasında bir niyet ve ceht olmalıdır. O, işin başında her şeyi derinlemesine duyamayabilir. Bu, ciddi ve sürekli ceht ve gayrete bağlıdır. Cüneyd-i Bağdadî ancak altmış seneden sonra arzu ettiği ibadet ve marifet ufkuna ulaştığını ifade eder. Aynı şekilde Bediüzzaman Hazretleri de ömrünün sonlarına doğru imrendiği zatlar gibi tesbih çektiğini, kendisiyle birlikte âdeta bütün varlığın “sübhanallah” dediğini duyduğunu söyler. Dolayısıyla asıl önemli olan, insanın böyle bir ufka talip olması ve onu yakalama adına sürekli gayret göstermesidir.\&quot;,\n      \&quot;metadata\&quot;: {\n        \&quot;chunkIds\&quot;: [\n          \&quot;69629b3bde94c960\&quot;\n        ],\n        \&quot;sourceFile\&quot;: \&quot;abfed2ad5af9dbfa.md\&quot;,\n        \&quot;language\&quot;: \&quot;tr-tr\&quot;,\n        \&quot;chunkIndex\&quot;: 3,\n        \&quot;totalChunks\&quot;: 6,\n        \&quot;tokenCount\&quot;: 770,\n        \&quot;contentHash\&quot;: \&quot;17b10f44d7477edd9a62577ca751bc2a0a8c86fb29078f23dcd87040ca661a3d\&quot;,\n        \&quot;merged\&quot;: false\n      }\n    },\n    {\n      \&quot;chunkId\&quot;: \&quot;ed733dd4fea92c2d\&quot;,\n      \&quot;documentId\&quot;: \&quot;ff1879fc70ce9de5\&quot;,\n      \&quot;title\&quot;: \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n      \&quot;url\&quot;: \&quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi\&quot;,\n      \&quot;headingPath\&quot;: [\n        \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n        \&quot;**İhlas ve Rıza**\&quot;,\n        \&quot;**İhlas Nasıl Kazanılır**\&quot;\n      ],\n      \&quot;similarityScore\&quot;: 0.5401918,\n      \&quot;markdown\&quot;: \&quot;## **İhlas ve Rıza**\\n\\n### **İhlas Nasıl Kazanılır**\\n\\n- 15 Mart 2023 tarihinde hazırlandı.\\n\\n- [Yazdır](https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi?tmpl=component&amp;print=1&amp;layout=default \\\&quot;&lt; Diriliş Mimarlarının Vazifesi &gt; makalesini yazdır\\\&quot;)\\n- [e-Posta](https://fgulen.com/tr/component/mailto/?tmpl=component&amp;template=yootheme&amp;link=ccf7d6a49d9fdd0e0675dcce2f5b8bc1da7c19ed \\\&quot;Bu bağlantısı bir arkadaşına gönder\\\&quot;)\&quot;,\n      \&quot;metadata\&quot;: {\n        \&quot;chunkIds\&quot;: [\n          \&quot;ed733dd4fea92c2d\&quot;\n        ],\n        \&quot;sourceFile\&quot;: \&quot;abfed2ad5af9dbfa.md\&quot;,\n        \&quot;language\&quot;: \&quot;tr-tr\&quot;,\n        \&quot;chunkIndex\&quot;: 5,\n        \&quot;totalChunks\&quot;: 6,\n        \&quot;tokenCount\&quot;: 172,\n        \&quot;contentHash\&quot;: \&quot;a821950f4b6f7a8e6541c7a1710bc0e74f8ebc6bb51f765d951acbb129887be0\&quot;,\n        \&quot;merged\&quot;: false\n      }\n    },\n    {\n      \&quot;chunkId\&quot;: \&quot;7d475d507a79e8b4\&quot;,\n      \&quot;documentId\&quot;: \&quot;ff1879fc70ce9de5\&quot;,\n      \&quot;title\&quot;: \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n      \&quot;url\&quot;: \&quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi\&quot;,\n      \&quot;headingPath\&quot;: [\n        \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n        \&quot;**İhlas ve Rıza**\&quot;\n      ],\n      \&quot;similarityScore\&quot;: 0.5099576,\n      \&quot;markdown\&quot;: \&quot;## **İhlas ve Rıza**\\n\\n### **İhlas Nasıl Kazanılır**\\n\\nİslâm’ın muhtevasını bir şiire benzetecek olursak, onun kafiyesi ihlastır ve bu, bütün amellerin derin bir kulluk şuuruyla yerine getirilmesi ve Allah’la irtibatlandırılmasıdır. Bilindiği üzere ihlas, yapılan her amelin sırf Allah emrettiği için, sadece O’nun rızası hedeflenerek yapılmasıdır. Hz. Pir’in Birinci Söz’ün başında dediği gibi insanın Allah için işlemesi, Allah için başlaması, Allah için görüşmesi, Allah’ın rızası dairesinde hareket etmesi, yani kısaca bütün işlerini O’nun rıza ve hoşnutluğunu gözeterek yapmasıdır. Elimizi dua için her kaldırışımızda Cenab-ı Mevla’dan rıza ve ihlas istemeliyiz. Bu konu o kadar önemlidir ki bir kişi akşama kadar hiç durmadan “Allahumme el-ihlas ve’r-rıda (Allahım, Senden ihlas ve rızanı istiyorum)” dese yine de azdır. Çünkü bir mü’minin bütün dünyevî mülâhazaları elinin tersiyle bir kenara iterek saf ve dupduru bir kulluk şuuru kazanması yaratılış gayesine matuf en büyük hedeftir. Bu açıdan değil sadece dünyevî beklentiler, kulluktaki zirve, ibadetlerin uhrevî beklentilere bile bağlanmaması, sadece ve sadece Rabbimizin hoşnutluğunu kazanmak için yapılmasıdır.\\n\\nNe var ki böyle bir ufku yakalamanın kolay olmadığı da bilinmelidir. İhlasa musallat olan, onu delik deşik eden ve güve gibi kemiren o kadar çok şey var ki! Beşerî garizeler, rahat ve rehavet duygusu, şöhret arzusu, pes bayağı hisler, dünyevî çıkarlar vs. bizi ihlâs ve samimiyetten uzaklaştırıyor, uhrevilik ve melekûtiliğe açılmamıza mâni oluyor ve bize en büyük mazhariyetleri kaybettiriyor. Dosdoğru bir yola girmiş insanların bile dikkatli yaşamadıkları takdirde süfli duygular ve cüzi menfaatlerden ötürü zamanla ihlas kırılmaları yaşayabilirler; Allah yolunda yürüdüklerini zannetseler de sukuta maruz kalabilir, kazanma yolunda kaybedebilirler.\\n\\nÇok iş yapmak, büyük işler çevirmek, büyük çemberler döndürmek marifet değil; asıl marifet, yapılan her şeyi O’nun rızasına bağlayabilmektir. Zira marziyat-ı ilahiyeye bağlılıktan daha ulvi bir şey yoktur. Amel ve hizmetlerinizde ihlası yakalayamadığınız takdirde dünyanın rengini değiştirseniz dahi kendinizi kaybedersiniz. Zahiren çok kazanmış gibi görünseniz de Allah katında kaybetmiş tali’sizler kategorisine dahil olursunuz. Başardım zannettiğiniz işler de uzun ömürlü olmaz. Saman alevi gibi gelir geçer. Bu yüzden yapılan her işte ihlası yakalamaya çalışmalı, bunun için de iç mücadelenizi sürekli devam ettirmelisiniz.\&quot;,\n      \&quot;metadata\&quot;: {\n        \&quot;chunkIds\&quot;: [\n          \&quot;7d475d507a79e8b4\&quot;\n        ],\n        \&quot;sourceFile\&quot;: \&quot;abfed2ad5af9dbfa.md\&quot;,\n        \&quot;language\&quot;: \&quot;tr-tr\&quot;,\n        \&quot;chunkIndex\&quot;: 1,\n        \&quot;totalChunks\&quot;: 6,\n        \&quot;tokenCount\&quot;: 942,\n        \&quot;contentHash\&quot;: \&quot;5d065fa8a6655c17ae7cd677b360e131134ae8e14191fbabd2e8492049aff926\&quot;,\n        \&quot;merged\&quot;: false\n      }\n    }\n  ]\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>tools: answer</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 3909 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;content&quot;: [
+    {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;answer\&quot;: \&quot;İhlas, yapılan her amelin sırf Allah emrettiği için, sadece O’nun rızası hedeflenerek yapılmasıdır. [1] İhlas, bütün amellerin derin bir kulluk şuuruyla yerine getirilmesi ve Allah’la irtibatlandırılmasıdır. [1]\&quot;,\n  \&quot;confidence\&quot;: 62,\n  \&quot;citations\&quot;: [\n    {\n      \&quot;id\&quot;: 1,\n      \&quot;title\&quot;: \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n      \&quot;url\&quot;: \&quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi\&quot;,\n      \&quot;headingPath\&quot;: [\n        \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n        \&quot;**İhlas ve Rıza**\&quot;\n      ],\n      \&quot;chunkId\&quot;: \&quot;7d475d507a79e8b4\&quot;,\n      \&quot;score\&quot;: 0.5099576,\n      \&quot;chunkIndex\&quot;: 1,\n      \&quot;totalChunks\&quot;: 6\n    }\n  ]\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>tools: sources</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 4008 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;content&quot;: [
+    {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;citations\&quot;: [\n    {\n      \&quot;id\&quot;: 1,\n      \&quot;title\&quot;: \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n      \&quot;url\&quot;: \&quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi\&quot;,\n      \&quot;headingPath\&quot;: [\n        \&quot;Diriliş Mimarlarının Vazifesi\&quot;,\n        \&quot;**İhlas ve Rıza**\&quot;\n      ],\n      \&quot;chunkId\&quot;: \&quot;7d475d507a79e8b4\&quot;,\n      \&quot;score\&quot;: 0.5099576,\n      \&quot;chunkIndex\&quot;: 1,\n      \&quot;totalChunks\&quot;: 6\n    }\n  ]\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>tools: document</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 4 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;documentId&quot;: &quot;96ecc9c3fc750265&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;content&quot;: [
+    {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;metadata\&quot;: {\n    \&quot;documentId\&quot;: \&quot;96ecc9c3fc750265\&quot;,\n    \&quot;sourceFile\&quot;: \&quot;0428f732b0d7877f.md\&quot;,\n    \&quot;url\&quot;: \&quot;https://fgulen.com/tr/eserleri/kirik-testi/tebligde-uslup-problemi\&quot;,\n    \&quot;title\&quot;: \&quot;Tebliğde Üslup Problemi\&quot;,\n    \&quot;language\&quot;: \&quot;tr-tr\&quot;,\n    \&quot;crawlDate\&quot;: null,\n    \&quot;contentHash\&quot;: \&quot;0cde25aaa69ec04261ee6a6bf4483dc906ccb86cc563452ce108a92115235488\&quot;,\n    \&quot;totalChunks\&quot;: 9,\n    \&quot;version\&quot;: 1,\n    \&quot;status\&quot;: \&quot;new\&quot;,\n    \&quot;lastIndexedAt\&quot;: \&quot;2026-07-09T06:38:29.829Z\&quot;\n  }\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>tools: chunk</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 14 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;chunkId&quot;: &quot;c4a47b56ef5436ad&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;content&quot;: [
+    {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;metadata\&quot;: {\n    \&quot;chunkId\&quot;: \&quot;c4a47b56ef5436ad\&quot;,\n    \&quot;documentId\&quot;: \&quot;0fff1a59b8ab6a21\&quot;,\n    \&quot;sourceFile\&quot;: \&quot;9af0b9408eb6559f.md\&quot;,\n    \&quot;title\&quot;: \&quot;Dinin Âfeti Üç Zümre\&quot;,\n    \&quot;url\&quot;: \&quot;https://fgulen.com/tr/eserleri/kirik-testi/dinin-afeti-uc-zumre\&quot;,\n    \&quot;language\&quot;: \&quot;tr-tr\&quot;,\n    \&quot;headingPath\&quot;: [\n      \&quot;Dinin Âfeti Üç Zümre\&quot;\n    ],\n    \&quot;chunkIndex\&quot;: 0,\n    \&quot;totalChunks\&quot;: 8,\n    \&quot;tokenCount\&quot;: 367,\n    \&quot;contentHash\&quot;: \&quot;a35808d06f18387aebee54af7ff75a55bf0b7762a2813d5de4489b3038e378d6\&quot;,\n    \&quot;embeddingStatus\&quot;: \&quot;embedded\&quot;,\n    \&quot;embeddedAt\&quot;: \&quot;2026-07-09T12:14:25.396Z\&quot;,\n    \&quot;vectorId\&quot;: \&quot;d5222f36-b8e1-5541-879c-358bfc67d56f\&quot;\n  }\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>resources: list</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 3 ms</span></p>
+      <h3>Request</h3>
+      <pre>{}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;resources&quot;: [
+    {
+      &quot;name&quot;: &quot;knowledge-stats&quot;,
+      &quot;title&quot;: &quot;Knowledge Stats&quot;,
+      &quot;uri&quot;: &quot;knowledge://stats&quot;,
+      &quot;description&quot;: &quot;Current document, chunk, embedding, vector, language, and collection stats.&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;
+    },
+    {
+      &quot;name&quot;: &quot;knowledge-version&quot;,
+      &quot;title&quot;: &quot;Knowledge Engine Version&quot;,
+      &quot;uri&quot;: &quot;knowledge://version&quot;,
+      &quot;description&quot;: &quot;Engine version, build date, git commit, and supported features.&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;
+    },
+    {
+      &quot;name&quot;: &quot;knowledge-languages&quot;,
+      &quot;title&quot;: &quot;Indexed Languages&quot;,
+      &quot;uri&quot;: &quot;knowledge://languages&quot;,
+      &quot;description&quot;: &quot;Languages currently present in the indexed dataset.&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;
+    },
+    {
+      &quot;name&quot;: &quot;knowledge-collection&quot;,
+      &quot;title&quot;: &quot;Vector Collection&quot;,
+      &quot;uri&quot;: &quot;knowledge://collection&quot;,
+      &quot;description&quot;: &quot;Current Qdrant collection information.&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>resources: knowledge://stats</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 527 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;uri&quot;: &quot;knowledge://stats&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;contents&quot;: [
+    {
+      &quot;uri&quot;: &quot;knowledge://stats&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;documents\&quot;: 13,\n  \&quot;chunks\&quot;: 97,\n  \&quot;vectors\&quot;: 97,\n  \&quot;embeddings\&quot;: 97,\n  \&quot;indexedLanguages\&quot;: [\n    \&quot;tr-tr\&quot;\n  ],\n  \&quot;collectionName\&quot;: \&quot;fgulen\&quot;\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>resources: knowledge://version</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 3 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;uri&quot;: &quot;knowledge://version&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;contents&quot;: [
+    {
+      &quot;uri&quot;: &quot;knowledge://version&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;engineVersion\&quot;: \&quot;0.1.0\&quot;,\n  \&quot;buildDate\&quot;: \&quot;2026-07-09T13:00:48.133Z\&quot;,\n  \&quot;gitCommit\&quot;: \&quot;7374f95\&quot;,\n  \&quot;supportedFeatures\&quot;: [\n    \&quot;crawl\&quot;,\n    \&quot;extract\&quot;,\n    \&quot;markdown\&quot;,\n    \&quot;chunk\&quot;,\n    \&quot;index\&quot;,\n    \&quot;embed\&quot;,\n    \&quot;qdrant\&quot;,\n    \&quot;search\&quot;,\n    \&quot;prompt\&quot;,\n    \&quot;answer\&quot;,\n    \&quot;citations\&quot;,\n    \&quot;diagnostics\&quot;,\n    \&quot;rest-api-v1\&quot;\n  ]\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>resources: knowledge://languages</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 527 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;uri&quot;: &quot;knowledge://languages&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;contents&quot;: [
+    {
+      &quot;uri&quot;: &quot;knowledge://languages&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;languages\&quot;: [\n    \&quot;tr-tr\&quot;\n  ]\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>resources: knowledge://collection</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 516 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;uri&quot;: &quot;knowledge://collection&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;contents&quot;: [
+    {
+      &quot;uri&quot;: &quot;knowledge://collection&quot;,
+      &quot;mimeType&quot;: &quot;application/json&quot;,
+      &quot;text&quot;: &quot;{\n  \&quot;collectionName\&quot;: \&quot;fgulen\&quot;,\n  \&quot;vectors\&quot;: 97,\n  \&quot;chunks\&quot;: 97\n}&quot;
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>prompts: list</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 4 ms</span></p>
+      <h3>Request</h3>
+      <pre>{}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;prompts&quot;: [
+    {
+      &quot;name&quot;: &quot;answer-question&quot;,
+      &quot;title&quot;: &quot;Answer Question&quot;,
+      &quot;description&quot;: &quot;Use the FGulen AI answer tool to answer with strict source grounding.&quot;,
+      &quot;arguments&quot;: [
+        {
+          &quot;name&quot;: &quot;question&quot;,
+          &quot;description&quot;: &quot;Question to use with the Knowledge Engine.&quot;,
+          &quot;required&quot;: true
+        },
+        {
+          &quot;name&quot;: &quot;language&quot;,
+          &quot;description&quot;: &quot;Optional language filter.&quot;,
+          &quot;required&quot;: false
+        }
+      ]
+    },
+    {
+      &quot;name&quot;: &quot;search-only&quot;,
+      &quot;title&quot;: &quot;Search Only&quot;,
+      &quot;description&quot;: &quot;Use the FGulen AI search tool and do not generate an answer.&quot;,
+      &quot;arguments&quot;: [
+        {
+          &quot;name&quot;: &quot;question&quot;,
+          &quot;description&quot;: &quot;Question to use with the Knowledge Engine.&quot;,
+          &quot;required&quot;: true
+        },
+        {
+          &quot;name&quot;: &quot;language&quot;,
+          &quot;description&quot;: &quot;Optional language filter.&quot;,
+          &quot;required&quot;: false
+        }
+      ]
+    },
+    {
+      &quot;name&quot;: &quot;citation-report&quot;,
+      &quot;title&quot;: &quot;Citation Report&quot;,
+      &quot;description&quot;: &quot;Use FGulen AI sources to prepare a citation traceability report.&quot;,
+      &quot;arguments&quot;: [
+        {
+          &quot;name&quot;: &quot;question&quot;,
+          &quot;description&quot;: &quot;Question to use with the Knowledge Engine.&quot;,
+          &quot;required&quot;: true
+        },
+        {
+          &quot;name&quot;: &quot;language&quot;,
+          &quot;description&quot;: &quot;Optional language filter.&quot;,
+          &quot;required&quot;: false
+        }
+      ]
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>prompts: answer-question</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 3 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;,
+  &quot;language&quot;: &quot;tr&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;description&quot;: &quot;Strict RAG answer prompt for FGulen AI.&quot;,
+  &quot;messages&quot;: [
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Use the MCP tool `answer` from FGulen AI.\nAnswer only from indexed sources and include the returned confidence and citations.\nQuestion: İhlas nedir?\nLanguage: tr&quot;
+      }
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>prompts: search-only</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 1 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;,
+  &quot;language&quot;: &quot;tr&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;description&quot;: &quot;Search-only prompt for inspecting retrieved chunks.&quot;,
+  &quot;messages&quot;: [
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Use only the MCP tool `search` from FGulen AI.\nReturn the retrieved chunks, scores, titles, URLs, and heading paths.\nDo not synthesize a final answer.\nQuestion: İhlas nedir?\nLanguage: tr&quot;
+      }
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>prompts: citation-report</h2>
+      <p><span class="metric"><strong>Status:</strong> ok</span><span class="metric"><strong>Latency:</strong> 0 ms</span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;,
+  &quot;language&quot;: &quot;tr&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;description&quot;: &quot;Citation reporting prompt for FGulen AI.&quot;,
+  &quot;messages&quot;: [
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Use the MCP tool `sources` from FGulen AI.\nProduce a concise citation report with document title, URL, heading path, chunk ID, score, chunk index, and total chunks.\nIf no citations are returned, state that the indexed sources do not contain enough supporting information.\nQuestion: İhlas nedir?\nLanguage: tr&quot;
+      }
+    }
+  ]
+}</pre>
+    </section>
+  </main>
+</body>
+</html>
