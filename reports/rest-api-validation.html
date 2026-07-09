@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REST API Validation Report</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #f7f7f4; color: #1d1d1f; line-height: 1.45; }
+    header { background: #fff; border-bottom: 1px solid #deded8; padding: 30px 40px 18px; }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 40px 56px; }
+    section { background: #fff; border: 1px solid #deded8; border-radius: 8px; padding: 18px; margin: 16px 0; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    .muted { color: #666b73; }
+    .metric { display: inline-block; margin-right: 18px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #fafafa; border: 1px solid #ecece7; border-radius: 6px; padding: 12px; max-height: 420px; overflow: auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>REST API Validation Report</h1>
+    <p class="muted">Generated 2026-07-09T12:49:57.475Z against http://127.0.0.1:3000. Responses longer than 8000 characters are truncated for readability.</p>
+  </header>
+  <main>
+    <section>
+      <h2>GET /health</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 38 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/health</code></span></p>
+      <h3>Request</h3>
+      <pre>(none)</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;version&quot;: &quot;1.0&quot;
+}</pre>
+    </section>
+<section>
+      <h2>GET /stats</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 652 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/stats</code></span></p>
+      <h3>Request</h3>
+      <pre>(none)</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;documents&quot;: 13,
+  &quot;chunks&quot;: 97,
+  &quot;vectors&quot;: 97,
+  &quot;embeddings&quot;: 97,
+  &quot;indexedLanguages&quot;: [
+    &quot;tr-tr&quot;
+  ],
+  &quot;collectionName&quot;: &quot;fgulen&quot;
+}</pre>
+    </section>
+<section>
+      <h2>POST /search</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 1291 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/search</code></span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;,
+  &quot;topK&quot;: 3
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;results&quot;: [
+    {
+      &quot;chunkId&quot;: &quot;69629b3bde94c960&quot;,
+      &quot;documentId&quot;: &quot;ff1879fc70ce9de5&quot;,
+      &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+      &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+      &quot;headingPath&quot;: [
+        &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;**İhlas ve Rıza**&quot;,
+        &quot;**İhlas Nasıl Kazanılır**&quot;
+      ],
+      &quot;similarityScore&quot;: 0.5842469,
+      &quot;markdown&quot;: &quot;## **İhlas ve Rıza**\n\n### **İhlas Nasıl Kazanılır**\n\nYeni bir ihya hareketinin, insanlığın ve Müslümanlığın yeniden layık olduğu veçhile temsil edilmesinin peşinde koşanların yapmaları gereken temel vazife, bu kulluk şuurunu canlandırabilmektir. Mesele sadece insanları namaza alıştırma değildir; tabir-i caizse onları “namaz delisi” yapabilmektir. Hadis-i şerifte ifade edildiği gibi, mescitten çıktıktan sonra kalbini mescitte bırakan, bir sonraki namazı iple çeken namaz delileri. Öyle ki onlar mesela öğle namazından çıktıktan sonra, “Yahu niye bu müezzinler bir an evvel ikindi ezanını okumuyorlar! Okusalar da koşa koşa gidip bir kere daha Cenab-ı Hakk’ın dergâh-ı huzurunda kemerbeste-i ubudiyet içinde el pençe divan dursak, başımızı yere koyup yüzümüzü Hakk’ın kapısının eşiğine sürsek, O’nun büyüklüğünü kendi küçüklüğümüzü ifade etsek!” diyecek ölçüde ibadete kilitli yaşamalılar. Sadece namaz değil, orucun da, infakın da, diğer ibadetlerin de delisi olmalılar. Bütün ibadetleri ihlasla ve şuurlu bir şekilde yerine getirme noktasında çok kararlı durmalılar.\n\nİhlas dolu böyle bir kulluk şuurunun zıddı ise, ibadetleri aradan çıkarma mülâhazasıyla yerine getirmedir. Yani, kalbi ürpermeden, yaptığı ibadeti beyninin bütün nöronlarında duymadan, hatta kimin karşısında durduğunun dahi farkına varmadan gafletle ibadet yapmaktır. İnsanda en azından ibadetlerini şuurlu yapabilme noktasında bir niyet ve ceht olmalıdır. O, işin başında her şeyi derinlemesine duyamayabilir. Bu, ciddi ve sürekli ceht ve gayrete bağlıdır. Cüneyd-i Bağdadî ancak altmış seneden sonra arzu ettiği ibadet ve marifet ufkuna ulaştığını ifade eder. Aynı şekilde Bediüzzaman Hazretleri de ömrünün sonlarına doğru imrendiği zatlar gibi tesbih çektiğini, kendisiyle birlikte âdeta bütün varlığın “sübhanallah” dediğini duyduğunu söyler. Dolayısıyla asıl önemli olan, insanın böyle bir ufka talip olması ve onu yakalama adına sürekli gayret göstermesidir.&quot;,
+      &quot;metadata&quot;: {
+        &quot;chunkIds&quot;: [
+          &quot;69629b3bde94c960&quot;
+        ],
+        &quot;sourceFile&quot;: &quot;abfed2ad5af9dbfa.md&quot;,
+        &quot;language&quot;: &quot;tr-tr&quot;,
+        &quot;chunkIndex&quot;: 3,
+        &quot;totalChunks&quot;: 6,
+        &quot;tokenCount&quot;: 770,
+        &quot;contentHash&quot;: &quot;17b10f44d7477edd9a62577ca751bc2a0a8c86fb29078f23dcd87040ca661a3d&quot;,
+        &quot;merged&quot;: false
+      }
+    },
+    {
+      &quot;chunkId&quot;: &quot;ed733dd4fea92c2d&quot;,
+      &quot;documentId&quot;: &quot;ff1879fc70ce9de5&quot;,
+      &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+      &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+      &quot;headingPath&quot;: [
+        &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;**İhlas ve Rıza**&quot;,
+        &quot;**İhlas Nasıl Kazanılır**&quot;
+      ],
+      &quot;similarityScore&quot;: 0.5401982,
+      &quot;markdown&quot;: &quot;## **İhlas ve Rıza**\n\n### **İhlas Nasıl Kazanılır**\n\n- 15 Mart 2023 tarihinde hazırlandı.\n\n- [Yazdır](https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi?tmpl=component&amp;print=1&amp;layout=default \&quot;&lt; Diriliş Mimarlarının Vazifesi &gt; makalesini yazdır\&quot;)\n- [e-Posta](https://fgulen.com/tr/component/mailto/?tmpl=component&amp;template=yootheme&amp;link=ccf7d6a49d9fdd0e0675dcce2f5b8bc1da7c19ed \&quot;Bu bağlantısı bir arkadaşına gönder\&quot;)&quot;,
+      &quot;metadata&quot;: {
+        &quot;chunkIds&quot;: [
+          &quot;ed733dd4fea92c2d&quot;
+        ],
+        &quot;sourceFile&quot;: &quot;abfed2ad5af9dbfa.md&quot;,
+        &quot;language&quot;: &quot;tr-tr&quot;,
+        &quot;chunkIndex&quot;: 5,
+        &quot;totalChunks&quot;: 6,
+        &quot;tokenCount&quot;: 172,
+        &quot;contentHash&quot;: &quot;a821950f4b6f7a8e6541c7a1710bc0e74f8ebc6bb51f765d951acbb129887be0&quot;,
+        &quot;merged&quot;: false
+      }
+    },
+    {
+      &quot;chunkId&quot;: &quot;7d475d507a79e8b4&quot;,
+      &quot;documentId&quot;: &quot;ff1879fc70ce9de5&quot;,
+      &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+      &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+      &quot;headingPath&quot;: [
+        &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;**İhlas ve Rıza**&quot;
+      ],
+      &quot;similarityScore&quot;: 0.5099443,
+      &quot;markdown&quot;: &quot;## **İhlas ve Rıza**\n\n### **İhlas Nasıl Kazanılır**\n\nİslâm’ın muhtevasını bir şiire benzetecek olursak, onun kafiyesi ihlastır ve bu, bütün amellerin derin bir kulluk şuuruyla yerine getirilmesi ve Allah’la irtibatlandırılmasıdır. Bilindiği üzere ihlas, yapılan her amelin sırf Allah emrettiği için, sadece O’nun rızası hedeflenerek yapılmasıdır. Hz. Pir’in Birinci Söz’ün başında dediği gibi insanın Allah için işlemesi, Allah için başlaması, Allah için görüşmesi, Allah’ın rızası dairesinde hareket etmesi, yani kısaca bütün işlerini O’nun rıza ve hoşnutluğunu gözeterek yapmasıdır. Elimizi dua için her kaldırışımızda Cenab-ı Mevla’dan rıza ve ihlas istemeliyiz. Bu konu o kadar önemlidir ki bir kişi akşama kadar hiç durmadan “Allahumme el-ihlas ve’r-rıda (Allahım, Senden ihlas ve rızanı istiyorum)” dese yine de azdır. Çünkü bir mü’minin bütün dünyevî mülâhazaları elinin tersiyle bir kenara iterek saf ve dupduru bir kulluk şuuru kazanması yaratılış gayesine matuf en büyük hedeftir. Bu açıdan değil sadece dünyevî beklentiler, kulluktaki zirve, ibadetlerin uhrevî beklentilere bile bağlanmaması, sadece ve sadece Rabbimizin hoşnutluğunu kazanmak için yapılmasıdır.\n\nNe var ki böyle bir ufku yakalamanın kolay olmadığı da bilinmelidir. İhlasa musallat olan, onu delik deşik eden ve güve gibi kemiren o kadar çok şey var ki! Beşerî garizeler, rahat ve rehavet duygusu, şöhret arzusu, pes bayağı hisler, dünyevî çıkarlar vs. bizi ihlâs ve samimiyetten uzaklaştırıyor, uhrevilik ve melekûtiliğe açılmamıza mâni oluyor ve bize en büyük mazhariyetleri kaybettiriyor. Dosdoğru bir yola girmiş insanların bile dikkatli yaşamadıkları takdirde süfli duygular ve cüzi menfaatlerden ötürü zamanla ihlas kırılmaları yaşayabilirler; Allah yolunda yürüdüklerini zannetseler de sukuta maruz kalabilir, kazanma yolunda kaybedebilirler.\n\nÇok iş yapmak, büyük işler çevirmek, büyük çemberler döndürmek marifet değil; asıl marifet, yapılan her şeyi O’nun rızasına bağlayabilmektir. Zira marziyat-ı ilahiyeye bağlılıktan daha ulvi bir şey yoktur. Amel ve hizmetlerinizde ihlası yakalayamadığınız takdirde dünyanın rengini değiştirseniz dahi kendinizi kaybedersiniz. Zahiren çok kazanmış gibi görünseniz de Allah katında kaybetmiş tali’sizler kategorisine dahil olursunuz. Başardım zannettiğiniz işler de uzun ömürlü olmaz. Saman alevi gibi gelir geçer. Bu yüzden yapılan her işte ihlası yakalamaya çalışmalı, bunun için de iç mücadelenizi sürekli devam ettirmelisiniz.&quot;,
+      &quot;metadata&quot;: {
+        &quot;chunkIds&quot;: [
+          &quot;7d475d507a79e8b4&quot;
+        ],
+        &quot;sourceFile&quot;: &quot;abfed2ad5af9dbfa.md&quot;,
+        &quot;language&quot;: &quot;tr-tr&quot;,
+        &quot;chunkIndex&quot;: 1,
+        &quot;totalChunks&quot;: 6,
+        &quot;tokenCount&quot;: 942,
+        &quot;contentHash&quot;: &quot;5d065fa8a6655c17ae7cd677b360e131134ae8e14191fbabd2e8492049aff926&quot;,
+        &quot;merged&quot;: false
+      }
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>POST /prompt</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 1397 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/prompt</code></span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;,
+  &quot;topK&quot;: 3
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;systemPrompt&quot;: &quot;You are a careful research assistant. Use only the retrieved context to prepare an answer. If the context is insufficient, state that clearly.&quot;,
+  &quot;userQuestion&quot;: &quot;İhlas nedir?&quot;,
+  &quot;chunks&quot;: [
+    {
+      &quot;rank&quot;: 1,
+      &quot;metadata&quot;: {
+        &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+        &quot;headingPath&quot;: [
+          &quot;Diriliş Mimarlarının Vazifesi&quot;,
+          &quot;**İhlas ve Rıza**&quot;,
+          &quot;**İhlas Nasıl Kazanılır**&quot;
+        ],
+        &quot;chunkId&quot;: &quot;69629b3bde94c960&quot;,
+        &quot;chunkIds&quot;: [
+          &quot;69629b3bde94c960&quot;
+        ],
+        &quot;documentId&quot;: &quot;ff1879fc70ce9de5&quot;,
+        &quot;similarityScore&quot;: 0.5842446,
+        &quot;sourceFile&quot;: &quot;abfed2ad5af9dbfa.md&quot;,
+        &quot;language&quot;: &quot;tr-tr&quot;,
+        &quot;tokenCount&quot;: 770,
+        &quot;chunkIndex&quot;: 3,
+        &quot;totalChunks&quot;: 6,
+        &quot;merged&quot;: false
+      },
+      &quot;markdown&quot;: &quot;## **İhlas ve Rıza**\n\n### **İhlas Nasıl Kazanılır**\n\nYeni bir ihya hareketinin, insanlığın ve Müslümanlığın yeniden layık olduğu veçhile temsil edilmesinin peşinde koşanların yapmaları gereken temel vazife, bu kulluk şuurunu canlandırabilmektir. Mesele sadece insanları namaza alıştırma değildir; tabir-i caizse onları “namaz delisi” yapabilmektir. Hadis-i şerifte ifade edildiği gibi, mescitten çıktıktan sonra kalbini mescitte bırakan, bir sonraki namazı iple çeken namaz delileri. Öyle ki onlar mesela öğle namazından çıktıktan sonra, “Yahu niye bu müezzinler bir an evvel ikindi ezanını okumuyorlar! Okusalar da koşa koşa gidip bir kere daha Cenab-ı Hakk’ın dergâh-ı huzurunda kemerbeste-i ubudiyet içinde el pençe divan dursak, başımızı yere koyup yüzümüzü Hakk’ın kapısının eşiğine sürsek, O’nun büyüklüğünü kendi küçüklüğümüzü ifade etsek!” diyecek ölçüde ibadete kilitli yaşamalılar. Sadece namaz değil, orucun da, infakın da, diğer ibadetlerin de delisi olmalılar. Bütün ibadetleri ihlasla ve şuurlu bir şekilde yerine getirme noktasında çok kararlı durmalılar.\n\nİhlas dolu böyle bir kulluk şuurunun zıddı ise, ibadetleri aradan çıkarma mülâhazasıyla yerine getirmedir. Yani, kalbi ürpermeden, yaptığı ibadeti beyninin bütün nöronlarında duymadan, hatta kimin karşısında durduğunun dahi farkına varmadan gafletle ibadet yapmaktır. İnsanda en azından ibadetlerini şuurlu yapabilme noktasında bir niyet ve ceht olmalıdır. O, işin başında her şeyi derinlemesine duyamayabilir. Bu, ciddi ve sürekli ceht ve gayrete bağlıdır. Cüneyd-i Bağdadî ancak altmış seneden sonra arzu ettiği ibadet ve marifet ufkuna ulaştığını ifade eder. Aynı şekilde Bediüzzaman Hazretleri de ömrünün sonlarına doğru imrendiği zatlar gibi tesbih çektiğini, kendisiyle birlikte âdeta bütün varlığın “sübhanallah” dediğini duyduğunu söyler. Dolayısıyla asıl önemli olan, insanın böyle bir ufka talip olması ve onu yakalama adına sürekli gayret göstermesidir.&quot;,
+      &quot;estimatedTokens&quot;: 893
+    },
+    {
+      &quot;rank&quot;: 2,
+      &quot;metadata&quot;: {
+        &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+        &quot;headingPath&quot;: [
+          &quot;Diriliş Mimarlarının Vazifesi&quot;,
+          &quot;**İhlas ve Rıza**&quot;,
+          &quot;**İhlas Nasıl Kazanılır**&quot;
+        ],
+        &quot;chunkId&quot;: &quot;ed733dd4fea92c2d&quot;,
+        &quot;chunkIds&quot;: [
+          &quot;ed733dd4fea92c2d&quot;
+        ],
+        &quot;documentId&quot;: &quot;ff1879fc70ce9de5&quot;,
+        &quot;similarityScore&quot;: 0.5401918,
+        &quot;sourceFile&quot;: &quot;abfed2ad5af9dbfa.md&quot;,
+        &quot;language&quot;: &quot;tr-tr&quot;,
+        &quot;tokenCount&quot;: 172,
+        &quot;chunkIndex&quot;: 5,
+        &quot;totalChunks&quot;: 6,
+        &quot;merged&quot;: false
+      },
+      &quot;markdown&quot;: &quot;## **İhlas ve Rıza**\n\n### **İhlas Nasıl Kazanılır**\n\n- 15 Mart 2023 tarihinde hazırlandı.\n\n- [Yazdır](https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi?tmpl=component&amp;print=1&amp;layout=default \&quot;&lt; Diriliş Mimarlarının Vazifesi &gt; makalesini yazdır\&quot;)\n- [e-Posta](https://fgulen.com/tr/component/mailto/?tmpl=component&amp;template=yootheme&amp;link=ccf7d6a49d9fdd0e0675dcce2f5b8bc1da7c19ed \&quot;Bu bağlantısı bir arkadaşına gönder\&quot;)&quot;,
+      &quot;estimatedTokens&quot;: 293
+    },
+    {
+      &quot;rank&quot;: 3,
+      &quot;metadata&quot;: {
+        &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+        &quot;headingPath&quot;: [
+          &quot;Diriliş Mimarlarının Vazifesi&quot;,
+          &quot;**İhlas ve Rıza**&quot;
+        ],
+        &quot;chunkId&quot;: &quot;7d475d507a79e8b4&quot;,
+        &quot;chunkIds&quot;: [
+          &quot;7d475d507a79e8b4&quot;
+        ],
+        &quot;documentId&quot;: &quot;ff1879fc70ce9de5&quot;,
+        &quot;similarityScore&quot;: 0.5099576,
+        &quot;sourceFile&quot;: &quot;abfed2ad5af9dbfa.md&quot;,
+        &quot;language&quot;: &quot;tr-tr&quot;,
+        &quot;tokenCount&quot;: 942,
+        &quot;chunkIndex&quot;: 1,
+        &quot;totalChunks&quot;: 6,
+        &quot;merged&quot;: false
+      },
+      &quot;markdown&quot;: &quot;## **İhlas ve Rıza**\n\n### **İhlas Nasıl Kazanılır**\n\nİslâm’ın muhtevasını bir şiire benzetecek olursak, onun kafiyesi ihlastır ve bu, bütün amellerin derin bir kulluk şuuruyla yerine getirilmesi ve Allah’la irtibatlandırılmasıdır. Bilindiği üzere ihlas, yapılan her amelin sırf Allah emrettiği için, sadece O’nun rızası hedeflenerek yapılmasıdır. Hz. Pir’in Birinci Söz’ün başında dediği gibi insanın Allah için işlemesi, Allah için başlaması, Allah için görüşmesi, Allah’ın rızası dairesinde hareket etmesi, yani kısaca bütün işlerini O’nun rıza ve hoşnutluğunu gözeterek yapmasıdır. Elimizi dua için her kaldırışımızda Cenab-ı Mevla’dan rıza ve ihlas istemeliyiz. Bu konu o kadar önemlidir ki bir kişi akşama kadar hiç durmadan “Allahumme el-ihlas ve’r-rıda (Allahım, Senden ihlas ve rızanı istiyorum)” dese yine de azdır. Çünkü bir mü’minin bütün dünyevî mülâhazaları elinin tersiyle bir kenara iterek saf ve dupduru bir kulluk şuuru kazanması yaratılış gayesine matuf en büyük hedeftir. Bu açıdan değil sadece dünyevî beklentiler, kulluktaki zirve, ibadetlerin uhrevî beklentilere bile bağlanmaması, sadece ve sadece Rabbimizin hoşnutluğunu kazanmak için yapılmasıdır.\n\nNe var ki böyle bir ufku yakalamanın kolay olmadığı da bilinmelidir. İhlasa musallat olan, onu delik deşik eden ve güve gibi kemiren o kadar çok şey var ki! Beşerî garizeler, rahat ve rehavet duygusu, şöhret arzusu, pes bayağı hisler, dünyevî çıkarlar vs. bizi ihlâs ve samimiyetten uzaklaştırıyor, uhrevilik ve melekûtiliğe açılmamıza mâni oluyor ve bize en büyük mazhariyetleri kaybettiriyor. Dosdoğru bir yola girmiş insanların bile dikkatli yaşamadıkları takdirde süfli duygular ve cüzi menfaatlerden ötürü zamanla ihlas kırılmaları yaşayabilirler; Allah yolunda yürüdüklerini zannetseler de sukuta maruz kalabilir, kazanma yolunda kaybedebilirler.\n\nÇok iş yapmak, büyük işler çevirmek, büyük çemberler döndürmek marifet değil; asıl marifet, yapılan her şeyi O’nun rızasına bağlayabilmektir. Zira marziyat-ı ilahiyeye bağlılıktan daha ulvi bir şey yoktur. Amel ve hizmetlerinizde ihlası yakalayamadığınız takdirde dünyanın rengini değiştirseniz dahi kendinizi kaybedersiniz. Zahiren çok kazanmış gibi görünseniz de Allah katında kaybetmiş tali’sizler kategorisine dahil olursunuz. Başardım zannettiğiniz işler de uzun ömürlü olmaz. Saman alevi gibi gelir geçer. Bu yüzden yapılan her işte ihlası yakalamaya çalışmalı, bunun için de iç mücadelenizi sürekli devam ettirmelisiniz.&quot;,
+      &quot;estimatedTokens&quot;: 1057
+    }
+  ],
+  &quot;estimatedTokens&quot;: 2330,
+  &quot;trimmedChunks&quot;: [],
+  &quot;promptMarkdown&quot;: &quot;# SYSTEM\n\nYou are a careful research assistant. Use only the retrieved context to prepare an answer. If the context is insufficient, state that clearly.\n\n# QUESTION\n\nİhlas nedir?\n\n# RETRIEVED CONTEXT\n\n## Context 1\n\nTitle: Diriliş Mimarlarının Vazifesi\nURL: https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi\nHeading: Diriliş Mimarlarının Vazifesi -&gt; **İhlas ve Rıza** -&gt; **İhlas Nasıl Kazanılır**\nChunk ID: 69629b3bde94c960\nChunk IDs: 69629b3bde94c960\nScore: 0.5842\nMerged: no\n\n## **İhlas ve Rıza**\n\n### **İhlas Nasıl Kazanılır**\n\nYeni bir ihya hareketinin, insanlığın ve Müslümanlı
+... truncated ...</pre>
+    </section>
+<section>
+      <h2>POST /answer</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 2829 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/answer</code></span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;answer&quot;: &quot;İhlas, yapılan her amelin sırf Allah emrettiği için, sadece O’nun rızası hedeflenerek yapılmasıdır. [1] İhlas, bütün amellerin derin bir kulluk şuuruyla yerine getirilmesi ve Allah’la irtibatlandırılmasıdır. [1]&quot;,
+  &quot;confidence&quot;: 62,
+  &quot;citations&quot;: [
+    {
+      &quot;id&quot;: 1,
+      &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+      &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+      &quot;headingPath&quot;: [
+        &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;**İhlas ve Rıza**&quot;
+      ],
+      &quot;chunkId&quot;: &quot;7d475d507a79e8b4&quot;,
+      &quot;score&quot;: 0.5099576,
+      &quot;chunkIndex&quot;: 1,
+      &quot;totalChunks&quot;: 6
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>POST /sources</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 4291 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/sources</code></span></p>
+      <h3>Request</h3>
+      <pre>{
+  &quot;question&quot;: &quot;İhlas nedir?&quot;
+}</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;citations&quot;: [
+    {
+      &quot;id&quot;: 1,
+      &quot;title&quot;: &quot;Diriliş Mimarlarının Vazifesi&quot;,
+      &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dirilis-mimarlarinin-vazifesi&quot;,
+      &quot;headingPath&quot;: [
+        &quot;Diriliş Mimarlarının Vazifesi&quot;,
+        &quot;**İhlas ve Rıza**&quot;
+      ],
+      &quot;chunkId&quot;: &quot;7d475d507a79e8b4&quot;,
+      &quot;score&quot;: 0.5099576,
+      &quot;chunkIndex&quot;: 1,
+      &quot;totalChunks&quot;: 6
+    }
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>GET /document/:documentId</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 5 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/document/96ecc9c3fc750265</code></span></p>
+      <h3>Request</h3>
+      <pre>(none)</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;metadata&quot;: {
+    &quot;documentId&quot;: &quot;96ecc9c3fc750265&quot;,
+    &quot;sourceFile&quot;: &quot;0428f732b0d7877f.md&quot;,
+    &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/tebligde-uslup-problemi&quot;,
+    &quot;title&quot;: &quot;Tebliğde Üslup Problemi&quot;,
+    &quot;language&quot;: &quot;tr-tr&quot;,
+    &quot;crawlDate&quot;: null,
+    &quot;contentHash&quot;: &quot;0cde25aaa69ec04261ee6a6bf4483dc906ccb86cc563452ce108a92115235488&quot;,
+    &quot;totalChunks&quot;: 9,
+    &quot;version&quot;: 1,
+    &quot;status&quot;: &quot;new&quot;,
+    &quot;lastIndexedAt&quot;: &quot;2026-07-09T06:38:29.829Z&quot;
+  }
+}</pre>
+    </section>
+<section>
+      <h2>GET /chunk/:chunkId</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 13 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/chunk/c4a47b56ef5436ad</code></span></p>
+      <h3>Request</h3>
+      <pre>(none)</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;metadata&quot;: {
+    &quot;chunkId&quot;: &quot;c4a47b56ef5436ad&quot;,
+    &quot;documentId&quot;: &quot;0fff1a59b8ab6a21&quot;,
+    &quot;sourceFile&quot;: &quot;9af0b9408eb6559f.md&quot;,
+    &quot;title&quot;: &quot;Dinin Âfeti Üç Zümre&quot;,
+    &quot;url&quot;: &quot;https://fgulen.com/tr/eserleri/kirik-testi/dinin-afeti-uc-zumre&quot;,
+    &quot;language&quot;: &quot;tr-tr&quot;,
+    &quot;headingPath&quot;: [
+      &quot;Dinin Âfeti Üç Zümre&quot;
+    ],
+    &quot;chunkIndex&quot;: 0,
+    &quot;totalChunks&quot;: 8,
+    &quot;tokenCount&quot;: 367,
+    &quot;contentHash&quot;: &quot;a35808d06f18387aebee54af7ff75a55bf0b7762a2813d5de4489b3038e378d6&quot;,
+    &quot;embeddingStatus&quot;: &quot;embedded&quot;,
+    &quot;embeddedAt&quot;: &quot;2026-07-09T12:14:25.396Z&quot;,
+    &quot;vectorId&quot;: &quot;d5222f36-b8e1-5541-879c-358bfc67d56f&quot;
+  }
+}</pre>
+    </section>
+<section>
+      <h2>GET /version</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 4 ms</span><span class="metric"><strong>URL:</strong> <code>/api/v1/version</code></span></p>
+      <h3>Request</h3>
+      <pre>(none)</pre>
+      <h3>Response</h3>
+      <pre>{
+  &quot;engineVersion&quot;: &quot;0.1.0&quot;,
+  &quot;buildDate&quot;: &quot;2026-07-09T12:48:28.710Z&quot;,
+  &quot;gitCommit&quot;: &quot;1439674&quot;,
+  &quot;supportedFeatures&quot;: [
+    &quot;crawl&quot;,
+    &quot;extract&quot;,
+    &quot;markdown&quot;,
+    &quot;chunk&quot;,
+    &quot;index&quot;,
+    &quot;embed&quot;,
+    &quot;qdrant&quot;,
+    &quot;search&quot;,
+    &quot;prompt&quot;,
+    &quot;answer&quot;,
+    &quot;citations&quot;,
+    &quot;diagnostics&quot;,
+    &quot;rest-api-v1&quot;
+  ]
+}</pre>
+    </section>
+<section>
+      <h2>GET /docs</h2>
+      <p><span class="metric"><strong>Status:</strong> 200</span><span class="metric"><strong>Latency:</strong> 3 ms</span><span class="metric"><strong>URL:</strong> <code>/docs</code></span></p>
+      <h3>Request</h3>
+      <pre>(none)</pre>
+      <h3>Response</h3>
+      <pre>&lt;!-- HTML for static distribution bundle build --&gt;
+  &lt;!DOCTYPE html&gt;
+  &lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;Swagger UI&lt;/title&gt;
+  &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;./swagger-ui.css&quot; /&gt;
+  &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;./index.css&quot; /&gt;
+  
+  
+  &lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;./favicon-32x32.png&quot; sizes=&quot;32x32&quot; /&gt;
+  &lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;./favicon-16x16.png&quot; sizes=&quot;16x16&quot; /&gt;
+  
+  &lt;/head&gt;
+  
+  &lt;body&gt;
+  &lt;div id=&quot;swagger-ui&quot;&gt;&lt;/div&gt;
+  &lt;script src=&quot;./swagger-ui-bundle.js&quot; charset=&quot;UTF-8&quot;&gt; &lt;/script&gt;
+  &lt;script src=&quot;./swagger-ui-standalone-preset.js&quot; charset=&quot;UTF-8&quot;&gt; &lt;/script&gt;
+  &lt;script src=&quot;./swagger-initializer.js&quot; charset=&quot;UTF-8&quot;&gt; &lt;/script&gt;
+  
+  &lt;/body&gt;
+  &lt;/html&gt;
+  </pre>
+    </section>
+  </main>
+</body>
+</html>

@@ -118,6 +118,12 @@ const envSchema = z.object({
   EMBEDDING_BATCH_SIZE: integerFromEnv(64),
   EMBEDDING_CONCURRENCY: integerFromEnv(2),
   EMBEDDING_RETRIES: integerFromEnv(3),
+  PORT: integerFromEnv(3000),
+  HOST: z.string().default("127.0.0.1"),
+  API_PREFIX: z.string().default("/api/v1"),
+  API_VERSION: z.string().default("1.0"),
+  CORS_ORIGIN: z.string().default("*"),
+  API_BODY_LIMIT_BYTES: integerFromEnv(1048576),
   LOG_LEVEL: z.string().default("info")
 });
 

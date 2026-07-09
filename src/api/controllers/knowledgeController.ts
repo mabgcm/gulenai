@@ -1,0 +1,84 @@
+import { notFound } from "../middleware/errors.js";
+import { parseSearchRequest } from "../middleware/validation.js";
+import type { ApiSearchRequest, KnowledgeApiService } from "../types.js";
+
+const citationResponse = (citation: {
+  readonly id: number;
+  readonly title: string | null;
+  readonly url: string | null;
+  readonly headingPath: readonly string[];
+  readonly chunkId: string;
+  readonly score: number;
+  readonly chunkIndex: number;
+  readonly totalChunks: number;
+}) => ({
+  id: citation.id,
+  title: citation.title,
+  url: citation.url,
+  headingPath: citation.headingPath,
+  chunkId: citation.chunkId,
+  score: citation.score,
+  chunkIndex: citation.chunkIndex,
+  totalChunks: citation.totalChunks
+});
+
+export class KnowledgeController {
+  public constructor(private readonly service: KnowledgeApiService) {}
+
+  public async stats(): Promise<Awaited<ReturnType<KnowledgeApiService["stats"]>>> {
+    return this.service.stats();
+  }
+
+  public async search(body: unknown): Promise<{ readonly results: unknown }> {
+    return { results: await this.service.search(this.request(body)) };
+  }
+
+  public async prompt(body: unknown): Promise<Awaited<ReturnType<KnowledgeApiService["prompt"]>>> {
+    return this.service.prompt(this.request(body));
+  }
+
+  public async answer(body: unknown): Promise<{
+    readonly answer: string;
+    readonly confidence: number;
+    readonly citations: readonly ReturnType<typeof citationResponse>[];
+  }> {
+    const answer = await this.service.answer(this.request(body));
+    return {
+      answer: answer.answer,
+      confidence: answer.confidence,
+      citations: answer.citations.map(citationResponse)
+    };
+  }
+
+  public async sources(body: unknown): Promise<{
+    readonly citations: readonly ReturnType<typeof citationResponse>[];
+  }> {
+    return {
+      citations: (await this.service.sources(this.request(body))).map(citationResponse)
+    };
+  }
+
+  public async document(documentId: string): Promise<unknown> {
+    const document = await this.service.document(documentId);
+    if (document === null) {
+      throw notFound("Document");
+    }
+    return { metadata: document };
+  }
+
+  public async chunk(chunkId: string): Promise<unknown> {
+    const chunk = await this.service.chunk(chunkId);
+    if (chunk === null) {
+      throw notFound("Chunk");
+    }
+    return chunk;
+  }
+
+  public async version(): Promise<Awaited<ReturnType<KnowledgeApiService["version"]>>> {
+    return this.service.version();
+  }
+
+  private request(body: unknown): ApiSearchRequest {
+    return parseSearchRequest(body);
+  }
+}

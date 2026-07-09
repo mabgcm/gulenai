@@ -117,6 +117,12 @@ QDRANT_RETRIES=3
 SEARCH_TOP_K=8
 SEARCH_SCORE_THRESHOLD=0.0
 PROMPT_MAX_CONTEXT_TOKENS=6000
+PORT=3000
+HOST=127.0.0.1
+API_PREFIX=/api/v1
+API_VERSION=1.0
+CORS_ORIGIN=*
+API_BODY_LIMIT_BYTES=1048576
 ```
 
 To add another website later, change the seed, allowed domains, and path filters. The crawler does not contain `fgulen.com`-specific logic.
@@ -150,9 +156,10 @@ pnpm validate-search "user question"
 pnpm validate-search "user question" --language tr
 pnpm inspect
 pnpm crawl-report
+pnpm api
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `answer`, `diagnose`, `validate-search`, `inspect`, `crawl-report`, and `reset` are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `answer`, `diagnose`, `validate-search`, `inspect`, `crawl-report`, `api`, and `reset` are implemented.
 
 ## Crawl Strategy
 
@@ -521,6 +528,89 @@ Each citation includes document title, source URL, heading path, chunk ID, retri
       "totalChunks": 3
     }
   ]
+}
+```
+
+## REST API
+
+Start the API server:
+
+```bash
+pnpm api
+```
+
+By default the API listens on `http://127.0.0.1:3000` and registers v1 routes under `API_PREFIX`, which defaults to `/api/v1`. OpenAPI documentation is generated automatically and served at:
+
+```text
+http://127.0.0.1:3000/docs
+```
+
+API configuration:
+
+```env
+PORT=3000
+HOST=127.0.0.1
+API_PREFIX=/api/v1
+API_VERSION=1.0
+CORS_ORIGIN=*
+API_BODY_LIMIT_BYTES=1048576
+```
+
+Health and metadata:
+
+```bash
+curl http://127.0.0.1:3000/api/v1/health
+curl http://127.0.0.1:3000/api/v1/stats
+curl http://127.0.0.1:3000/api/v1/version
+```
+
+Search:
+
+```bash
+curl -X POST http://127.0.0.1:3000/api/v1/search \
+  -H 'content-type: application/json' \
+  -d '{"question":"İhlas nedir?","topK":10,"language":"tr"}'
+```
+
+Prompt assembly without answer generation:
+
+```bash
+curl -X POST http://127.0.0.1:3000/api/v1/prompt \
+  -H 'content-type: application/json' \
+  -d '{"question":"İhlas nedir?","language":"tr"}'
+```
+
+Strict answer generation with citations:
+
+```bash
+curl -X POST http://127.0.0.1:3000/api/v1/answer \
+  -H 'content-type: application/json' \
+  -d '{"question":"İhlas nedir?","language":"tr"}'
+```
+
+Sources only:
+
+```bash
+curl -X POST http://127.0.0.1:3000/api/v1/sources \
+  -H 'content-type: application/json' \
+  -d '{"question":"İhlas nedir?","language":"tr"}'
+```
+
+Document and chunk metadata:
+
+```bash
+curl http://127.0.0.1:3000/api/v1/document/<documentId>
+curl http://127.0.0.1:3000/api/v1/chunk/<chunkId>
+```
+
+Errors use a consistent JSON shape:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed"
+  }
 }
 ```
 

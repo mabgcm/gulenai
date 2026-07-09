@@ -22,6 +22,7 @@
     "search": "tsx src/cli/index.ts search",
     "prompt": "tsx src/cli/index.ts prompt",
     "answer": "tsx src/cli/index.ts answer",
+    "api": "tsx src/api/index.ts",
     "diagnose": "tsx src/cli/index.ts diagnose",
     "validate-search": "tsx src/cli/index.ts validate-search",
     "inspect": "tsx src/cli/index.ts inspect",
@@ -29,11 +30,15 @@
     "reset": "tsx src/cli/index.ts reset"
   },
   "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/swagger": "^8.15.0",
+    "@fastify/swagger-ui": "^2.1.0",
     "@mozilla/readability": "^0.6.0",
     "@qdrant/js-client-rest": "^1.13.0",
     "cheerio": "^1.0.0",
     "domhandler": "^6.0.1",
     "dotenv": "^16.4.7",
+    "fastify": "^4.29.1",
     "js-tiktoken": "^1.0.21",
     "jsdom": "^24.1.3",
     "openai": "^4.77.0",
