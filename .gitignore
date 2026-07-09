@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+data/raw/*
+data/clean/*
+data/markdown/*
+data/chunks/*
+data/crawl/*
+!data/raw/.gitkeep
+!data/clean/.gitkeep
+!data/markdown/.gitkeep
+!data/chunks/.gitkeep
+!data/crawl/.gitkeep

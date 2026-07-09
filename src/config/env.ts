@@ -1,0 +1,91 @@
+import "dotenv/config";
+import { z } from "zod";
+import type { SourceConfig } from "../types/source.js";
+
+const integerFromEnv = (fallback: number) =>
+  z
+    .string()
+    .optional()
+    .transform((value, context) => {
+      if (value === undefined || value.trim() === "") {
+        return fallback;
+      }
+
+      const parsed = Number.parseInt(value, 10);
+      if (!Number.isInteger(parsed) || parsed < 0) {
+        context.addIssue({ code: z.ZodIssueCode.custom, message: "Expected a positive integer" });
+        return z.NEVER;
+      }
+
+      return parsed;
+    });
+
+const booleanFromEnv = (fallback: boolean) =>
+  z
+    .string()
+    .optional()
+    .transform((value) => {
+      if (value === undefined || value.trim() === "") {
+        return fallback;
+      }
+
+      return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+    });
+
+const csv = (fallback: readonly string[] = []) =>
+  z
+    .string()
+    .optional()
+    .transform((value) => {
+      if (value === undefined || value.trim() === "") {
+        return [...fallback];
+      }
+
+      return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+    });
+
+const envSchema = z.object({
+  OPENAI_API_KEY: z.string().optional(),
+  QDRANT_URL: z.string().url().default("http://localhost:6333"),
+  QDRANT_API_KEY: z.string().optional(),
+  QDRANT_COLLECTION: z.string().default("fgulen"),
+  CRAWL_SEEDS: csv(["https://fgulen.com"]),
+  CRAWL_ALLOWED_DOMAINS: csv(["fgulen.com"]),
+  CRAWL_INCLUDE_PATHS: csv(["/"]),
+  CRAWL_EXCLUDE_PATHS: csv(["/wp-admin", "/wp-login.php", "/search"]),
+  CRAWL_LANGUAGES: csv([]),
+  CRAWL_MAX_PAGES: integerFromEnv(1000),
+  CRAWL_MAX_DEPTH: integerFromEnv(4),
+  CRAWL_CONCURRENCY: integerFromEnv(3),
+  CRAWL_RETRIES: integerFromEnv(2),
+  CRAWL_DELAY_MS: integerFromEnv(1000),
+  CRAWL_RESPECT_ROBOTS: booleanFromEnv(true),
+  CRAWL_USER_AGENT: z.string().default("GulenAIIngestionBot/0.1 (+https://fgulen.com)"),
+  CHUNK_SIZE_TOKENS: integerFromEnv(800),
+  CHUNK_OVERLAP_TOKENS: integerFromEnv(150),
+  EMBEDDING_MODEL: z.string().default("text-embedding-3-small"),
+  LOG_LEVEL: z.string().default("info")
+});
+
+export type AppConfig = z.infer<typeof envSchema>;
+
+export const loadConfig = (): AppConfig => envSchema.parse(process.env);
+
+export const buildDefaultSourceConfig = (config: AppConfig): SourceConfig => ({
+  name: "fgulen",
+  seeds: config.CRAWL_SEEDS,
+  allowedDomains: config.CRAWL_ALLOWED_DOMAINS,
+  includePaths: config.CRAWL_INCLUDE_PATHS,
+  excludePaths: config.CRAWL_EXCLUDE_PATHS,
+  languages: config.CRAWL_LANGUAGES,
+  maxPages: config.CRAWL_MAX_PAGES,
+  maxDepth: config.CRAWL_MAX_DEPTH,
+  concurrency: Math.max(1, config.CRAWL_CONCURRENCY),
+  retries: config.CRAWL_RETRIES,
+  crawlDelayMs: config.CRAWL_DELAY_MS,
+  respectRobots: config.CRAWL_RESPECT_ROBOTS,
+  userAgent: config.CRAWL_USER_AGENT
+});
