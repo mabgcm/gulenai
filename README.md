@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, Qdrant vector-store synchronization, and semantic retrieval.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, Qdrant vector-store synchronization, semantic retrieval, and prompt assembly.
 
 The architecture target is:
 
@@ -46,8 +46,9 @@ Implemented:
 - Semantic retrieval over Qdrant with query embeddings, topK, score thresholds, payload filters, duplicate removal, adjacent chunk merging, and deterministic ranking
 - Crawl strategy and content selection for language-scoped crawls, include/exclude regex patterns, category/index-page detection, content quality scoring, normalized-text and similarity-hash duplicate detection, and crawl quality reports
 - HTML dataset inspection via `pnpm inspect`
+- Prompt assembly from retrieved chunks without calling an LLM, with token-budget trimming and `data/prompts/prompt.md` / `prompt.json` output
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, and semantic retrieval
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, semantic retrieval, crawl quality, and prompt assembly
 
 ## Requirements
 
@@ -109,6 +110,7 @@ QDRANT_CONCURRENCY=2
 QDRANT_RETRIES=3
 SEARCH_TOP_K=8
 SEARCH_SCORE_THRESHOLD=0.0
+PROMPT_MAX_CONTEXT_TOKENS=6000
 ```
 
 To add another website later, change the seed, allowed domains, and path filters. The crawler does not contain `fgulen.com`-specific logic.
@@ -132,11 +134,13 @@ pnpm qdrant --resume
 pnpm qdrant status
 pnpm search "user question"
 pnpm search "user question" --topK 5 --threshold 0.5 --language tr
+pnpm prompt "user question"
+pnpm prompt "user question" --topK 5 --threshold 0.5 --language tr --maxContextTokens 4000
 pnpm inspect
 pnpm crawl-report
 ```
 
-`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `inspect`, `crawl-report`, and `reset` are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, `index`, `status`, `embed`, `qdrant`, `search`, `prompt`, `inspect`, `crawl-report`, and `reset` are implemented.
 
 ## Crawl Strategy
 
@@ -188,6 +192,7 @@ data/
   chunks/      semantic chunk JSON files
   index/       document and chunk manifests
   embeddings/  temporary embedding vector JSON files
+  prompts/     assembled prompt.md and prompt.json files
   crawl/
     state.json
     visited.txt
@@ -419,6 +424,29 @@ Book: Kırık Testi
 Heading:
 İhlas -> Samimiyet
 ```
+
+Prompt assembly uses semantic retrieval results to write:
+
+```text
+data/prompts/prompt.md
+data/prompts/prompt.json
+```
+
+The prompt contains `SYSTEM`, `QUESTION`, `RETRIEVED CONTEXT`, and `INSTRUCTIONS` sections. Each context block includes title, URL, heading path, chunk ID, merged chunk IDs, score, and Markdown content. The assembler preserves retrieval score ordering, keeps retrieval-engine merged chunks as single context blocks, and trims the lowest-ranked chunks when the retrieved context exceeds `PROMPT_MAX_CONTEXT_TOKENS` or `--maxContextTokens`.
+
+`prompt.json` contains:
+
+```json
+{
+  "systemPrompt": "string",
+  "userQuestion": "string",
+  "chunks": [],
+  "estimatedTokens": 1234,
+  "trimmedChunks": []
+}
+```
+
+Prompt assembly does not call a chat/completions API and does not generate an answer.
 
 ## Development
 

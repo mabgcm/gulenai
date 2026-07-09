@@ -108,7 +108,7 @@ describe("Crawler", () => {
     const fetcher = new MockFetcher();
     const store = new CrawlStore(tempDir);
     const logger = pino({ enabled: false });
-    const crawler = new Crawler(source, fetcher, store, logger);
+    const crawler = new Crawler(source, fetcher, store, logger, join(tempDir, "reports"));
 
     const result = await crawler.run();
 
@@ -132,7 +132,8 @@ describe("Crawler", () => {
       },
       fetcher,
       store,
-      logger
+      logger,
+      join(tempDir, "reports")
     );
 
     const result = await crawler.run();

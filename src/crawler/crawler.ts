@@ -33,7 +33,8 @@ export class Crawler {
     private readonly source: SourceConfig,
     private readonly fetcher: Fetcher,
     private readonly store: CrawlStore,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly reportsDir = "reports"
   ) {
     this.policy = new UrlPolicy(source);
     this.analyzer = new ContentQualityAnalyzer({
@@ -66,7 +67,9 @@ export class Crawler {
     );
     await Promise.all(workers);
     await this.persistState();
-    const summary = await new CrawlQualityReporter().write(this.qualityTracker.state().decisions);
+    const summary = await new CrawlQualityReporter(this.reportsDir).write(
+      this.qualityTracker.state().decisions
+    );
     this.logger.info(summary, "Crawl quality report written");
 
     return {

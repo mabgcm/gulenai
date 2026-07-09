@@ -8,6 +8,7 @@ data/chunks/*
 data/crawl/*
 data/index/*
 data/embeddings/*
+data/prompts/*
 !data/raw/.gitkeep
 !data/clean/.gitkeep
 !data/markdown/.gitkeep
@@ -15,3 +16,4 @@ data/embeddings/*
 !data/crawl/.gitkeep
 !data/index/.gitkeep
 !data/embeddings/.gitkeep
+!data/prompts/.gitkeep

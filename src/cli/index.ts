@@ -26,6 +26,8 @@ import { CleanHtmlReader } from "../markdown/cleanHtmlReader.js";
 import { MarkdownConverter } from "../markdown/markdownConverter.js";
 import { MarkdownPipeline } from "../markdown/markdownPipeline.js";
 import { MarkdownStore } from "../markdown/markdownStore.js";
+import { PromptAssembler } from "../prompt/promptAssembler.js";
+import { PromptStore } from "../prompt/promptStore.js";
 import { EmbeddingVectorReader, QdrantChunkPayloadReader } from "../qdrant/qdrantDataReaders.js";
 import { RestQdrantVectorClient } from "../qdrant/qdrantClient.js";
 import { QdrantIndexStore } from "../qdrant/qdrantIndexStore.js";
@@ -230,6 +232,7 @@ const parseSearchOptions = (args: readonly string[]): { query: string; options: 
   const flagNames = new Set([
     "--topK",
     "--threshold",
+    "--maxContextTokens",
     "--language",
     "--documentId",
     "--title",
@@ -311,6 +314,39 @@ const search = async (): Promise<void> => {
   process.stdout.write(`${formatSearchResults(await engine.search(query, options))}\n`);
 };
 
+const prompt = async (): Promise<void> => {
+  const config = loadConfig();
+  const args = process.argv.slice(3);
+  const { query, options } = parseSearchOptions(args);
+  if (query.length === 0) {
+    throw new Error('Usage: pnpm prompt "user question" [--topK 8] [--threshold 0.5]');
+  }
+
+  const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
+  const chunkStore = new ChunkContentStore();
+  const engine = new RetrievalEngine(
+    config.QDRANT_COLLECTION,
+    new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, model),
+    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY),
+    () => chunkStore.readByChunkId()
+  );
+  const maxContextTokens = parseNumberFlag(
+    args,
+    "--maxContextTokens",
+    config.PROMPT_MAX_CONTEXT_TOKENS,
+    (value) => Number.isInteger(value) && value >= 0
+  );
+  const assembled = new PromptAssembler(new OpenAiTokenCounter()).assemble(
+    query,
+    await engine.search(query, options),
+    { maxContextTokens }
+  );
+  const result = await new PromptStore().write(assembled);
+  process.stdout.write(
+    `Prompt written:\n${result.markdownPath}\n${result.jsonPath}\nEstimated tokens: ${assembled.estimatedTokens}\nIncluded chunks: ${assembled.chunks.length}\nTrimmed chunks: ${assembled.trimmedChunks.length}\n`
+  );
+};
+
 const main = async (): Promise<void> => {
   const command = process.argv[2];
 
@@ -345,6 +381,9 @@ const main = async (): Promise<void> => {
     case "search":
       await search();
       break;
+    case "prompt":
+      await prompt();
+      break;
     case "inspect":
       await inspect();
       break;
@@ -353,7 +392,7 @@ const main = async (): Promise<void> => {
       break;
     default:
       throw new Error(
-        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|inspect|crawl-report|reset>"
+        "Usage: pnpm <crawl|extract|markdown|chunk|index|status|embed|qdrant|search|prompt|inspect|crawl-report|reset>"
       );
   }
 };

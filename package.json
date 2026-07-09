@@ -20,6 +20,7 @@
     "status": "tsx src/cli/index.ts status",
     "qdrant": "tsx src/cli/index.ts qdrant",
     "search": "tsx src/cli/index.ts search",
+    "prompt": "tsx src/cli/index.ts prompt",
     "inspect": "tsx src/cli/index.ts inspect",
     "crawl-report": "tsx src/cli/index.ts crawl-report",
     "reset": "tsx src/cli/index.ts reset"

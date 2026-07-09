@@ -74,6 +74,7 @@ const envSchema = z.object({
   QDRANT_CONCURRENCY: integerFromEnv(2),
   QDRANT_RETRIES: integerFromEnv(3),
   SEARCH_TOP_K: integerFromEnv(8),
+  PROMPT_MAX_CONTEXT_TOKENS: integerFromEnv(6000),
   SEARCH_SCORE_THRESHOLD: z
     .string()
     .optional()
