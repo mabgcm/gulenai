@@ -9,6 +9,8 @@ export interface PromptChunkMetadata {
   readonly sourceFile: string;
   readonly language: string | null;
   readonly tokenCount: number;
+  readonly chunkIndex: number;
+  readonly totalChunks: number;
   readonly merged: boolean;
 }
 

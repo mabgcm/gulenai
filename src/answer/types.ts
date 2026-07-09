@@ -6,6 +6,8 @@ export interface AnswerChunkReference {
   readonly url: string | null;
   readonly headingPath: readonly string[];
   readonly similarityScore: number;
+  readonly chunkIndex: number;
+  readonly totalChunks: number;
 }
 
 export interface StrictRagAnswer {

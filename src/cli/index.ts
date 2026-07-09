@@ -8,6 +8,9 @@ import { MarkdownChunker } from "../chunking/chunker.js";
 import { ChunkStore } from "../chunking/chunkStore.js";
 import { MarkdownDocumentReader } from "../chunking/markdownDocumentReader.js";
 import { OpenAiTokenCounter } from "../chunking/tokenCounter.js";
+import { CitationEngine } from "../citations/citationEngine.js";
+import { formatCitedAnswerCli } from "../citations/citationFormatter.js";
+import { CitationStore } from "../citations/citationStore.js";
 import { Crawler } from "../crawler/crawler.js";
 import { PlaywrightFetcher } from "../crawler/fetcher.js";
 import { CrawlQualityReporter } from "../crawlQuality/crawlQualityReporter.js";
@@ -361,9 +364,11 @@ const prompt = async (): Promise<void> => {
 const answer = async (): Promise<void> => {
   const config = loadConfig();
   const args = process.argv.slice(3);
-  const { query, options } = parseSearchOptions(args);
+  const withSources = args.includes("--sources");
+  const searchArgs = args.filter((arg) => arg !== "--sources");
+  const { query, options } = parseSearchOptions(searchArgs);
   if (query.length === 0) {
-    throw new Error('Usage: pnpm answer "question" [--topK 8] [--threshold 0.5]');
+    throw new Error('Usage: pnpm answer "question" [--sources] [--topK 8] [--threshold 0.5]');
   }
 
   const embeddingModel = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
@@ -375,7 +380,7 @@ const answer = async (): Promise<void> => {
     () => chunkStore.readByChunkId()
   );
   const maxContextTokens = parseNumberFlag(
-    args,
+    searchArgs,
     "--maxContextTokens",
     config.PROMPT_MAX_CONTEXT_TOKENS,
     (value) => Number.isInteger(value) && value >= 0
@@ -389,6 +394,13 @@ const answer = async (): Promise<void> => {
     maxOutputTokens: config.MAX_OUTPUT_TOKENS,
     maxContextTokens
   });
+
+  if (withSources) {
+    const cited = new CitationEngine().build(query, result);
+    await new CitationStore().write(cited);
+    process.stdout.write(`${formatCitedAnswerCli(cited)}\n`);
+    return;
+  }
 
   process.stdout.write(`${formatAnswer(query, result)}\n`);
 };

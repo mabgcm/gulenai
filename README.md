@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, Qdrant vector-store synchronization, semantic retrieval, prompt assembly, and strict RAG answer generation.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, intelligent chunking, document indexing, embedding generation, Qdrant vector-store synchronization, semantic retrieval, prompt assembly, strict RAG answer generation, and traceable citations.
 
 The architecture target is:
 
@@ -49,8 +49,9 @@ Implemented:
 - Prompt assembly from retrieved chunks without calling an LLM, with token-budget trimming and `data/prompts/prompt.md` / `prompt.json` output
 - Retrieval diagnostics for Qdrant/index/vector consistency and search validation reports
 - Strict RAG answer generation with OpenAI Chat Completions, context-only answers, confidence scoring, and internal used/ignored chunk tracking
+- Citation rendering from used answer chunks, with `data/answers/answer.md`, `data/answers/answer.json`, and citation validation reports
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, semantic retrieval, crawl quality, and prompt assembly
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, intelligent chunking, document indexing, embedding jobs, Qdrant sync, semantic retrieval, crawl quality, prompt assembly, strict answers, and citations
 
 ## Requirements
 
@@ -142,6 +143,7 @@ pnpm search "user question" --topK 5 --threshold 0.5 --language tr
 pnpm prompt "user question"
 pnpm prompt "user question" --topK 5 --threshold 0.5 --language tr --maxContextTokens 4000
 pnpm answer "user question"
+pnpm answer --sources "user question"
 pnpm answer "user question" --topK 5 --threshold 0.5 --maxContextTokens 4000
 pnpm diagnose
 pnpm validate-search "user question"
@@ -203,6 +205,7 @@ data/
   index/       document and chunk manifests
   embeddings/  temporary embedding vector JSON files
   prompts/     assembled prompt.md and prompt.json files
+  answers/     latest cited answer.md and answer.json files
   crawl/
     state.json
     visited.txt
@@ -483,7 +486,43 @@ The structured answer result contains:
 }
 ```
 
-`usedChunks` and `ignoredChunks` are preserved internally for the future citation engine. Citations are not rendered yet.
+To render citations, use:
+
+```bash
+pnpm answer --sources "İhlas nedir?"
+```
+
+The citation engine uses the strict answer's internally tracked `usedChunks`, appends source markers to supported answer sentences, groups multiple supporting chunks under the same citation marker, and writes:
+
+```text
+data/answers/answer.md
+data/answers/answer.json
+reports/citation-validation.html
+```
+
+Each citation includes document title, source URL, heading path, chunk ID, retrieval score, chunk index, and total chunks. Unsupported answers do not fabricate citations.
+
+`answer.json` contains:
+
+```json
+{
+  "question": "string",
+  "answer": "string",
+  "confidence": 94,
+  "citations": [
+    {
+      "id": 1,
+      "title": "Kırık Testi",
+      "url": "https://example.test",
+      "headingPath": ["Diriliş Mimarlarının Vazifesi", "İhlas ve Rıza"],
+      "chunkId": "chunk-id",
+      "score": 0.96,
+      "chunkIndex": 0,
+      "totalChunks": 3
+    }
+  ]
+}
+```
 
 Retrieval diagnostics validate that the local manifests, embedding files, and Qdrant collection are in sync:
 

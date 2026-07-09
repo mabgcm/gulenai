@@ -111,6 +111,7 @@ export class CrawlStore {
       ensureDir(join(this.dataDir, "index")),
       ensureDir(join(this.dataDir, "embeddings")),
       ensureDir(join(this.dataDir, "prompts")),
+      ensureDir(join(this.dataDir, "answers")),
       ensureDir(join(this.dataDir, "crawl"))
     ]);
   }

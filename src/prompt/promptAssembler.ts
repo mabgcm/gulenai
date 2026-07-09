@@ -91,6 +91,8 @@ export class PromptAssembler {
           sourceFile: result.metadata.sourceFile,
           language: result.metadata.language,
           tokenCount: result.metadata.tokenCount,
+          chunkIndex: result.metadata.chunkIndex,
+          totalChunks: result.metadata.totalChunks,
           merged: result.metadata.merged
         },
         markdown,
@@ -148,6 +150,8 @@ const renderChunkForBudget = (rank: number, result: SearchResult, markdown: stri
       sourceFile: result.metadata.sourceFile,
       language: result.metadata.language,
       tokenCount: result.metadata.tokenCount,
+      chunkIndex: result.metadata.chunkIndex,
+      totalChunks: result.metadata.totalChunks,
       merged: result.metadata.merged
     },
     markdown,
