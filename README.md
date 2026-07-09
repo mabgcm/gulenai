@@ -1,6 +1,6 @@
 # GulenAI Ingestion
 
-Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, and Markdown conversion; later increments will fill in chunking, embeddings, Qdrant indexing, and semantic search.
+Production-oriented Node.js + TypeScript ingestion pipeline for building a knowledge base from published works. The completed increments implement the generic crawler for `https://fgulen.com`, content extraction from crawled raw HTML, Markdown conversion, and intelligent chunking; later increments will fill in embeddings, Qdrant indexing, and semantic search.
 
 The architecture target is:
 
@@ -33,17 +33,18 @@ Implemented:
 - AI-friendly Markdown normalization for headings, whitespace, line endings, URLs, Unicode, images, lists, blockquotes, tables, and horizontal rules
 - Markdown persistence under `data/markdown`, preserving the `data/clean` directory structure
 - Metadata sidecar copying alongside generated Markdown files
+- Intelligent Markdown chunking from `data/markdown`
+- OpenAI-compatible token counting using `cl100k_base`
+- Semantic chunk boundaries that preserve headings, paragraphs, blockquotes, ordered and unordered lists, nested lists, tables, and fenced code blocks
+- Deterministic chunk IDs and JSON chunk persistence under `data/chunks`
 - Pino logging, Zod config validation, strict TypeScript, ESLint, Prettier
-- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, and markdown chunking
+- Unit tests for URL policy, HTML parsing, crawler behavior, content extraction, metadata, Markdown conversion, and intelligent chunking
 
 Not yet implemented as CLI stages:
 
-- `chunk`
 - `embed`
 - `index`
 - `search`
-
-The chunker module exists and is tested, but its CLI/data integration is intentionally left for the chunking stage.
 
 ## Requirements
 
@@ -83,6 +84,9 @@ CRAWL_CONCURRENCY=3
 CRAWL_RETRIES=2
 CRAWL_DELAY_MS=1000
 CRAWL_RESPECT_ROBOTS=true
+CHUNK_SIZE_TOKENS=800
+CHUNK_MAX_TOKENS=1000
+CHUNK_OVERLAP_TOKENS=150
 ```
 
 To add another website later, change the seed, allowed domains, and path filters. The crawler does not contain `fgulen.com`-specific logic.
@@ -100,7 +104,7 @@ pnpm index
 pnpm search
 ```
 
-`crawl`, `extract`, `markdown`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
+`crawl`, `extract`, `markdown`, `chunk`, and `reset` are implemented. The other commands are registered so the CLI shape is stable, and they fail clearly until their stages are implemented.
 
 ## Data Layout
 
@@ -109,7 +113,7 @@ data/
   raw/         raw HTML pages
   clean/       cleaned article HTML and .metadata.json sidecars
   markdown/    markdown documents and copied .metadata.json sidecars
-  chunks/      chunk JSON, future stage
+  chunks/      semantic chunk JSON files
   crawl/
     state.json
     visited.txt
@@ -151,6 +155,36 @@ data/markdown/<same-relative-path>.metadata.json
 ```
 
 Markdown conversion preserves headings, paragraphs, emphasis, strong text, links, blockquotes, ordered and unordered lists, nested lists, tables, images with alt text, and horizontal rules. It removes invisible content, empty elements, redundant whitespace, and duplicated blank lines.
+
+For each Markdown file, chunking writes one JSON file per chunk:
+
+```text
+data/chunks/<same-relative-path-without-md>/<chunk-index>-<chunk-id>.json
+```
+
+Chunk JSON shape:
+
+```json
+{
+  "metadata": {
+    "id": "deterministic-id",
+    "sourceFile": "en/article.md",
+    "title": "Article title",
+    "url": "https://fgulen.com/example",
+    "language": "en",
+    "headingPath": ["Book", "Chapter", "Section"],
+    "chunkIndex": 0,
+    "totalChunks": 5,
+    "tokenCount": 782,
+    "wordCount": 560,
+    "contentHash": "sha256"
+  },
+  "markdown": "# Section\n\nChunk Markdown",
+  "plainText": "Section\n\nChunk plain text"
+}
+```
+
+Default chunking targets 800 tokens, allows up to 1000 tokens, and carries 150 tokens of block-level overlap when possible.
 
 ## Development
 

@@ -22,6 +22,9 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
+      js-tiktoken:
+        specifier: ^1.0.21
+        version: 1.0.21
       jsdom:
         specifier: ^24.1.3
         version: 24.1.3
@@ -1180,6 +1183,12 @@ packages:
       }
     engines: { node: 18 || 20 || >=22 }
 
+  base64-js@1.5.1:
+    resolution:
+      {
+        integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
+      }
+
   boolbase@1.0.0:
     resolution:
       {
@@ -1839,6 +1848,12 @@ packages:
     resolution:
       {
         integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
+      }
+
+  js-tiktoken@1.0.21:
+    resolution:
+      {
+        integrity: sha512-biOj/6M5qdgx5TKjDnFT1ymSpM5tbd3ylwDtrQvFQSu0Z7bBYko2dF+W/aUkXUPuk6IVpRxk/3Q2sHOzGlS36g==
       }
 
   js-yaml@4.3.0:
@@ -3219,6 +3234,8 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
+  base64-js@1.5.1: {}
+
   boolbase@1.0.0: {}
 
   brace-expansion@1.1.16:
@@ -3660,6 +3677,10 @@ snapshots:
   is-potential-custom-element-name@1.0.1: {}
 
   isexe@2.0.0: {}
+
+  js-tiktoken@1.0.21:
+    dependencies:
+      base64-js: 1.5.1
 
   js-yaml@4.3.0:
     dependencies:

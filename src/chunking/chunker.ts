@@ -1,180 +1,264 @@
-export type MetadataValue = string | number | boolean | null | readonly string[];
+import type { MarkdownBlock } from "./markdownBlocks.js";
+import { parseMarkdownBlocks } from "./markdownBlocks.js";
+import { countWords, markdownToPlainText } from "./plainText.js";
+import type { TokenCounter } from "./tokenCounter.js";
+import type {
+  ChunkerConfig,
+  ChunkMetadata,
+  MarkdownChunk,
+  MarkdownInputDocument
+} from "./types.js";
+import { sha256, shortHash } from "../utils/hash.js";
 
-export interface ChunkMetadata {
-  readonly [key: string]: MetadataValue;
+interface Section {
+  readonly blocks: readonly MarkdownBlock[];
+  readonly headingPath: readonly string[];
 }
 
-export interface ChunkInput {
-  readonly id: string;
+interface DraftChunk {
   readonly markdown: string;
-  readonly metadata: ChunkMetadata;
-}
-
-export interface Chunk {
-  readonly id: string;
-  readonly sourceId: string;
-  readonly index: number;
-  readonly text: string;
+  readonly plainText: string;
+  readonly headingPath: readonly string[];
   readonly tokenCount: number;
-  readonly metadata: ChunkMetadata;
+  readonly wordCount: number;
+  readonly contentHash: string;
 }
 
-export interface ChunkerConfig {
-  readonly chunkSizeTokens: number;
-  readonly overlapTokens: number;
-}
+const metadataString = (metadata: Record<string, unknown> | null, key: string): string | null => {
+  const value = metadata?.[key];
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+};
 
-const countTokens = (text: string): number => text.split(/\s+/).filter(Boolean).length;
+const normalizeMarkdown = (blocks: readonly MarkdownBlock[]): string =>
+  blocks
+    .map((block) => block.markdown)
+    .join("\n\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 
-const splitMarkdownBlocks = (markdown: string): readonly string[] => {
-  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
-  const blocks: string[] = [];
-  let current: string[] = [];
-  let inCodeFence = false;
+const buildHeadingPath = (blocks: readonly MarkdownBlock[]): readonly string[] => {
+  for (let index = blocks.length - 1; index >= 0; index -= 1) {
+    const block = blocks[index];
+    if (block !== undefined && block.headingPath.length > 0) {
+      return block.headingPath;
+    }
+  }
+  return [];
+};
+
+const groupSections = (blocks: readonly MarkdownBlock[]): readonly Section[] => {
+  const sections: Section[] = [];
+  let current: MarkdownBlock[] = [];
 
   const flush = (): void => {
-    const block = current.join("\n").trim();
-    if (block.length > 0) {
-      blocks.push(block);
+    if (current.length === 0) {
+      return;
     }
+    sections.push({ blocks: current, headingPath: buildHeadingPath(current) });
     current = [];
   };
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    const startsFence = trimmed.startsWith("```") || trimmed.startsWith("~~~");
-
-    if (startsFence) {
-      current.push(line);
-      inCodeFence = !inCodeFence;
-      if (!inCodeFence) {
-        flush();
-      }
-      continue;
-    }
-
-    if (inCodeFence) {
-      current.push(line);
-      continue;
-    }
-
-    if (trimmed.length === 0) {
-      flush();
-      continue;
-    }
-
-    const startsStructuralBlock =
-      /^#{1,6}\s/.test(trimmed) ||
-      /^[-*+]\s/.test(trimmed) ||
-      /^\d+\.\s/.test(trimmed) ||
-      trimmed.startsWith(">") ||
-      trimmed.includes("|");
-
-    const currentIsStructural =
-      current.length > 0 &&
-      (/^[-*+]\s/.test(current[0]?.trim() ?? "") ||
-        /^\d+\.\s/.test(current[0]?.trim() ?? "") ||
-        (current[0]?.trim().startsWith(">") ?? false) ||
-        (current[0]?.trim().includes("|") ?? false));
-
-    if (startsStructuralBlock && current.length > 0 && !currentIsStructural) {
+  for (const block of blocks) {
+    if (block.type === "heading" && block.headingLevel !== null && block.headingLevel <= 2) {
       flush();
     }
-
-    current.push(line);
-
-    if (/^#{1,6}\s/.test(trimmed)) {
-      flush();
-    }
+    current.push(block);
   }
 
   flush();
-  return blocks;
+  return sections;
 };
 
-const splitOversizedBlock = (block: string, maxTokens: number): readonly string[] => {
-  if (countTokens(block) <= maxTokens) {
-    return [block];
+const sliceWithOverlap = (
+  chunks: readonly MarkdownBlock[],
+  overlapTokens: number,
+  counter: TokenCounter
+): readonly MarkdownBlock[] => {
+  if (overlapTokens <= 0 || chunks.length === 0) {
+    return [];
   }
 
-  const words = block.split(/\s+/).filter(Boolean);
-  const parts: string[] = [];
-  for (let index = 0; index < words.length; index += maxTokens) {
-    parts.push(words.slice(index, index + maxTokens).join(" "));
+  const overlap: MarkdownBlock[] = [];
+  let tokens = 0;
+  for (let index = chunks.length - 1; index >= 0; index -= 1) {
+    const block = chunks[index];
+    if (block === undefined || block.type === "heading") {
+      continue;
+    }
+
+    const blockTokens = counter.count(block.markdown);
+    if (tokens + blockTokens > overlapTokens && overlap.length > 0) {
+      break;
+    }
+
+    overlap.unshift(block);
+    tokens += blockTokens;
   }
-  return parts;
+
+  return overlap;
+};
+
+const ensureHeadingContext = (
+  blocks: readonly MarkdownBlock[],
+  headingContext: readonly MarkdownBlock[]
+): readonly MarkdownBlock[] => {
+  const firstNonOverlap = blocks.find(
+    (block) => block.type !== "paragraph" || block.markdown.length > 0
+  );
+  if (firstNonOverlap?.type === "heading" || headingContext.length === 0) {
+    return blocks;
+  }
+
+  const existingHeadingText = new Set(
+    blocks.filter((block) => block.type === "heading").map((block) => block.headingText)
+  );
+  return [
+    ...headingContext.filter((block) => !existingHeadingText.has(block.headingText)),
+    ...blocks
+  ];
 };
 
 export class MarkdownChunker {
-  public constructor(private readonly config: ChunkerConfig) {
-    if (config.chunkSizeTokens <= 0) {
-      throw new Error("chunkSizeTokens must be greater than zero");
+  public constructor(
+    private readonly config: ChunkerConfig,
+    private readonly counter: TokenCounter
+  ) {
+    if (config.targetTokens <= 0) {
+      throw new Error("targetTokens must be greater than zero");
     }
-
-    if (config.overlapTokens < 0 || config.overlapTokens >= config.chunkSizeTokens) {
-      throw new Error("overlapTokens must be non-negative and smaller than chunkSizeTokens");
+    if (config.maxTokens < config.targetTokens) {
+      throw new Error("maxTokens must be greater than or equal to targetTokens");
+    }
+    if (config.overlapTokens < 0 || config.overlapTokens >= config.targetTokens) {
+      throw new Error("overlapTokens must be non-negative and smaller than targetTokens");
     }
   }
 
-  public chunk(input: ChunkInput): readonly Chunk[] {
-    const blocks = splitMarkdownBlocks(input.markdown).flatMap((block) =>
-      splitOversizedBlock(block, this.config.chunkSizeTokens)
-    );
-    const chunks: Chunk[] = [];
-    let currentBlocks: string[] = [];
+  public chunk(document: MarkdownInputDocument): readonly MarkdownChunk[] {
+    const blocks = parseMarkdownBlocks(document.markdown);
+    const sections = groupSections(blocks);
+    const draftBlocks = this.packSections(sections);
+    const drafts = draftBlocks.map((chunkBlocks) => this.buildDraft(chunkBlocks));
+
+    return drafts.map((draft, index) => ({
+      metadata: this.buildMetadata(document, draft, index, drafts.length),
+      markdown: draft.markdown,
+      plainText: draft.plainText
+    }));
+  }
+
+  private packSections(sections: readonly Section[]): readonly (readonly MarkdownBlock[])[] {
+    const chunks: MarkdownBlock[][] = [];
+    let current: MarkdownBlock[] = [];
     let currentTokens = 0;
 
     const emit = (): void => {
-      if (currentBlocks.length === 0) {
+      if (current.length === 0) {
         return;
       }
-
-      const text = currentBlocks.join("\n\n").trim();
-      chunks.push({
-        id: `${input.id}:${chunks.length}`,
-        sourceId: input.id,
-        index: chunks.length,
-        text,
-        tokenCount: countTokens(text),
-        metadata: {
-          ...input.metadata,
-          chunkIndex: chunks.length,
-          sourceId: input.id
-        }
-      });
-
-      const overlapBlocks: string[] = [];
-      let overlapCount = 0;
-      for (let index = currentBlocks.length - 1; index >= 0; index -= 1) {
-        const block = currentBlocks[index];
-        if (block === undefined) {
-          continue;
-        }
-
-        const blockTokens = countTokens(block);
-        if (overlapCount + blockTokens > this.config.overlapTokens && overlapBlocks.length > 0) {
-          break;
-        }
-
-        overlapBlocks.unshift(block);
-        overlapCount += blockTokens;
-      }
-
-      currentBlocks = overlapBlocks;
-      currentTokens = overlapCount;
+      chunks.push(current);
+      current = [...sliceWithOverlap(current, this.config.overlapTokens, this.counter)];
+      currentTokens = this.counter.count(normalizeMarkdown(current));
     };
 
-    for (const block of blocks) {
-      const blockTokens = countTokens(block);
-      if (currentTokens > 0 && currentTokens + blockTokens > this.config.chunkSizeTokens) {
+    for (const section of sections) {
+      const sectionTokens = this.counter.count(normalizeMarkdown(section.blocks));
+      if (sectionTokens > this.config.maxTokens) {
+        if (current.length > 0) {
+          emit();
+        }
+        for (const split of this.splitOversizedSection(section)) {
+          chunks.push([...split]);
+        }
+        current = [];
+        currentTokens = 0;
+        continue;
+      }
+
+      if (currentTokens > 0 && currentTokens + sectionTokens > this.config.targetTokens) {
         emit();
       }
 
-      currentBlocks.push(block);
-      currentTokens += blockTokens;
+      current.push(...section.blocks);
+      currentTokens = this.counter.count(normalizeMarkdown(current));
     }
 
-    emit();
+    if (current.length > 0) {
+      chunks.push(current);
+    }
+
     return chunks;
+  }
+
+  private splitOversizedSection(section: Section): readonly (readonly MarkdownBlock[])[] {
+    const headingContext = section.blocks.filter((block) => block.type === "heading");
+    const contentBlocks = section.blocks.filter((block) => block.type !== "heading");
+    const chunks: MarkdownBlock[][] = [];
+    let current: MarkdownBlock[] = [...headingContext];
+
+    const emit = (): void => {
+      const withContext = ensureHeadingContext(current, headingContext);
+      if (withContext.length > 0) {
+        chunks.push([...withContext]);
+      }
+      const overlap = sliceWithOverlap(current, this.config.overlapTokens, this.counter);
+      current = [...headingContext, ...overlap];
+    };
+
+    for (const block of contentBlocks) {
+      const next = [...current, block];
+      const nextTokens = this.counter.count(normalizeMarkdown(next));
+      if (current.length > headingContext.length && nextTokens > this.config.maxTokens) {
+        emit();
+      }
+      current.push(block);
+    }
+
+    if (current.length > headingContext.length || chunks.length === 0) {
+      chunks.push([...ensureHeadingContext(current, headingContext)]);
+    }
+
+    return chunks;
+  }
+
+  private buildDraft(blocks: readonly MarkdownBlock[]): DraftChunk {
+    const markdown = normalizeMarkdown(blocks);
+    const plainText = markdownToPlainText(markdown);
+    return {
+      markdown,
+      plainText,
+      headingPath: buildHeadingPath(blocks),
+      tokenCount: this.counter.count(markdown),
+      wordCount: countWords(plainText),
+      contentHash: sha256(markdown)
+    };
+  }
+
+  private buildMetadata(
+    document: MarkdownInputDocument,
+    draft: DraftChunk,
+    chunkIndex: number,
+    totalChunks: number
+  ): ChunkMetadata {
+    const seed = [
+      document.relativePath,
+      chunkIndex.toString(),
+      draft.contentHash,
+      draft.headingPath.join("/")
+    ].join("|");
+
+    return {
+      id: shortHash(seed),
+      sourceFile: document.relativePath,
+      title: metadataString(document.metadata, "title"),
+      url: metadataString(document.metadata, "url"),
+      language: metadataString(document.metadata, "language"),
+      headingPath: draft.headingPath,
+      chunkIndex,
+      totalChunks,
+      tokenCount: draft.tokenCount,
+      wordCount: draft.wordCount,
+      contentHash: draft.contentHash
+    };
   }
 }

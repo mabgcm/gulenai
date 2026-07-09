@@ -1,5 +1,10 @@
 import { buildDefaultSourceConfig, loadConfig } from "../config/env.js";
 import { logger } from "../config/logger.js";
+import { ChunkingPipeline } from "../chunking/chunkingPipeline.js";
+import { MarkdownChunker } from "../chunking/chunker.js";
+import { ChunkStore } from "../chunking/chunkStore.js";
+import { MarkdownDocumentReader } from "../chunking/markdownDocumentReader.js";
+import { OpenAiTokenCounter } from "../chunking/tokenCounter.js";
 import { Crawler } from "../crawler/crawler.js";
 import { PlaywrightFetcher } from "../crawler/fetcher.js";
 import { ArticleExtractor } from "../extract/articleExtractor.js";
@@ -61,6 +66,25 @@ const markdown = async (): Promise<void> => {
   logger.info(result, "Markdown conversion complete");
 };
 
+const chunk = async (): Promise<void> => {
+  const config = loadConfig();
+  const pipeline = new ChunkingPipeline(
+    new MarkdownDocumentReader(),
+    new MarkdownChunker(
+      {
+        targetTokens: config.CHUNK_SIZE_TOKENS,
+        maxTokens: config.CHUNK_MAX_TOKENS,
+        overlapTokens: config.CHUNK_OVERLAP_TOKENS
+      },
+      new OpenAiTokenCounter()
+    ),
+    new ChunkStore(),
+    logger
+  );
+  const result = await pipeline.run();
+  logger.info(result, "Chunking complete");
+};
+
 const main = async (): Promise<void> => {
   const command = process.argv[2];
 
@@ -78,6 +102,8 @@ const main = async (): Promise<void> => {
       await markdown();
       break;
     case "chunk":
+      await chunk();
+      break;
     case "embed":
     case "index":
     case "search":

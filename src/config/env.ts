@@ -65,6 +65,7 @@ const envSchema = z.object({
   CRAWL_RESPECT_ROBOTS: booleanFromEnv(true),
   CRAWL_USER_AGENT: z.string().default("GulenAIIngestionBot/0.1 (+https://fgulen.com)"),
   CHUNK_SIZE_TOKENS: integerFromEnv(800),
+  CHUNK_MAX_TOKENS: integerFromEnv(1000),
   CHUNK_OVERLAP_TOKENS: integerFromEnv(150),
   EMBEDDING_MODEL: z.string().default("text-embedding-3-small"),
   LOG_LEVEL: z.string().default("info")
