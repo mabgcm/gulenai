@@ -7,6 +7,9 @@ export interface Citation {
   readonly headingPath: readonly string[];
   readonly chunkId: string;
   readonly score: number;
+  readonly similarityScore: number;
+  readonly sourceFile: string;
+  readonly excerpt: string;
   readonly chunkIndex: number;
   readonly totalChunks: number;
 }

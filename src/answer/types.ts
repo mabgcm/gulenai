@@ -8,6 +8,8 @@ export interface AnswerChunkReference {
   readonly similarityScore: number;
   readonly chunkIndex: number;
   readonly totalChunks: number;
+  readonly sourceFile?: string;
+  readonly markdown?: string;
 }
 
 export interface StrictRagAnswer {

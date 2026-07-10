@@ -33,16 +33,23 @@ export const searchRequestJsonSchema = {
 export const citationSchema = {
   type: "object",
   properties: {
-    id: { type: "integer" },
     title: { anyOf: [{ type: "string" }, { type: "null" }] },
+    heading: { anyOf: [{ type: "string" }, { type: "null" }] },
+    excerpt: { type: "string" },
     url: { anyOf: [{ type: "string" }, { type: "null" }] },
-    headingPath: { type: "array", items: { type: "string" } },
-    chunkId: { type: "string" },
-    score: { type: "number" },
+    similarityScore: { type: "number" },
     chunkIndex: { type: "integer" },
     totalChunks: { type: "integer" }
   },
-  required: ["id", "title", "url", "headingPath", "chunkId", "score", "chunkIndex", "totalChunks"]
+  required: [
+    "title",
+    "heading",
+    "excerpt",
+    "url",
+    "similarityScore",
+    "chunkIndex",
+    "totalChunks"
+  ]
 } as const;
 
 export const routeErrorResponses = {

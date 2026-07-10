@@ -509,7 +509,7 @@ data/answers/answer.json
 reports/citation-validation.html
 ```
 
-Each citation includes document title, source URL, heading path, chunk ID, retrieval score, chunk index, and total chunks. Unsupported answers do not fabricate citations.
+Each internal citation includes document title, source URL, heading path, source file, chunk ID, retrieval score (under both the backwards-compatible `score` field and `similarityScore`), a sentence-aware plain-text excerpt, chunk index, and total chunks. Unsupported answers do not fabricate citations.
 
 `answer.json` contains:
 
@@ -524,8 +524,11 @@ Each citation includes document title, source URL, heading path, chunk ID, retri
       "title": "Kırık Testi",
       "url": "https://example.test",
       "headingPath": ["Diriliş Mimarlarının Vazifesi", "İhlas ve Rıza"],
+      "sourceFile": "tr/example.md",
       "chunkId": "chunk-id",
       "score": 0.96,
+      "similarityScore": 0.96,
+      "excerpt": "İhlas ve rıza, insanın davranışlarını yalnız Allah'ın hoşnutluğuna yöneltmesiyle derinleşir.",
       "chunkIndex": 0,
       "totalChunks": 3
     }
@@ -611,6 +614,26 @@ Strict answer generation with citations:
 curl -X POST http://127.0.0.1:3000/api/v1/answer \
   -H 'content-type: application/json' \
   -d '{"question":"İhlas nedir?","language":"tr"}'
+```
+
+The REST response keeps internal citation compatibility details private and returns the frontend citation shape:
+
+```json
+{
+  "answer": "Supported answer text. [1]",
+  "confidence": 94,
+  "citations": [
+    {
+      "title": "Kırık Testi",
+      "heading": "İhlas ve Rıza",
+      "excerpt": "İhlas ve rıza, insanın davranışlarını yalnız Allah'ın hoşnutluğuna yöneltmesiyle derinleşir.",
+      "url": "https://example.test",
+      "similarityScore": 0.96,
+      "chunkIndex": 0,
+      "totalChunks": 3
+    }
+  ]
+}
 ```
 
 Sources only:

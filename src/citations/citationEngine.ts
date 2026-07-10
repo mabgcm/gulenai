@@ -1,6 +1,7 @@
 import type { StrictRagAnswer } from "../answer/types.js";
 import { UNSUPPORTED_ANSWER } from "../answer/strictRagAnswerEngine.js";
 import type { CitedAnswer, Citation, CitationGroup } from "./types.js";
+import { createCitationExcerpt } from "./citationExcerpt.js";
 
 const SENTENCE_ENDING = /([.!?。！？]+)(\s+|$)/g;
 
@@ -19,6 +20,9 @@ const dedupeCitations = (answer: StrictRagAnswer): readonly Citation[] => {
       headingPath: chunk.headingPath,
       chunkId: chunk.chunkId,
       score: chunk.similarityScore,
+      similarityScore: chunk.similarityScore,
+      sourceFile: chunk.sourceFile ?? "",
+      excerpt: createCitationExcerpt(chunk.markdown ?? ""),
       chunkIndex: chunk.chunkIndex,
       totalChunks: chunk.totalChunks
     });

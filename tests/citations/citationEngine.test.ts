@@ -15,7 +15,10 @@ const baseAnswer = (overrides: Partial<StrictRagAnswer> = {}): StrictRagAnswer =
       headingPath: ["Kırık Testi", "İhlas"],
       similarityScore: 0.96,
       chunkIndex: 0,
-      totalChunks: 3
+      totalChunks: 3,
+      sourceFile: "tr/kirik-testi.md",
+      markdown:
+        "# İhlas\n\n**İhlas**, amelin yalnız Allah rızası için yapılmasıdır. İnsan gösterişten uzak durur. Kalbini samimiyetle korur ve davranışlarını yalnızca Hakk'ın hoşnutluğuna yöneltir."
     }
   ],
   ignoredChunks: [],
@@ -38,9 +41,15 @@ describe("CitationEngine", () => {
       url: "https://example.test/ihlas",
       chunkId: "chunk-1",
       score: 0.96,
+      similarityScore: 0.96,
+      sourceFile: "tr/kirik-testi.md",
       chunkIndex: 0,
       totalChunks: 3
     });
+    expect(result.citations[0]?.excerpt).toContain("İhlas");
+    expect(result.citations[0]?.excerpt).not.toContain("**");
+    expect(result.citations[0]?.excerpt.length).toBeGreaterThanOrEqual(120);
+    expect(result.citations[0]?.excerpt.length).toBeLessThanOrEqual(220);
   });
 
   it("groups multiple supporting chunks under one citation marker", () => {

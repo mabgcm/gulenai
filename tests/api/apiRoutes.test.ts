@@ -76,6 +76,9 @@ const citation: Citation = {
   headingPath: ["Kitap", "İhlas"],
   chunkId: "chunk-1",
   score: 0.94,
+  similarityScore: 0.94,
+  sourceFile: "doc.md",
+  excerpt: "İhlas, amelin yalnız Allah rızası için yapılmasıdır.",
   chunkIndex: 0,
   totalChunks: 2
 };
@@ -365,7 +368,16 @@ describe("REST API routes", () => {
     expect(response.json()).toMatchObject({
       answer: "İhlas cevabı. [1]",
       confidence: 94,
-      citations: [{ chunkId: "chunk-1" }]
+      citations: [
+        {
+          title: "Kırık Testi",
+          heading: "İhlas",
+          excerpt: "İhlas, amelin yalnız Allah rızası için yapılmasıdır.",
+          similarityScore: 0.94,
+          chunkIndex: 0,
+          totalChunks: 2
+        }
+      ]
     });
   });
 
@@ -379,7 +391,9 @@ describe("REST API routes", () => {
     await server.close();
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toMatchObject({ citations: [{ chunkId: "chunk-1" }] });
+    expect(response.json()).toMatchObject({
+      citations: [{ title: "Kırık Testi", heading: "İhlas", similarityScore: 0.94 }]
+    });
   });
 
   it("serves document metadata", async () => {

@@ -81,7 +81,9 @@ const chunkReference = (chunk: PromptChunk): AnswerChunkReference => ({
   headingPath: chunk.metadata.headingPath,
   similarityScore: chunk.metadata.similarityScore,
   chunkIndex: chunk.metadata.chunkIndex,
-  totalChunks: chunk.metadata.totalChunks
+  totalChunks: chunk.metadata.totalChunks,
+  sourceFile: chunk.metadata.sourceFile,
+  markdown: chunk.markdown
 });
 
 const trimmedReference = (chunk: TrimmedPromptChunk): AnswerChunkReference => ({
@@ -91,7 +93,9 @@ const trimmedReference = (chunk: TrimmedPromptChunk): AnswerChunkReference => ({
   headingPath: [],
   similarityScore: 0,
   chunkIndex: -1,
-  totalChunks: 0
+  totalChunks: 0,
+  sourceFile: "",
+  markdown: ""
 });
 
 const unique = <T>(items: readonly T[]): readonly T[] => [...new Set(items)];

@@ -4,21 +4,19 @@ import type { ApiSearchRequest, KnowledgeApiService } from "../types.js";
 import { createSearchSnippet } from "../../search/searchSnippet.js";
 
 const citationResponse = (citation: {
-  readonly id: number;
   readonly title: string | null;
   readonly url: string | null;
   readonly headingPath: readonly string[];
-  readonly chunkId: string;
-  readonly score: number;
+  readonly excerpt: string;
+  readonly similarityScore: number;
   readonly chunkIndex: number;
   readonly totalChunks: number;
 }) => ({
-  id: citation.id,
   title: citation.title,
+  heading: citation.headingPath.at(-1) ?? citation.title,
+  excerpt: citation.excerpt,
   url: citation.url,
-  headingPath: citation.headingPath,
-  chunkId: citation.chunkId,
-  score: citation.score,
+  similarityScore: citation.similarityScore,
   chunkIndex: citation.chunkIndex,
   totalChunks: citation.totalChunks
 });

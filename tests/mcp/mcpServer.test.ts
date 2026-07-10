@@ -22,6 +22,9 @@ const citation: Citation = {
   headingPath: ["Kitap", "İhlas"],
   chunkId: "chunk-1",
   score: 0.94,
+  similarityScore: 0.94,
+  sourceFile: "doc.md",
+  excerpt: "İhlas, amelin yalnız Allah rızası için yapılmasıdır.",
   chunkIndex: 0,
   totalChunks: 2
 };
