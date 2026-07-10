@@ -121,7 +121,8 @@ const chunk = async (): Promise<void> => {
       {
         targetTokens: config.CHUNK_SIZE_TOKENS,
         maxTokens: config.CHUNK_MAX_TOKENS,
-        overlapTokens: config.CHUNK_OVERLAP_TOKENS
+        overlapTokens: config.CHUNK_OVERLAP_TOKENS,
+        embeddingMaxTokens: config.EMBEDDING_MAX_INPUT_TOKENS
       },
       new OpenAiTokenCounter()
     ),

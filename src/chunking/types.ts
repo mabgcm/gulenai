@@ -10,6 +10,7 @@ export interface ChunkerConfig {
   readonly targetTokens: number;
   readonly maxTokens: number;
   readonly overlapTokens: number;
+  readonly embeddingMaxTokens?: number;
 }
 
 export interface ChunkMetadata {

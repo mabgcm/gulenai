@@ -38,5 +38,69 @@
     "items": 12183,
     "unit": "vectors",
     "throughputPerSecond": 16.24854959388629
+  },
+  {
+    "stage": "index",
+    "generatedAt": "2026-07-10T02:33:49.308Z",
+    "durationSeconds": 1.994,
+    "items": 12675,
+    "unit": "chunks",
+    "throughputPerSecond": 6356.569709127382
+  },
+  {
+    "stage": "embed",
+    "generatedAt": "2026-07-10T02:34:01.718Z",
+    "durationSeconds": 5.478,
+    "items": 334,
+    "unit": "vectors",
+    "throughputPerSecond": 60.97115735669953
+  },
+  {
+    "stage": "qdrant",
+    "generatedAt": "2026-07-10T02:34:20.009Z",
+    "durationSeconds": 9.809,
+    "items": 334,
+    "unit": "vectors",
+    "throughputPerSecond": 34.05036191252931
+  },
+  {
+    "stage": "index",
+    "generatedAt": "2026-07-10T03:28:47.533Z",
+    "durationSeconds": 2.228,
+    "items": 12675,
+    "unit": "chunks",
+    "throughputPerSecond": 5688.958707360861
+  },
+  {
+    "stage": "crawl",
+    "generatedAt": "2026-07-10T03:57:35.399Z",
+    "durationSeconds": 1308.355,
+    "items": 341,
+    "unit": "pages",
+    "throughputPerSecond": 0.2606326264660585
+  },
+  {
+    "stage": "index",
+    "generatedAt": "2026-07-10T04:07:59.499Z",
+    "durationSeconds": 2.718,
+    "items": 16646,
+    "unit": "chunks",
+    "throughputPerSecond": 6124.356144223694
+  },
+  {
+    "stage": "embed",
+    "generatedAt": "2026-07-10T04:11:32.807Z",
+    "durationSeconds": 201.187,
+    "items": 3907,
+    "unit": "vectors",
+    "throughputPerSecond": 19.419743820425772
+  },
+  {
+    "stage": "qdrant",
+    "generatedAt": "2026-07-10T04:14:09.850Z",
+    "durationSeconds": 22.089,
+    "items": 3907,
+    "unit": "vectors",
+    "throughputPerSecond": 176.8753678301417
   }
 ]

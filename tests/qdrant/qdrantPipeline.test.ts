@@ -46,6 +46,17 @@ class FakeQdrantClient implements QdrantVectorClient {
     return this.points.size;
   }
 
+  public async listPoints(): Promise<readonly { readonly id: string; readonly chunkId: string | null }[]> {
+    await Promise.resolve();
+    return [...this.points.values()].map((point) => ({
+      id: point.id,
+      chunkId:
+        typeof (point.payload as { chunkId?: unknown }).chunkId === "string"
+          ? (point.payload as { chunkId: string }).chunkId
+          : null
+    }));
+  }
+
   public async upsert(_collection: string, points: readonly QdrantPoint[]): Promise<void> {
     await Promise.resolve();
     this.upsertCalls += 1;
@@ -298,5 +309,32 @@ describe("QdrantSyncPipeline", () => {
       pendingUploads: 1,
       deletedVectors: 0
     });
+  });
+
+  it("deletes orphan remote vectors during sync", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "gulenai-qdrant-"));
+    const vectorId = vectorIdForChunk("chunk-1");
+    await writeFixture(tempDir, [
+      chunkManifest("chunk-1", "hash-1", { vectorId })
+    ]);
+    const client = new FakeQdrantClient();
+    client.exists = true;
+    client.points.set(vectorId, {
+      id: vectorId,
+      vector: [1, 2, 3],
+      payload: { chunkId: "chunk-1" } as never
+    });
+    client.points.set("orphan", {
+      id: "orphan",
+      vector: [1, 2, 3],
+      payload: { chunkId: "missing" } as never
+    });
+
+    const summary = await pipeline(tempDir, client).sync();
+
+    expect(client.points.has("orphan")).toBe(false);
+    expect(client.deletedIds).toContain("orphan");
+    expect(summary.deletedVectors).toBe(1);
+    expect(summary.pendingUploads).toBe(0);
   });
 });

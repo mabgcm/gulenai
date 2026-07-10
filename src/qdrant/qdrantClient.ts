@@ -1,14 +1,23 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import type { Schemas } from "@qdrant/js-client-rest";
-import type { QdrantPoint } from "./types.js";
+import type { QdrantPoint, QdrantRemotePoint } from "./types.js";
 
 export interface QdrantVectorClient {
   collectionExists(collection: string): Promise<boolean>;
   createCollection(collection: string, dimensions: number): Promise<void>;
   count(collection: string): Promise<number>;
+  listPoints(collection: string): Promise<readonly QdrantRemotePoint[]>;
   upsert(collection: string, points: readonly QdrantPoint[]): Promise<void>;
   delete(collection: string, vectorIds: readonly string[]): Promise<void>;
 }
+
+type ScrollOffset = string | number | Record<string, unknown> | null;
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const payloadChunkId = (payload: unknown): string | null =>
+  isObject(payload) && typeof payload.chunkId === "string" ? payload.chunkId : null;
 
 const toPointStruct = (point: QdrantPoint): Schemas["PointStruct"] => ({
   id: point.id,
@@ -56,6 +65,35 @@ export class RestQdrantVectorClient implements QdrantVectorClient {
     }
 
     return (await this.client.count(collection, { exact: true })).count;
+  }
+
+  public async listPoints(collection: string): Promise<readonly QdrantRemotePoint[]> {
+    if (!(await this.collectionExists(collection))) {
+      return [];
+    }
+
+    const points: QdrantRemotePoint[] = [];
+    let offset: ScrollOffset | undefined = undefined;
+    do {
+      const request: Parameters<QdrantClient["scroll"]>[1] = {
+        limit: 256,
+        with_payload: true,
+        with_vector: false
+      };
+      if (offset !== undefined) {
+        Object.assign(request, { offset });
+      }
+      const response = await this.client.scroll(collection, request);
+      for (const point of response.points) {
+        points.push({
+          id: String(point.id),
+          chunkId: payloadChunkId(point.payload)
+        });
+      }
+      offset = response.next_page_offset ?? undefined;
+    } while (offset !== null && offset !== undefined);
+
+    return points;
   }
 
   public async upsert(collection: string, points: readonly QdrantPoint[]): Promise<void> {

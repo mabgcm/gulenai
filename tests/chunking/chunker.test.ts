@@ -189,4 +189,33 @@ describe("MarkdownChunker", () => {
     const counter = new OpenAiTokenCounter();
     expect(counter.count("hello world")).toBe(2);
   });
+
+  it("recursively splits oversized atomic blocks to stay below the embedding limit", () => {
+    const longToken = "x".repeat(200);
+    const chunks = new MarkdownChunker(
+      { targetTokens: 12, maxTokens: 20, overlapTokens: 3, embeddingMaxTokens: 24 },
+      new WordTokenCounter()
+    ).chunk(
+      document(
+        [
+          "# Book",
+          "",
+          "## Chapter",
+          "",
+          [
+            "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu",
+            "nu xi omicron pi rho sigma tau upsilon phi chi psi omega",
+            longToken
+          ].join(" ")
+        ].join("\n")
+      )
+    );
+
+    expect(chunks.length).toBeGreaterThan(1);
+    expect(chunks.every((chunk) => chunk.metadata.tokenCount <= 24)).toBe(true);
+    const chapterChunks = chunks.filter((chunk) => chunk.markdown.includes("## Chapter"));
+    expect(chapterChunks.map((chunk) => chunk.metadata.headingPath)).toEqual(
+      chapterChunks.map(() => ["Book", "Chapter"])
+    );
+  });
 });

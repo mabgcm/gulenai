@@ -93,6 +93,7 @@ export class QdrantSyncPipeline {
       uploadedVectors += count;
     });
     deletedVectors = await this.deleteVectors(deleteIds, manifestById, manifests);
+    deletedVectors += await this.deleteOrphanVectors([...manifestById.values()]);
 
     const vectorsCount = await withQdrantRetry(
       () => this.client.count(this.config.collection),
@@ -230,6 +231,34 @@ export class QdrantSyncPipeline {
         }
       }
       await this.saveManifests(manifests, manifestById);
+    }
+    return deleted;
+  }
+
+  private async deleteOrphanVectors(manifests: readonly QdrantChunkEntry[]): Promise<number> {
+    const localChunkIds = new Set(
+      manifests
+        .filter((manifest) => manifest.embeddingStatus !== "deleted")
+        .map((manifest) => manifest.chunkId)
+    );
+    const remotePoints = await withQdrantRetry(
+      () => this.client.listPoints(this.config.collection),
+      this.config.retries,
+      this.logger,
+      { collection: this.config.collection, operation: "listPoints" }
+    );
+    const orphanIds = remotePoints
+      .filter((point) => point.chunkId === null || !localChunkIds.has(point.chunkId))
+      .map((point) => point.id);
+    let deleted = 0;
+    for (const ids of batch(orphanIds, Math.max(1, this.config.batchSize))) {
+      await withQdrantRetry(
+        () => this.client.delete(this.config.collection, ids),
+        this.config.retries,
+        this.logger,
+        { collection: this.config.collection, operation: "deleteOrphans", batchSize: ids.length }
+      );
+      deleted += ids.length;
     }
     return deleted;
   }

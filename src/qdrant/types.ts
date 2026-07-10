@@ -89,6 +89,11 @@ export interface QdrantPoint {
   readonly payload: QdrantPayload;
 }
 
+export interface QdrantRemotePoint {
+  readonly id: string;
+  readonly chunkId: string | null;
+}
+
 export interface QdrantSyncCandidate {
   readonly manifest: QdrantChunkEntry;
   readonly vector: EmbeddingVectorFile;
