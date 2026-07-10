@@ -5,7 +5,8 @@ import { CitationEngine } from "../../src/citations/citationEngine.js";
 import { formatCitedAnswerMarkdown } from "../../src/citations/citationFormatter.js";
 
 const baseAnswer = (overrides: Partial<StrictRagAnswer> = {}): StrictRagAnswer => ({
-  answer: "İhlas, amelin Allah rızası için yapılmasıdır. Kişi gösterişten uzak durur.",
+  answer:
+    "İhlas, amelin Allah rızası için yapılmasıdır. [chunk-1] Kişi gösterişten uzak durur. [chunk-1]",
   confidence: 91,
   usedChunks: [
     {
@@ -28,7 +29,7 @@ const baseAnswer = (overrides: Partial<StrictRagAnswer> = {}): StrictRagAnswer =
 });
 
 describe("CitationEngine", () => {
-  it("adds a single citation to every answer sentence", () => {
+  it("maps chunk markers to a stable citation number", () => {
     const result = new CitationEngine().build("İhlas nedir?", baseAnswer());
 
     expect(result.answer).toBe(
@@ -52,10 +53,11 @@ describe("CitationEngine", () => {
     expect(result.citations[0]?.excerpt.length).toBeLessThanOrEqual(220);
   });
 
-  it("groups multiple supporting chunks under one citation marker", () => {
+  it("numbers different sources by first appearance", () => {
     const result = new CitationEngine().build(
       "İhlas nedir?",
       baseAnswer({
+        answer: "Birinci kaynak. [chunk-2] İkinci kaynak. [chunk-1] Tekrar. [chunk-2]",
         usedChunks: [
           ...baseAnswer().usedChunks,
           {
@@ -71,13 +73,41 @@ describe("CitationEngine", () => {
       })
     );
 
-    expect(result.answer).toContain("[1]");
-    expect(result.citationGroups).toHaveLength(1);
-    expect(result.citationGroups[0]?.citations.map((citation) => citation.chunkId)).toEqual([
-      "chunk-1",
-      "chunk-2"
-    ]);
-    expect(result.citations.map((citation) => citation.id)).toEqual([1, 1]);
+    expect(result.answer).toBe("Birinci kaynak. [1] İkinci kaynak. [2] Tekrar. [1]");
+    expect(result.citationGroups).toHaveLength(2);
+    expect(result.citations.map((citation) => citation.chunkId)).toEqual(["chunk-2", "chunk-1"]);
+    expect(result.citations.map((citation) => citation.id)).toEqual([1, 2]);
+  });
+
+  it("accepts verbose model markers", () => {
+    const result = new CitationEngine().build(
+      "İhlas nedir?",
+      baseAnswer({ answer: "Destekli cevap. [chunk-id: chunk-1]" })
+    );
+    expect(result.answer).toBe("Destekli cevap. [1]");
+    expect(result.citations).toHaveLength(1);
+  });
+
+  it("reuses a number for different chunks from the same source", () => {
+    const first = baseAnswer().usedChunks[0]!;
+    const result = new CitationEngine().build(
+      "İhlas nedir?",
+      baseAnswer({
+        answer: "Birinci bölüm. [chunk-1] İkinci bölüm. [chunk-2]",
+        usedChunks: [first, { ...first, chunkId: "chunk-2", chunkIndex: 1 }]
+      })
+    );
+    expect(result.answer).toBe("Birinci bölüm. [1] İkinci bölüm. [1]");
+    expect(result.citations).toHaveLength(1);
+  });
+
+  it("adds a safe whole-answer marker when exactly one source is used", () => {
+    const result = new CitationEngine().build(
+      "İhlas nedir?",
+      baseAnswer({ answer: "Tek kaynaktan destekli cevap." })
+    );
+    expect(result.answer).toBe("Tek kaynaktan destekli cevap. [1]");
+    expect(result.citations).toHaveLength(1);
   });
 
   it("eliminates duplicate chunks", () => {
@@ -92,6 +122,7 @@ describe("CitationEngine", () => {
 
   it("assigns deterministic citation numbering", () => {
     const answer = baseAnswer({
+      answer: "A kaynağı. [chunk-a] B kaynağı. [chunk-b]",
       usedChunks: [
         {
           chunkId: "chunk-b",
@@ -118,8 +149,7 @@ describe("CitationEngine", () => {
       new CitationEngine().build("Soru", answer)
     );
     expect(new CitationEngine().build("Soru", answer).citations.map((item) => item.id)).toEqual([
-      1,
-      1
+      1, 2
     ]);
   });
 

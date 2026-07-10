@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { QueryEmbeddingClient } from "./types.js";
+import { normalizeSearchQuery } from "./queryNormalizer.js";
 
 export class OpenAiQueryEmbeddingClient implements QueryEmbeddingClient {
   private readonly openai: OpenAI;
@@ -18,7 +19,7 @@ export class OpenAiQueryEmbeddingClient implements QueryEmbeddingClient {
   public async embedQuery(query: string): Promise<readonly number[]> {
     const response = await this.openai.embeddings.create({
       model: this.model,
-      input: query
+      input: normalizeSearchQuery(query)
     });
     const embedding = response.data[0]?.embedding;
     if (embedding === undefined) {

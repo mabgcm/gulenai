@@ -3,6 +3,7 @@ import type { StrictRagAnswer } from "../answer/types.js";
 export interface Citation {
   readonly id: number;
   readonly title: string | null;
+  readonly collectionTitle?: string | null;
   readonly url: string | null;
   readonly headingPath: readonly string[];
   readonly chunkId: string;

@@ -10,8 +10,7 @@ import type {
   StrictRagAnswer
 } from "./types.js";
 
-export const UNSUPPORTED_ANSWER =
-  "The indexed sources do not contain enough information to answer this question.";
+export const UNSUPPORTED_ANSWER = "Bu soru mevcut HürKul arşivindeki kaynaklarla cevaplanamıyor.";
 
 const STRICT_SYSTEM_PROMPT = [
   "You are a strict retrieval-augmented answer generator.",
@@ -20,6 +19,10 @@ const STRICT_SYSTEM_PROMPT = [
   "Never guess.",
   "Never hallucinate.",
   "Never fabricate references.",
+  "Write fluent, connected Turkish prose rather than disconnected facts.",
+  "Merge compatible evidence from multiple chunks and avoid repetitive wording.",
+  "After every supported claim, cite its exact supporting chunk ID in square brackets.",
+  "For example, if the supplied ID is abc123, write [abc123], never [chunk-id] or [chunk-id: abc123].",
   `If the answer is not supported by the retrieved context, answer exactly: "${UNSUPPORTED_ANSWER}"`,
   "Return JSON only."
 ].join(" ");
@@ -28,6 +31,8 @@ const STRICT_INSTRUCTIONS = [
   "Use only retrieved context.",
   "Do not use outside knowledge.",
   "If context does not support an answer, return the required insufficient-information sentence exactly.",
+  "Write natural Turkish prose with clear paragraphs; use Markdown only when it improves readability.",
+  "Add the exact ID in square brackets after each claim, for example [abc123].",
   "Report which chunk IDs directly support the answer.",
   "Report ignored chunk IDs for context chunks that were not used.",
   "Set answerSupported to false when the answer is not directly supported.",
