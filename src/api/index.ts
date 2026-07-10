@@ -1,8 +1,13 @@
 import { join } from "node:path";
+import pino from "pino";
 import { readTextFile } from "../utils/fs.js";
 import { loadConfig } from "../config/env.js";
-import { logger } from "../config/logger.js";
-import { createApiServer, runtimeConfigFromEnv } from "./server.js";
+import { assertApiStartupEnvironment, createApiServer, runtimeConfigFromEnv } from "./server.js";
+
+const logger = pino({
+  base: null,
+  timestamp: pino.stdTimeFunctions.isoTime
+});
 
 const readPackageVersion = async (): Promise<string> => {
   const content = await readTextFile(join(process.cwd(), "package.json"));
@@ -19,22 +24,36 @@ const readPackageVersion = async (): Promise<string> => {
 };
 
 const main = async (): Promise<void> => {
+  assertApiStartupEnvironment();
   const appConfig = loadConfig();
+  logger.level = appConfig.LOG_LEVEL;
   const runtime = runtimeConfigFromEnv(appConfig);
   const server = await createApiServer({
     appConfig,
     packageVersion: await readPackageVersion()
   });
 
-  const shutdown = async (): Promise<void> => {
-    logger.info("Stopping API server");
-    await server.close();
+  let shuttingDown = false;
+  const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
+    if (shuttingDown) {
+      return;
+    }
+
+    shuttingDown = true;
+    logger.info({ signal }, "Stopping API server");
+    try {
+      await server.close();
+      logger.info("API server stopped");
+    } catch (error: unknown) {
+      logger.error({ err: error, signal }, "API server shutdown failed");
+      process.exitCode = 1;
+    }
   };
   process.once("SIGINT", () => {
-    void shutdown().then(() => process.exit(0));
+    void shutdown("SIGINT");
   });
   process.once("SIGTERM", () => {
-    void shutdown().then(() => process.exit(0));
+    void shutdown("SIGTERM");
   });
 
   await server.listen({ host: runtime.host, port: runtime.port });

@@ -18,6 +18,22 @@ export interface CreateApiServerOptions {
   readonly enableLogger?: boolean;
 }
 
+const requiredApiEnvironmentVariables = [
+  "OPENAI_API_KEY",
+  "QDRANT_URL",
+  "QDRANT_COLLECTION"
+] as const;
+
+export const assertApiStartupEnvironment = (environment: NodeJS.ProcessEnv = process.env): void => {
+  const missing = requiredApiEnvironmentVariables.filter(
+    (name) => !environment[name]?.trim()
+  );
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required API environment variables: ${missing.join(", ")}`);
+  }
+};
+
 export const runtimeConfigFromEnv = (
   appConfig: AppConfig,
   production = process.env.NODE_ENV === "production"

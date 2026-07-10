@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createApiServer } from "../../src/api/server.js";
+import { assertApiStartupEnvironment, createApiServer } from "../../src/api/server.js";
 import type {
   ApiChunkResponse,
   ApiPromptResponse,
@@ -250,6 +250,24 @@ const app = async (service = new FakeService()) =>
     enableLogger: false,
     production: true
   });
+
+describe("API startup configuration", () => {
+  it("accepts all required environment variables", () => {
+    expect(() =>
+      assertApiStartupEnvironment({
+        OPENAI_API_KEY: "test",
+        QDRANT_URL: "http://localhost:6333",
+        QDRANT_COLLECTION: "fgulen"
+      })
+    ).not.toThrow();
+  });
+
+  it("reports every missing required environment variable", () => {
+    expect(() => assertApiStartupEnvironment({ OPENAI_API_KEY: " " })).toThrow(
+      "Missing required API environment variables: OPENAI_API_KEY, QDRANT_URL, QDRANT_COLLECTION"
+    );
+  });
+});
 
 describe("REST API routes", () => {
   it("serves health", async () => {

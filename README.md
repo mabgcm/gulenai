@@ -534,11 +534,34 @@ Each citation includes document title, source URL, heading path, chunk ID, retri
 
 ## REST API
 
-Start the API server:
+For local development, start the API server directly from TypeScript:
 
 ```bash
 pnpm api
 ```
+
+For production, install dependencies, compile the project, and use the standard npm start
+command:
+
+```bash
+npm ci
+npm run build
+NODE_ENV=production npm start
+```
+
+`npm start` runs the compiled REST API. The following environment variables must be set to
+non-empty values or startup fails with a clear error:
+
+```env
+OPENAI_API_KEY=your-openai-api-key
+QDRANT_URL=https://your-qdrant-host.example
+QDRANT_COLLECTION=fgulen
+```
+
+The server reads `PORT` from the environment and falls back to `3000`. `HOST` is also
+configurable; use `HOST=0.0.0.0` when the deployment platform requires the service to bind on
+all network interfaces. On `SIGTERM` or `SIGINT`, the process stops accepting requests and
+closes Fastify cleanly.
 
 By default the API listens on `http://127.0.0.1:3000` and registers v1 routes under `API_PREFIX`, which defaults to `/api/v1`. OpenAPI documentation is generated automatically and served at:
 
