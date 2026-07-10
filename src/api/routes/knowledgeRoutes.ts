@@ -17,7 +17,7 @@ const resultSchema = {
     url: { anyOf: [{ type: "string" }, { type: "null" }] },
     headingPath: { type: "array", items: { type: "string" } },
     similarityScore: { type: "number" },
-    markdown: { type: "string" },
+    snippet: { type: "string" },
     metadata: { type: "object", additionalProperties: true }
   },
   required: [
@@ -27,7 +27,7 @@ const resultSchema = {
     "url",
     "headingPath",
     "similarityScore",
-    "markdown",
+    "snippet",
     "metadata"
   ]
 } as const;

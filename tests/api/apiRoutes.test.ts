@@ -326,9 +326,13 @@ describe("REST API routes", () => {
       payload: { question: "İhlas nedir?", topK: 10, language: "tr" }
     });
     await server.close();
+    const body = response.json<{ results: readonly Record<string, unknown>[] }>();
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toMatchObject({ results: [{ chunkId: "chunk-1" }] });
+    expect(body).toMatchObject({
+      results: [{ chunkId: "chunk-1", snippet: "İhlas metni." }]
+    });
+    expect(body.results[0]).not.toHaveProperty("markdown");
     expect(service.lastSearchRequest).toMatchObject({ topK: 10, language: "tr" });
   });
 

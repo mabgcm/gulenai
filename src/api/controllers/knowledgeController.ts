@@ -1,6 +1,7 @@
 import { notFound } from "../middleware/errors.js";
 import { parseSearchRequest } from "../middleware/validation.js";
 import type { ApiSearchRequest, KnowledgeApiService } from "../types.js";
+import { createSearchSnippet } from "../searchSnippet.js";
 
 const citationResponse = (citation: {
   readonly id: number;
@@ -30,7 +31,13 @@ export class KnowledgeController {
   }
 
   public async search(body: unknown): Promise<{ readonly results: unknown }> {
-    return { results: await this.service.search(this.request(body)) };
+    const results = await this.service.search(this.request(body));
+    return {
+      results: results.map(({ markdown, ...result }) => ({
+        ...result,
+        snippet: createSearchSnippet(markdown)
+      }))
+    };
   }
 
   public async prompt(body: unknown): Promise<Awaited<ReturnType<KnowledgeApiService["prompt"]>>> {

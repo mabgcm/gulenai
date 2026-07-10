@@ -33,12 +33,35 @@ const isAdjacent = (left: RankedHit, right: RankedHit): boolean =>
   left.hit.payload.documentId === right.hit.payload.documentId &&
   Math.abs(left.hit.payload.chunkIndex - right.hit.payload.chunkIndex) === 1;
 
+const removeDuplicateHeadings = (markdown: string): string => {
+  const headings = new Set<string>();
+  return markdown
+    .split("\n")
+    .filter((line) => {
+      const heading = line.match(/^\s{0,3}#{1,6}\s+(.+?)\s*$/)?.[1];
+      if (heading === undefined) {
+        return true;
+      }
+      const normalized = heading.trim().replace(/\s+/g, " ").toLocaleLowerCase("tr-TR");
+      if (headings.has(normalized)) {
+        return false;
+      }
+      headings.add(normalized);
+      return true;
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
+
 const mergeMarkdown = (hits: readonly RankedHit[]): string =>
-  [...hits]
-    .sort((a, b) => a.hit.payload.chunkIndex - b.hit.payload.chunkIndex)
-    .map((hit) => hit.hit.payload.content.trim())
-    .filter((markdown) => markdown.length > 0)
-    .join("\n\n");
+  removeDuplicateHeadings(
+    [...hits]
+      .sort((a, b) => a.hit.payload.chunkIndex - b.hit.payload.chunkIndex)
+      .map((hit) => hit.hit.payload.content.trim())
+      .filter((markdown) => markdown.length > 0)
+      .join("\n\n")
+  );
 
 const resultFromHits = (hits: readonly RankedHit[]): SearchResult => {
   const best = [...hits].sort(

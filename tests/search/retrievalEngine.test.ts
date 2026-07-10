@@ -139,6 +139,7 @@ describe("RetrievalEngine", () => {
     expect(results[0]?.metadata.chunkIds).toEqual(["chunk-1", "chunk-2"]);
     expect(results[0]?.markdown).toContain("Markdown for chunk-1");
     expect(results[0]?.markdown).toContain("Markdown for chunk-2");
+    expect(results[0]?.markdown.match(/^# Heading$/gm)).toHaveLength(1);
   });
 
   it("orders results deterministically when scores tie", async () => {
