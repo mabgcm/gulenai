@@ -7,6 +7,7 @@ import type {
   SearchResult
 } from "./types.js";
 import type { VectorSearchClient } from "./qdrantSearchClient.js";
+import { embeddingPreview, logRetrievalDebug } from "./retrievalDebug.js";
 
 interface RankedHit {
   readonly hit: SearchHit;
@@ -121,18 +122,29 @@ export class RetrievalEngine {
     }
 
     const vector = await this.embedder.embedQuery(trimmed);
+    logRetrievalDebug("embedding", {
+      query: trimmed,
+      embeddingLength: vector.length,
+      firstValues: embeddingPreview(vector),
+      truncated: true
+    });
     const chunks = await this.readChunks();
-    const hits = dedupeHits(
-      (
-        await this.searchClient.search(
-          this.collection,
-          vector,
-          Math.max(1, options.topK),
-          options.threshold,
-          options.filters
-        )
-      ).filter((hit) => hit.score >= options.threshold)
+    const qdrantHits = await this.searchClient.search(
+      this.collection,
+      vector,
+      Math.max(1, options.topK),
+      options.threshold,
+      options.filters
     );
+    const thresholdHits = qdrantHits.filter((hit) => hit.score >= options.threshold);
+    logRetrievalDebug("threshold-filter", {
+      collection: this.collection,
+      threshold: options.threshold,
+      hitCountBeforeThresholdFiltering: qdrantHits.length,
+      hitCountAfterThresholdFiltering: thresholdHits.length,
+      scores: qdrantHits.map((hit) => ({ id: hit.id, score: hit.score }))
+    });
+    const hits = dedupeHits(thresholdHits);
 
     const rankedHits: RankedHit[] = [];
     for (const hit of hits) {
@@ -145,7 +157,31 @@ export class RetrievalEngine {
       }
     }
 
-    return mergeAdjacent(rankedHits).slice(0, Math.max(1, options.topK));
+    logRetrievalDebug("local-chunk-filter", {
+      collection: this.collection,
+      availableLocalChunks: chunks.size,
+      hitCountBeforeLocalChunkFiltering: hits.length,
+      hitCountAfterLocalChunkFiltering: rankedHits.length,
+      discardedChunkIds: hits
+        .filter((hit) => !chunks.has(hit.payload.chunkId))
+        .map((hit) => hit.payload.chunkId)
+    });
+
+    const results = mergeAdjacent(rankedHits).slice(0, Math.max(1, options.topK));
+    logRetrievalDebug("final-results", {
+      collection: this.collection,
+      resultCount: results.length,
+      results: results.map((result) => ({
+        chunkId: result.chunkId,
+        documentId: result.documentId,
+        similarityScore: result.similarityScore,
+        title: result.title,
+        language: result.metadata.language,
+        sourceFile: result.metadata.sourceFile,
+        mergedChunkIds: result.metadata.chunkIds
+      }))
+    });
+    return results;
   }
 
   private applyContentFallbacks(hit: SearchHit, content: ChunkContent): SearchHit {

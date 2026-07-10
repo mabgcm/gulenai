@@ -1,6 +1,7 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import type { Schemas } from "@qdrant/js-client-rest";
 import { qdrantClientOptions } from "../qdrant/clientConfig.js";
+import { embeddingPreview, logRetrievalDebug } from "./retrievalDebug.js";
 import type { SearchFilters, SearchHit, SearchHitPayload } from "./types.js";
 
 export interface VectorSearchClient {
@@ -123,9 +124,45 @@ export class QdrantVectorSearchClient implements VectorSearchClient {
       Object.assign(request, { filter });
     }
 
+    logRetrievalDebug("qdrant-request", {
+      collection,
+      request,
+      vectorSummary: {
+        length: vector.length,
+        firstValues: embeddingPreview(vector),
+        truncated: true
+      },
+      requestedThreshold: threshold,
+      requestedMetadataFilters: filters
+    });
+
     const hits = await this.client.search(collection, request);
 
-    return hits.map(scoredPointToHit).filter((hit): hit is SearchHit => hit !== null);
+    logRetrievalDebug("qdrant-raw-response", {
+      collection,
+      hitCountBeforeLocalFiltering: hits.length,
+      scores: hits.map((hit) => ({ id: String(hit.id), score: hit.score }))
+    });
+
+    const parsedHits = hits.map((hit) => ({ raw: hit, parsed: scoredPointToHit(hit) }));
+    const validHits = parsedHits
+      .map(({ parsed }) => parsed)
+      .filter((hit): hit is SearchHit => hit !== null);
+
+    logRetrievalDebug("qdrant-payload-filter", {
+      collection,
+      hitCountAfterMetadataFiltering: validHits.length,
+      rejectedHits: parsedHits
+        .filter(({ parsed }) => parsed === null)
+        .map(({ raw }) => ({
+          id: String(raw.id),
+          score: raw.score,
+          payloadKeys:
+            isObject(raw.payload) ? Object.keys(raw.payload).sort() : []
+        }))
+    });
+
+    return validHits;
   }
 }
 
