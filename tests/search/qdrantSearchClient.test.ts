@@ -17,7 +17,7 @@ describe("buildQdrantFilter", () => {
         { key: "documentId", match: { value: "doc-1" } },
         { key: "title", match: { value: "Kırık Testi" } },
         { key: "url", match: { value: "https://fgulen.com/article" } },
-        { key: "sourceFile", match: { value: "tr/article.md" } }
+        { key: "source", match: { value: "tr/article.md" } }
       ]
     });
   });

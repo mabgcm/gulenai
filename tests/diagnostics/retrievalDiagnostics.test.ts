@@ -202,7 +202,8 @@ describe("retrieval diagnostics", () => {
             totalChunks: 3,
             tokenCount: 20,
             contentHash: "hash-1",
-            sourceFile: "doc.md"
+            sourceFile: "doc.md",
+            content: "# Doc"
           }
         }
       ]),

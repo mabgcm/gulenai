@@ -368,7 +368,7 @@ Completed: 421
 Remaining: 121
 ```
 
-Qdrant sync reads `data/embeddings`, `data/chunks`, and `data/index/chunks.json`. It automatically creates `QDRANT_COLLECTION` if needed, detects vector dimensions from the first pending vector, uploads only vectors with `vectorId: null` or `embeddingStatus: pending`, and removes vectors for deleted documents.
+Qdrant sync reads `data/embeddings`, `data/chunks`, and `data/index/chunks.json`. It automatically creates `QDRANT_COLLECTION` if needed, detects vector dimensions from the first pending vector, uploads new or pending vectors, refreshes existing vectors whose payload does not yet contain chunk content, and removes vectors for deleted documents.
 
 Qdrant payload contains:
 
@@ -384,7 +384,8 @@ Qdrant payload contains:
   "totalChunks": 5,
   "tokenCount": 782,
   "contentHash": "sha256",
-  "sourceFile": "en/article.md"
+  "source": "en/article.md",
+  "content": "# Section heading\n\nFull chunk Markdown..."
 }
 ```
 
@@ -399,7 +400,7 @@ Pending uploads: 14
 Deleted vectors: 3
 ```
 
-Semantic retrieval embeds the user query with `OPENAI_EMBEDDING_MODEL`, searches Qdrant, loads matching Markdown from `data/chunks`, removes duplicate chunk hits, merges adjacent chunks from the same document when appropriate, and prints ranked context candidates. It does not generate answers.
+Semantic retrieval embeds the user query with `OPENAI_EMBEDDING_MODEL`, searches Qdrant, reads matching Markdown directly from each Qdrant payload, removes duplicate chunk hits, merges adjacent chunks from the same document when appropriate, and prints ranked context candidates. Runtime retrieval does not require `data/chunks` or `data/index`. It does not generate answers.
 
 Supported search filters:
 

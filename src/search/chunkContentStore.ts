@@ -27,7 +27,7 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
 const nullableString = (value: unknown): string | null =>
   typeof value === "string" && value.trim().length > 0 ? value : null;
 
-const parseMetadata = (value: unknown, path: string): SearchHitPayload => {
+const parseMetadata = (value: unknown, path: string): Omit<SearchHitPayload, "content"> => {
   if (!isObject(value)) {
     throw new Error(`Invalid chunk metadata in ${path}`);
   }

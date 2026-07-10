@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import type { VectorSearchClient } from "../../src/search/qdrantSearchClient.js";
 import { RetrievalEngine } from "../../src/search/retrievalEngine.js";
 import type {
-  ChunkContent,
   QueryEmbeddingClient,
   SearchFilters,
   SearchHit,
@@ -54,6 +53,7 @@ const payload = (
   tokenCount: 100,
   contentHash: `hash-${chunkId}`,
   sourceFile: "tr/article.md",
+  content: `# Heading\n\nMarkdown for ${chunkId}`,
   ...scoreFields
 });
 
@@ -63,12 +63,6 @@ const hit = (chunkId: string, score: number, chunkIndex: number): SearchHit => (
   payload: payload(chunkId, chunkIndex)
 });
 
-const content = (chunkId: string, chunkIndex: number): ChunkContent => ({
-  chunkId,
-  markdown: `# Heading\n\nMarkdown for ${chunkId}`,
-  metadata: payload(chunkId, chunkIndex)
-});
-
 const options = (overrides: Partial<SearchOptions> = {}): SearchOptions => ({
   topK: 10,
   threshold: 0,
@@ -76,15 +70,12 @@ const options = (overrides: Partial<SearchOptions> = {}): SearchOptions => ({
   ...overrides
 });
 
-const engine = (hits: readonly SearchHit[], chunks: readonly ChunkContent[]) =>
-  new RetrievalEngine("fgulen", new FakeEmbedder(), new FakeSearchClient(hits), async () => {
-    await Promise.resolve();
-    return new Map(chunks.map((chunk) => [chunk.chunkId, chunk]));
-  });
+const engine = (hits: readonly SearchHit[]) =>
+  new RetrievalEngine("fgulen", new FakeEmbedder(), new FakeSearchClient(hits));
 
 describe("RetrievalEngine", () => {
   it("retrieves ranked results with markdown and metadata", async () => {
-    const results = await engine([hit("chunk-1", 0.94, 0)], [content("chunk-1", 0)]).search(
+    const results = await engine([hit("chunk-1", 0.94, 0)]).search(
       "ihlas nedir",
       options()
     );
@@ -98,10 +89,7 @@ describe("RetrievalEngine", () => {
 
   it("passes payload filters to the vector search client", async () => {
     const client = new FakeSearchClient([hit("chunk-1", 0.9, 0)]);
-    const retrieval = new RetrievalEngine("fgulen", new FakeEmbedder(), client, async () => {
-      await Promise.resolve();
-      return new Map([["chunk-1", content("chunk-1", 0)]]);
-    });
+    const retrieval = new RetrievalEngine("fgulen", new FakeEmbedder(), client);
 
     await retrieval.search(
       "query",
@@ -122,29 +110,29 @@ describe("RetrievalEngine", () => {
   });
 
   it("applies similarity threshold", async () => {
-    const results = await engine(
-      [hit("chunk-1", 0.4, 0), hit("chunk-2", 0.9, 1)],
-      [content("chunk-1", 0), content("chunk-2", 1)]
-    ).search("query", options({ threshold: 0.5 }));
+    const results = await engine([hit("chunk-1", 0.4, 0), hit("chunk-2", 0.9, 1)]).search(
+      "query",
+      options({ threshold: 0.5 })
+    );
 
     expect(results.map((result) => result.chunkId)).toEqual(["chunk-2"]);
   });
 
   it("removes duplicate chunks and keeps the highest score", async () => {
-    const results = await engine(
-      [hit("chunk-1", 0.7, 0), hit("chunk-1", 0.95, 0)],
-      [content("chunk-1", 0)]
-    ).search("query", options());
+    const results = await engine([hit("chunk-1", 0.7, 0), hit("chunk-1", 0.95, 0)]).search(
+      "query",
+      options()
+    );
 
     expect(results).toHaveLength(1);
     expect(results[0]?.similarityScore).toBe(0.95);
   });
 
   it("merges adjacent chunks from the same document", async () => {
-    const results = await engine(
-      [hit("chunk-1", 0.95, 0), hit("chunk-2", 0.91, 1)],
-      [content("chunk-1", 0), content("chunk-2", 1)]
-    ).search("query", options());
+    const results = await engine([hit("chunk-1", 0.95, 0), hit("chunk-2", 0.91, 1)]).search(
+      "query",
+      options()
+    );
 
     expect(results).toHaveLength(1);
     expect(results[0]?.metadata.merged).toBe(true);
@@ -158,10 +146,6 @@ describe("RetrievalEngine", () => {
       [
         { ...hit("chunk-b", 0.9, 1), payload: payload("chunk-b", 1, { documentId: "doc-b" }) },
         { ...hit("chunk-a", 0.9, 0), payload: payload("chunk-a", 0, { documentId: "doc-a" }) }
-      ],
-      [
-        { ...content("chunk-b", 1), metadata: payload("chunk-b", 1, { documentId: "doc-b" }) },
-        { ...content("chunk-a", 0), metadata: payload("chunk-a", 0, { documentId: "doc-a" }) }
       ]
     ).search("query", options());
 
@@ -169,9 +153,7 @@ describe("RetrievalEngine", () => {
   });
 
   it("returns empty results for no hits or empty query", async () => {
-    expect(await engine([], []).search("query", options())).toEqual([]);
-    expect(
-      await engine([hit("chunk-1", 0.9, 0)], [content("chunk-1", 0)]).search(" ", options())
-    ).toEqual([]);
+    expect(await engine([]).search("query", options())).toEqual([]);
+    expect(await engine([hit("chunk-1", 0.9, 0)]).search(" ", options())).toEqual([]);
   });
 });

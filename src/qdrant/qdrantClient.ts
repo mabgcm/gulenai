@@ -34,7 +34,8 @@ const toPointStruct = (point: QdrantPoint): Schemas["PointStruct"] => ({
     totalChunks: point.payload.totalChunks,
     tokenCount: point.payload.tokenCount,
     contentHash: point.payload.contentHash,
-    sourceFile: point.payload.sourceFile
+    source: point.payload.source,
+    content: point.payload.content
   }
 });
 
@@ -86,7 +87,13 @@ export class RestQdrantVectorClient implements QdrantVectorClient {
       for (const point of response.points) {
         points.push({
           id: String(point.id),
-          chunkId: payloadChunkId(point.payload)
+          chunkId: payloadChunkId(point.payload),
+          payloadHasContent:
+            isObject(point.payload) &&
+            typeof point.payload.content === "string" &&
+            point.payload.content.length > 0 &&
+            typeof point.payload.source === "string" &&
+            point.payload.source.length > 0
         });
       }
       offset = response.next_page_offset ?? undefined;

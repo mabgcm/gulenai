@@ -1,17 +1,13 @@
 import type {
-  ChunkContent,
   QueryEmbeddingClient,
   SearchHit,
-  SearchHitPayload,
   SearchOptions,
   SearchResult
 } from "./types.js";
 import type { VectorSearchClient } from "./qdrantSearchClient.js";
-import { embeddingPreview, logRetrievalDebug } from "./retrievalDebug.js";
 
 interface RankedHit {
   readonly hit: SearchHit;
-  readonly content: ChunkContent;
 }
 
 const dedupeHits = (hits: readonly SearchHit[]): readonly SearchHit[] => {
@@ -39,7 +35,7 @@ const isAdjacent = (left: RankedHit, right: RankedHit): boolean =>
 const mergeMarkdown = (hits: readonly RankedHit[]): string =>
   [...hits]
     .sort((a, b) => a.hit.payload.chunkIndex - b.hit.payload.chunkIndex)
-    .map((hit) => hit.content.markdown.trim())
+    .map((hit) => hit.hit.payload.content.trim())
     .filter((markdown) => markdown.length > 0)
     .join("\n\n");
 
@@ -111,8 +107,7 @@ export class RetrievalEngine {
   public constructor(
     private readonly collection: string,
     private readonly embedder: QueryEmbeddingClient,
-    private readonly searchClient: VectorSearchClient,
-    private readonly readChunks: () => Promise<ReadonlyMap<string, ChunkContent>>
+    private readonly searchClient: VectorSearchClient
   ) {}
 
   public async search(query: string, options: SearchOptions): Promise<readonly SearchResult[]> {
@@ -122,13 +117,6 @@ export class RetrievalEngine {
     }
 
     const vector = await this.embedder.embedQuery(trimmed);
-    logRetrievalDebug("embedding", {
-      query: trimmed,
-      embeddingLength: vector.length,
-      firstValues: embeddingPreview(vector),
-      truncated: true
-    });
-    const chunks = await this.readChunks();
     const qdrantHits = await this.searchClient.search(
       this.collection,
       vector,
@@ -137,62 +125,9 @@ export class RetrievalEngine {
       options.filters
     );
     const thresholdHits = qdrantHits.filter((hit) => hit.score >= options.threshold);
-    logRetrievalDebug("threshold-filter", {
-      collection: this.collection,
-      threshold: options.threshold,
-      hitCountBeforeThresholdFiltering: qdrantHits.length,
-      hitCountAfterThresholdFiltering: thresholdHits.length,
-      scores: qdrantHits.map((hit) => ({ id: hit.id, score: hit.score }))
-    });
     const hits = dedupeHits(thresholdHits);
-
-    const rankedHits: RankedHit[] = [];
-    for (const hit of hits) {
-      const content = chunks.get(hit.payload.chunkId);
-      if (content !== undefined) {
-        rankedHits.push({
-          hit: this.applyContentFallbacks(hit, content),
-          content
-        });
-      }
-    }
-
-    logRetrievalDebug("local-chunk-filter", {
-      collection: this.collection,
-      availableLocalChunks: chunks.size,
-      hitCountBeforeLocalChunkFiltering: hits.length,
-      hitCountAfterLocalChunkFiltering: rankedHits.length,
-      discardedChunkIds: hits
-        .filter((hit) => !chunks.has(hit.payload.chunkId))
-        .map((hit) => hit.payload.chunkId)
-    });
-
+    const rankedHits: RankedHit[] = hits.map((hit) => ({ hit }));
     const results = mergeAdjacent(rankedHits).slice(0, Math.max(1, options.topK));
-    logRetrievalDebug("final-results", {
-      collection: this.collection,
-      resultCount: results.length,
-      results: results.map((result) => ({
-        chunkId: result.chunkId,
-        documentId: result.documentId,
-        similarityScore: result.similarityScore,
-        title: result.title,
-        language: result.metadata.language,
-        sourceFile: result.metadata.sourceFile,
-        mergedChunkIds: result.metadata.chunkIds
-      }))
-    });
     return results;
-  }
-
-  private applyContentFallbacks(hit: SearchHit, content: ChunkContent): SearchHit {
-    const payload: SearchHitPayload = {
-      ...hit.payload,
-      headingPath:
-        hit.payload.headingPath.length > 0 ? hit.payload.headingPath : content.metadata.headingPath,
-      title: hit.payload.title ?? content.metadata.title,
-      url: hit.payload.url ?? content.metadata.url,
-      language: hit.payload.language ?? content.metadata.language
-    };
-    return { ...hit, payload };
   }
 }

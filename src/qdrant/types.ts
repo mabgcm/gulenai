@@ -80,7 +80,8 @@ export interface QdrantPayload {
   readonly totalChunks: number;
   readonly tokenCount: number;
   readonly contentHash: string;
-  readonly sourceFile: string;
+  readonly source: string;
+  readonly content: string;
 }
 
 export interface QdrantPoint {
@@ -92,6 +93,7 @@ export interface QdrantPoint {
 export interface QdrantRemotePoint {
   readonly id: string;
   readonly chunkId: string | null;
+  readonly payloadHasContent: boolean;
 }
 
 export interface QdrantSyncCandidate {

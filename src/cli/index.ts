@@ -348,12 +348,10 @@ const search = async (): Promise<void> => {
   }
 
   const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
-  const chunkStore = new ChunkContentStore();
   const engine = new RetrievalEngine(
     config.QDRANT_COLLECTION,
     new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, model),
-    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY),
-    () => chunkStore.readByChunkId()
+    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY)
   );
 
   process.stdout.write(`${formatSearchResults(await engine.search(query, options))}\n`);
@@ -368,12 +366,10 @@ const prompt = async (): Promise<void> => {
   }
 
   const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
-  const chunkStore = new ChunkContentStore();
   const engine = new RetrievalEngine(
     config.QDRANT_COLLECTION,
     new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, model),
-    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY),
-    () => chunkStore.readByChunkId()
+    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY)
   );
   const maxContextTokens = parseNumberFlag(
     args,
@@ -403,12 +399,10 @@ const answer = async (): Promise<void> => {
   }
 
   const embeddingModel = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
-  const chunkStore = new ChunkContentStore();
   const engine = new RetrievalEngine(
     config.QDRANT_COLLECTION,
     new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, embeddingModel),
-    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY),
-    () => chunkStore.readByChunkId()
+    new QdrantVectorSearchClient(config.QDRANT_URL, config.QDRANT_API_KEY)
   );
   const maxContextTokens = parseNumberFlag(
     searchArgs,

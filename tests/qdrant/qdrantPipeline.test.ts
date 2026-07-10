@@ -46,14 +46,23 @@ class FakeQdrantClient implements QdrantVectorClient {
     return this.points.size;
   }
 
-  public async listPoints(): Promise<readonly { readonly id: string; readonly chunkId: string | null }[]> {
+  public async listPoints(): Promise<
+    readonly {
+      readonly id: string;
+      readonly chunkId: string | null;
+      readonly payloadHasContent: boolean;
+    }[]
+  > {
     await Promise.resolve();
     return [...this.points.values()].map((point) => ({
       id: point.id,
       chunkId:
         typeof (point.payload as { chunkId?: unknown }).chunkId === "string"
           ? (point.payload as { chunkId: string }).chunkId
-          : null
+          : null,
+      payloadHasContent:
+        typeof (point.payload as { content?: unknown }).content === "string" &&
+        typeof (point.payload as { source?: unknown }).source === "string"
     }));
   }
 
@@ -250,6 +259,9 @@ describe("QdrantSyncPipeline", () => {
     expect(partiallyUpdated.find((chunk) => chunk.chunkId === "chunk-2")?.vectorId).toBeNull();
 
     const resumed = new FakeQdrantClient();
+    for (const [id, point] of interrupted.points) {
+      resumed.points.set(id, point);
+    }
     await pipeline(tempDir, resumed).sync();
     expect(resumed.upsertCalls).toBe(1);
     expect(resumed.points.has(vectorIdForChunk("chunk-2"))).toBe(true);
@@ -265,7 +277,15 @@ describe("QdrantSyncPipeline", () => {
     );
     const client = new FakeQdrantClient();
     client.exists = true;
-    client.points.set(vectorId, { id: vectorId, vector: [1, 2, 3], payload: {} as never });
+    client.points.set(vectorId, {
+      id: vectorId,
+      vector: [1, 2, 3],
+      payload: {
+        chunkId: "chunk-1",
+        source: "en/article.md",
+        content: "# Article"
+      } as never
+    });
 
     const summary = await pipeline(tempDir, client).sync();
     const updated = JSON.parse(
@@ -284,11 +304,43 @@ describe("QdrantSyncPipeline", () => {
     ]);
     const client = new FakeQdrantClient();
     client.exists = true;
+    const vectorId = vectorIdForChunk("chunk-1");
+    client.points.set(vectorId, {
+      id: vectorId,
+      vector: [1, 2, 3],
+      payload: {
+        chunkId: "chunk-1",
+        source: "en/article.md",
+        content: "# Article"
+      } as never
+    });
 
     const summary = await pipeline(tempDir, client).sync();
 
     expect(client.upsertCalls).toBe(0);
     expect(summary.pendingUploads).toBe(0);
+  });
+
+  it("reindexes existing vectors whose payload has no content", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "gulenai-qdrant-"));
+    const vectorId = vectorIdForChunk("chunk-1");
+    await writeFixture(tempDir, [chunkManifest("chunk-1", "hash-1", { vectorId })]);
+    const client = new FakeQdrantClient();
+    client.exists = true;
+    client.points.set(vectorId, {
+      id: vectorId,
+      vector: [1, 2, 3],
+      payload: { chunkId: "chunk-1" } as never
+    });
+
+    const summary = await pipeline(tempDir, client).sync();
+
+    expect(summary.uploadedVectors).toBe(1);
+    expect(client.points.get(vectorId)?.payload).toMatchObject({
+      chunkId: "chunk-1",
+      source: "en/article.md",
+      content: "# Article"
+    });
   });
 
   it("reports Qdrant status", async () => {
@@ -299,7 +351,15 @@ describe("QdrantSyncPipeline", () => {
       chunkManifest("chunk-2", "hash-2", { embeddingStatus: "pending" })
     ]);
     const client = new FakeQdrantClient();
-    client.points.set(vectorId, { id: vectorId, vector: [1, 2, 3], payload: {} as never });
+    client.points.set(vectorId, {
+      id: vectorId,
+      vector: [1, 2, 3],
+      payload: {
+        chunkId: "chunk-1",
+        source: "en/article.md",
+        content: "# Article"
+      } as never
+    });
 
     const status = await pipeline(tempDir, client).status();
 

@@ -1,7 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import type { Schemas } from "@qdrant/js-client-rest";
 import { qdrantClientOptions } from "../qdrant/clientConfig.js";
-import { embeddingPreview, logRetrievalDebug } from "./retrievalDebug.js";
 import type { SearchFilters, SearchHit, SearchHitPayload } from "./types.js";
 
 export interface VectorSearchClient {
@@ -19,7 +18,7 @@ const filterKeyMap = {
   documentId: "documentId",
   title: "title",
   url: "url",
-  sourceFile: "sourceFile"
+  sourceFile: "source"
 } as const satisfies Record<keyof SearchFilters, string>;
 
 const buildFilter = (filters: SearchFilters): Schemas["Filter"] | undefined => {
@@ -63,7 +62,8 @@ const parsePayload = (payload: unknown): SearchHitPayload | null => {
     typeof payload.totalChunks !== "number" ||
     typeof payload.tokenCount !== "number" ||
     typeof payload.contentHash !== "string" ||
-    typeof payload.sourceFile !== "string"
+    typeof payload.source !== "string" ||
+    typeof payload.content !== "string"
   ) {
     return null;
   }
@@ -79,7 +79,8 @@ const parsePayload = (payload: unknown): SearchHitPayload | null => {
     totalChunks: payload.totalChunks,
     tokenCount: payload.tokenCount,
     contentHash: payload.contentHash,
-    sourceFile: payload.sourceFile
+    sourceFile: payload.source,
+    content: payload.content
   };
 };
 
@@ -124,45 +125,8 @@ export class QdrantVectorSearchClient implements VectorSearchClient {
       Object.assign(request, { filter });
     }
 
-    logRetrievalDebug("qdrant-request", {
-      collection,
-      request,
-      vectorSummary: {
-        length: vector.length,
-        firstValues: embeddingPreview(vector),
-        truncated: true
-      },
-      requestedThreshold: threshold,
-      requestedMetadataFilters: filters
-    });
-
     const hits = await this.client.search(collection, request);
-
-    logRetrievalDebug("qdrant-raw-response", {
-      collection,
-      hitCountBeforeLocalFiltering: hits.length,
-      scores: hits.map((hit) => ({ id: String(hit.id), score: hit.score }))
-    });
-
-    const parsedHits = hits.map((hit) => ({ raw: hit, parsed: scoredPointToHit(hit) }));
-    const validHits = parsedHits
-      .map(({ parsed }) => parsed)
-      .filter((hit): hit is SearchHit => hit !== null);
-
-    logRetrievalDebug("qdrant-payload-filter", {
-      collection,
-      hitCountAfterMetadataFiltering: validHits.length,
-      rejectedHits: parsedHits
-        .filter(({ parsed }) => parsed === null)
-        .map(({ raw }) => ({
-          id: String(raw.id),
-          score: raw.score,
-          payloadKeys:
-            isObject(raw.payload) ? Object.keys(raw.payload).sort() : []
-        }))
-    });
-
-    return validHits;
+    return hits.map(scoredPointToHit).filter((hit): hit is SearchHit => hit !== null);
   }
 }
 

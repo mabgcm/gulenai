@@ -189,8 +189,7 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
     return new RetrievalEngine(
       this.config.QDRANT_COLLECTION,
       new OpenAiQueryEmbeddingClient(this.config.OPENAI_API_KEY, this.embeddingModel),
-      new QdrantVectorSearchClient(this.config.QDRANT_URL, this.config.QDRANT_API_KEY),
-      () => this.chunks.readByChunkId()
+      new QdrantVectorSearchClient(this.config.QDRANT_URL, this.config.QDRANT_API_KEY)
     );
   }
 

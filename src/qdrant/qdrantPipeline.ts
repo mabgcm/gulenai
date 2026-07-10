@@ -8,6 +8,7 @@ import type {
   QdrantConfig,
   QdrantDocumentEntry,
   QdrantPoint,
+  QdrantRemotePoint,
   QdrantStatus,
   QdrantSyncCandidate,
   QdrantSyncSummary
@@ -36,7 +37,8 @@ const pointFromCandidate = (candidate: QdrantSyncCandidate): QdrantPoint => ({
     totalChunks: candidate.chunk.metadata.totalChunks,
     tokenCount: candidate.chunk.metadata.tokenCount,
     contentHash: candidate.chunk.metadata.contentHash,
-    sourceFile: candidate.chunk.metadata.sourceFile
+    source: candidate.chunk.metadata.sourceFile,
+    content: candidate.chunk.markdown
   }
 });
 
@@ -55,10 +57,26 @@ export class QdrantSyncPipeline {
     const manifests = await this.indexStore.loadChunks();
     const vectors = await this.vectorReader.readByChunkId();
     const chunks = await this.chunkReader.readByChunkId();
+    const remotePoints = await withQdrantRetry(
+      () => this.client.listPoints(this.config.collection),
+      this.config.retries,
+      this.logger,
+      { collection: this.config.collection, operation: "listPoints" }
+    );
+    const remoteByChunkId = new Map(
+      remotePoints.flatMap((point) =>
+        point.chunkId === null ? [] : ([[point.chunkId, point]] as const)
+      )
+    );
 
     const manifestById = new Map(manifests.map((manifest) => [manifest.chunkId, manifest]));
     const uploadCandidates = manifests
-      .filter((manifest) => manifest.embeddingStatus === "pending" || manifest.vectorId === null)
+      .filter(
+        (manifest) =>
+          manifest.embeddingStatus === "pending" ||
+          manifest.vectorId === null ||
+          remoteByChunkId.get(manifest.chunkId)?.payloadHasContent !== true
+      )
       .map((manifest) => {
         const vector = vectors.get(manifest.chunkId);
         const chunk = chunks.get(manifest.chunkId);
@@ -93,7 +111,11 @@ export class QdrantSyncPipeline {
       uploadedVectors += count;
     });
     deletedVectors = await this.deleteVectors(deleteIds, manifestById, manifests);
-    deletedVectors += await this.deleteOrphanVectors([...manifestById.values()]);
+    deletedVectors += await this.deleteOrphanVectors(
+      [...manifestById.values()],
+      remotePoints,
+      new Set(deleteIds)
+    );
 
     const vectorsCount = await withQdrantRetry(
       () => this.client.count(this.config.collection),
@@ -125,6 +147,17 @@ export class QdrantSyncPipeline {
       this.logger,
       { collection: this.config.collection, operation: "count" }
     );
+    const remotePoints = await withQdrantRetry(
+      () => this.client.listPoints(this.config.collection),
+      this.config.retries,
+      this.logger,
+      { collection: this.config.collection, operation: "listPoints" }
+    );
+    const remoteWithContent = new Set(
+      remotePoints
+        .filter((point) => point.chunkId !== null && point.payloadHasContent)
+        .map((point) => point.chunkId)
+    );
 
     return {
       collection: this.config.collection,
@@ -132,7 +165,9 @@ export class QdrantSyncPipeline {
       pendingUploads: manifests.filter(
         (manifest) =>
           manifest.embeddingStatus !== "deleted" &&
-          (manifest.embeddingStatus === "pending" || manifest.vectorId === null)
+          (manifest.embeddingStatus === "pending" ||
+            manifest.vectorId === null ||
+            !remoteWithContent.has(manifest.chunkId))
       ).length,
       deletedVectors: this.deletedVectorIds(documents, manifests).length
     };
@@ -235,20 +270,22 @@ export class QdrantSyncPipeline {
     return deleted;
   }
 
-  private async deleteOrphanVectors(manifests: readonly QdrantChunkEntry[]): Promise<number> {
+  private async deleteOrphanVectors(
+    manifests: readonly QdrantChunkEntry[],
+    remotePoints: readonly QdrantRemotePoint[],
+    alreadyDeleted: ReadonlySet<string>
+  ): Promise<number> {
     const localChunkIds = new Set(
       manifests
         .filter((manifest) => manifest.embeddingStatus !== "deleted")
         .map((manifest) => manifest.chunkId)
     );
-    const remotePoints = await withQdrantRetry(
-      () => this.client.listPoints(this.config.collection),
-      this.config.retries,
-      this.logger,
-      { collection: this.config.collection, operation: "listPoints" }
-    );
     const orphanIds = remotePoints
-      .filter((point) => point.chunkId === null || !localChunkIds.has(point.chunkId))
+      .filter(
+        (point) =>
+          !alreadyDeleted.has(point.id) &&
+          (point.chunkId === null || !localChunkIds.has(point.chunkId))
+      )
       .map((point) => point.id);
     let deleted = 0;
     for (const ids of batch(orphanIds, Math.max(1, this.config.batchSize))) {

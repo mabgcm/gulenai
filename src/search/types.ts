@@ -28,6 +28,7 @@ export interface SearchHitPayload {
   readonly tokenCount: number;
   readonly contentHash: string;
   readonly sourceFile: string;
+  readonly content: string;
 }
 
 export interface SearchHit {
@@ -39,7 +40,7 @@ export interface SearchHit {
 export interface ChunkContent {
   readonly chunkId: string;
   readonly markdown: string;
-  readonly metadata: SearchHitPayload;
+  readonly metadata: Omit<SearchHitPayload, "content">;
 }
 
 export interface SearchResult {
