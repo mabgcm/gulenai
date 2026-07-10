@@ -1,11 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { createSearchSnippet } from "../../src/api/searchSnippet.js";
+import { createSearchSnippet } from "../../src/search/searchSnippet.js";
 
 describe("createSearchSnippet", () => {
   it("returns the first meaningful paragraph and removes headings", () => {
     expect(
       createSearchSnippet("# Işık Evler\n\nİlk anlamlı paragraf.\n\nİkinci paragraf.")
     ).toBe("İlk anlamlı paragraf.");
+  });
+
+  it("strips inline markdown formatting", () => {
+    expect(
+      createSearchSnippet(
+        "## Başlık\n\n**Kalın**, *vurgu*, [bağlantı](https://example.test), `kod` ve ~~silinen~~."
+      )
+    ).toBe("Kalın, vurgu, bağlantı, kod ve silinen.");
   });
 
   it("keeps complete sentences when truncating", () => {

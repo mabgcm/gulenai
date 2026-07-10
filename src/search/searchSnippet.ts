@@ -1,13 +1,27 @@
 const MAX_SNIPPET_LENGTH = 350;
 const HEADING_LINE = /^\s{0,3}#{1,6}(?:\s+|$)/;
 
+const stripMarkdown = (value: string): string =>
+  value
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/^\s*>\s?/gm, "")
+    .replace(/^\s*(?:[-+*]|\d+[.)])\s+/gm, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/~~([^~]+)~~/g, "$1")
+    .replace(/[*_]+/g, "")
+    .replace(/\\([\\`*_[\]{}()#+.!>-])/g, "$1");
+
 const firstMeaningfulParagraph = (markdown: string): string => {
   const blocks = markdown.replace(/\r\n?/g, "\n").split(/\n\s*\n/);
   for (const block of blocks) {
-    const paragraph = block
-      .split("\n")
-      .filter((line) => !HEADING_LINE.test(line))
-      .join(" ")
+    const paragraph = stripMarkdown(
+      block
+        .split("\n")
+        .filter((line) => !HEADING_LINE.test(line))
+        .join(" ")
+    )
       .replace(/\s+/g, " ")
       .trim();
     if (paragraph.length > 0) {

@@ -212,7 +212,7 @@ describe("retrieval diagnostics", () => {
 
     expect(report.queryEmbeddingDimensions).toBe(3);
     expect(report.hits).toHaveLength(1);
-    expect(report.hits[0]?.preview).toContain("useful content");
+    expect(report.hits[0]?.snippet).toContain("useful content");
     expect(report.likelyCause).toBeNull();
   });
 

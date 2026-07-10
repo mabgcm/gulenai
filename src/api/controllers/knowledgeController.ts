@@ -1,7 +1,7 @@
 import { notFound } from "../middleware/errors.js";
 import { parseSearchRequest } from "../middleware/validation.js";
 import type { ApiSearchRequest, KnowledgeApiService } from "../types.js";
-import { createSearchSnippet } from "../searchSnippet.js";
+import { createSearchSnippet } from "../../search/searchSnippet.js";
 
 const citationResponse = (citation: {
   readonly id: number;

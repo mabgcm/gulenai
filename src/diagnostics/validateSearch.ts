@@ -2,10 +2,8 @@ import type { QueryEmbeddingClient, SearchFilters, SearchHit } from "../search/t
 import type { ChunkContentStore } from "../search/chunkContentStore.js";
 import type { VectorSearchClient } from "../search/qdrantSearchClient.js";
 import { titleMatchBonus } from "../search/titleReranker.js";
+import { createSearchSnippet } from "../search/searchSnippet.js";
 import type { RetrievalDiagnosticsReport, ValidationSearchReport } from "./types.js";
-
-const preview = (markdown: string): string =>
-  markdown.replace(/\s+/g, " ").trim().slice(0, 200);
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -112,7 +110,7 @@ export class SearchValidator {
             : (content?.metadata.headingPath ?? [])
         ),
         url: hit.payload.url ?? content?.metadata.url ?? null,
-        preview: preview(hit.payload.content || content?.markdown || "")
+        snippet: createSearchSnippet(hit.payload.content || content?.markdown || "")
       };
     });
 

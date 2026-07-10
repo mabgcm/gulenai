@@ -53,7 +53,7 @@ export interface ValidationSearchHit {
   readonly title: string | null;
   readonly headingPath: readonly string[];
   readonly url: string | null;
-  readonly preview: string;
+  readonly snippet: string;
 }
 
 export interface ValidationSearchReport {

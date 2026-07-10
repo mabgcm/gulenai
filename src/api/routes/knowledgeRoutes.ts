@@ -8,7 +8,7 @@ interface IdParams {
   readonly chunkId?: string;
 }
 
-const resultSchema = {
+export const searchResultSchema = {
   type: "object",
   properties: {
     chunkId: { type: "string" },
@@ -81,7 +81,7 @@ export const knowledgeRoutes: RouteRegistrar = async (
           200: {
             type: "object",
             properties: {
-              results: { type: "array", items: resultSchema }
+              results: { type: "array", items: searchResultSchema }
             },
             required: ["results"]
           },
