@@ -64,7 +64,9 @@ export const formatValidationSearch = (report: ValidationSearchReport): string =
   for (const hit of report.hits) {
     lines.push(
       `${hit.rank}.`,
-      `Score: ${hit.similarityScore.toFixed(4)}`,
+      `Semantic score: ${hit.similarityScore.toFixed(4)}`,
+      `Title bonus: +${hit.titleMatchBonus.toFixed(2)}`,
+      `Reranked score: ${hit.rerankedScore.toFixed(4)}`,
       `Title: ${hit.title ?? "(unknown)"}`,
       `Heading: ${heading(hit.headingPath)}`,
       `URL: ${hit.url ?? "(unknown)"}`,
@@ -148,10 +150,10 @@ ${escapeHtml(report.diagnostics.remainingUrls.length === 0 ? "(none)" : report.d
     ${
       report.validation.hits.length === 0
         ? `<pre>No results returned.\nLikely cause: ${escapeHtml(report.validation.likelyCause ?? "unknown")}</pre>`
-        : `<table><thead><tr><th>#</th><th>Score</th><th>Title</th><th>Heading</th><th>URL</th><th>Chunk</th><th>Preview</th></tr></thead><tbody>${report.validation.hits
+        : `<table><thead><tr><th>#</th><th>Semantic</th><th>Title bonus</th><th>Reranked</th><th>Title</th><th>Heading</th><th>URL</th><th>Chunk</th><th>Preview</th></tr></thead><tbody>${report.validation.hits
             .map(
               (hit) =>
-                `<tr><td class="num">${hit.rank}</td><td class="num">${hit.similarityScore.toFixed(4)}</td><td>${escapeHtml(hit.title ?? "(unknown)")}</td><td>${escapeHtml(heading(hit.headingPath))}</td><td>${hit.url === null ? "(unknown)" : `<a href="${escapeHtml(hit.url)}">${escapeHtml(hit.url)}</a>`}</td><td><code>${escapeHtml(hit.chunkId)}</code></td><td>${escapeHtml(hit.preview)}</td></tr>`
+                `<tr><td class="num">${hit.rank}</td><td class="num">${hit.similarityScore.toFixed(4)}</td><td class="num">+${hit.titleMatchBonus.toFixed(2)}</td><td class="num">${hit.rerankedScore.toFixed(4)}</td><td>${escapeHtml(hit.title ?? "(unknown)")}</td><td>${escapeHtml(heading(hit.headingPath))}</td><td>${hit.url === null ? "(unknown)" : `<a href="${escapeHtml(hit.url)}">${escapeHtml(hit.url)}</a>`}</td><td><code>${escapeHtml(hit.chunkId)}</code></td><td>${escapeHtml(hit.preview)}</td></tr>`
             )
             .join("")}</tbody></table>`
     }`

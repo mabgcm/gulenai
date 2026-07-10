@@ -5,6 +5,7 @@ import type {
   SearchResult
 } from "./types.js";
 import type { VectorSearchClient } from "./qdrantSearchClient.js";
+import { rerankHitByTitle } from "./titleReranker.js";
 
 interface RankedHit {
   readonly hit: SearchHit;
@@ -125,7 +126,7 @@ export class RetrievalEngine {
       options.filters
     );
     const thresholdHits = qdrantHits.filter((hit) => hit.score >= options.threshold);
-    const hits = dedupeHits(thresholdHits);
+    const hits = dedupeHits(thresholdHits.map((hit) => rerankHitByTitle(trimmed, hit)));
     const rankedHits: RankedHit[] = hits.map((hit) => ({ hit }));
     const results = mergeAdjacent(rankedHits).slice(0, Math.max(1, options.topK));
     return results;

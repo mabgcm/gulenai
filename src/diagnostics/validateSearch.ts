@@ -1,6 +1,7 @@
 import type { QueryEmbeddingClient, SearchFilters, SearchHit } from "../search/types.js";
 import type { ChunkContentStore } from "../search/chunkContentStore.js";
 import type { VectorSearchClient } from "../search/qdrantSearchClient.js";
+import { titleMatchBonus } from "../search/titleReranker.js";
 import type { RetrievalDiagnosticsReport, ValidationSearchReport } from "./types.js";
 
 const preview = (markdown: string): string =>
@@ -81,26 +82,29 @@ export class SearchValidator {
     let error: string | null = null;
     let hits: SearchHit[] = [];
     try {
-      hits = [
-        ...(await this.searchClient.search(this.collection, vector, 20, 0, filters))
-      ].sort(
-        (left, right) =>
-          right.score - left.score ||
-          left.payload.documentId.localeCompare(right.payload.documentId) ||
-          left.payload.chunkIndex - right.payload.chunkIndex ||
-          left.payload.chunkId.localeCompare(right.payload.chunkId)
-      );
+      hits = [...(await this.searchClient.search(this.collection, vector, 20, 0, filters))];
     } catch (caught: unknown) {
       error = errorMessage(caught);
     }
 
     const chunks = await this.chunkStore.readByChunkId();
-    const validationHits = hits.slice(0, 20).map((hit, index) => {
+    const rerankedHits = hits
+      .map((hit) => ({ hit, bonus: titleMatchBonus(trimmed, hit.payload.title) }))
+      .sort(
+        (left, right) =>
+          right.hit.score + right.bonus - (left.hit.score + left.bonus) ||
+          left.hit.payload.documentId.localeCompare(right.hit.payload.documentId) ||
+          left.hit.payload.chunkIndex - right.hit.payload.chunkIndex ||
+          left.hit.payload.chunkId.localeCompare(right.hit.payload.chunkId)
+      );
+    const validationHits = rerankedHits.slice(0, 20).map(({ hit, bonus }, index) => {
       const content = chunks.get(hit.payload.chunkId);
       return {
         rank: index + 1,
         chunkId: hit.payload.chunkId,
         similarityScore: hit.score,
+        titleMatchBonus: bonus,
+        rerankedScore: hit.score + bonus,
         title: hit.payload.title ?? content?.metadata.title ?? null,
         headingPath: headingPath(
           hit.payload.headingPath.length > 0
@@ -108,10 +112,7 @@ export class SearchValidator {
             : (content?.metadata.headingPath ?? [])
         ),
         url: hit.payload.url ?? content?.metadata.url ?? null,
-        preview:
-          content === undefined
-            ? "(chunk JSON not found locally; Qdrant vector is orphaned or local data was reset)"
-            : preview(content.markdown)
+        preview: preview(hit.payload.content || content?.markdown || "")
       };
     });
 

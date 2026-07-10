@@ -203,7 +203,7 @@ describe("retrieval diagnostics", () => {
             tokenCount: 20,
             contentHash: "hash-1",
             sourceFile: "doc.md",
-            content: "# Doc"
+            content: "# Doc\n\nuseful content"
           }
         }
       ]),

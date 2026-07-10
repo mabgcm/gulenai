@@ -48,6 +48,8 @@ export interface ValidationSearchHit {
   readonly rank: number;
   readonly chunkId: string;
   readonly similarityScore: number;
+  readonly titleMatchBonus: number;
+  readonly rerankedScore: number;
   readonly title: string | null;
   readonly headingPath: readonly string[];
   readonly url: string | null;

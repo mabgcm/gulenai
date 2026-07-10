@@ -152,6 +152,22 @@ describe("RetrievalEngine", () => {
     expect(results.map((result) => result.chunkId)).toEqual(["chunk-a", "chunk-b"]);
   });
 
+  it("ranks a title match after applying semantic similarity", async () => {
+    const results = await engine([
+      {
+        ...hit("semantic", 0.8, 0),
+        payload: payload("semantic", 0, { documentId: "doc-semantic", title: "Başka Konu" })
+      },
+      {
+        ...hit("title", 0.6, 0),
+        payload: payload("title", 0, { documentId: "doc-title", title: "İhlâs" })
+      }
+    ]).search("ihlas", options());
+
+    expect(results.map((result) => result.chunkId)).toEqual(["title", "semantic"]);
+    expect(results[0]?.similarityScore).toBe(0.85);
+  });
+
   it("returns empty results for no hits or empty query", async () => {
     expect(await engine([]).search("query", options())).toEqual([]);
     expect(await engine([hit("chunk-1", 0.9, 0)]).search(" ", options())).toEqual([]);
