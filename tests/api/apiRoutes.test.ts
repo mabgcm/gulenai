@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { assertApiStartupEnvironment, createApiServer } from "../../src/api/server.js";
+import {
+  assertApiStartupEnvironment,
+  createApiServer,
+  sanitizedUrl
+} from "../../src/api/server.js";
 import type {
   ApiChunkResponse,
   ApiPromptResponse,
@@ -265,6 +269,12 @@ describe("API startup configuration", () => {
   it("reports every missing required environment variable", () => {
     expect(() => assertApiStartupEnvironment({ OPENAI_API_KEY: " " })).toThrow(
       "Missing required API environment variables: OPENAI_API_KEY, QDRANT_URL, QDRANT_COLLECTION"
+    );
+  });
+
+  it("redacts credentials and query values from the logged Qdrant URL", () => {
+    expect(sanitizedUrl("https://user:secret@example.test/path?api_key=secret")).toBe(
+      "https://%5Bredacted%5D:%5Bredacted%5D@example.test/path?api_key=%5Bredacted%5D"
     );
   });
 });

@@ -2,7 +2,13 @@ import { join } from "node:path";
 import pino from "pino";
 import { readTextFile } from "../utils/fs.js";
 import { loadConfig } from "../config/env.js";
-import { assertApiStartupEnvironment, createApiServer, runtimeConfigFromEnv } from "./server.js";
+import { verifyQdrantCollectionAccess } from "../qdrant/clientConfig.js";
+import {
+  assertApiStartupEnvironment,
+  createApiServer,
+  runtimeConfigFromEnv,
+  sanitizedUrl
+} from "./server.js";
 
 const logger = pino({
   base: null,
@@ -27,6 +33,21 @@ const main = async (): Promise<void> => {
   assertApiStartupEnvironment();
   const appConfig = loadConfig();
   logger.level = appConfig.LOG_LEVEL;
+  logger.info(
+    {
+      qdrantUrl: sanitizedUrl(appConfig.QDRANT_URL),
+      qdrantCollection: appConfig.QDRANT_COLLECTION,
+      qdrantApiKeyPresent: Boolean(appConfig.QDRANT_API_KEY?.trim()),
+      nodeVersion: process.version
+    },
+    "Runtime configuration resolved"
+  );
+  await verifyQdrantCollectionAccess(
+    appConfig.QDRANT_URL,
+    appConfig.QDRANT_API_KEY,
+    appConfig.QDRANT_COLLECTION
+  );
+  logger.info({ qdrantCollection: appConfig.QDRANT_COLLECTION }, "Qdrant collection is accessible");
   const runtime = runtimeConfigFromEnv(appConfig);
   const server = await createApiServer({
     appConfig,

@@ -1,5 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import type { Schemas } from "@qdrant/js-client-rest";
+import { qdrantClientOptions } from "./clientConfig.js";
 import type { QdrantPoint, QdrantRemotePoint } from "./types.js";
 
 export interface QdrantVectorClient {
@@ -41,9 +42,7 @@ export class RestQdrantVectorClient implements QdrantVectorClient {
   private readonly client: QdrantClient;
 
   public constructor(url: string, apiKey: string | undefined) {
-    this.client = new QdrantClient(
-      apiKey === undefined || apiKey.trim().length === 0 ? { url } : { url, apiKey }
-    );
+    this.client = new QdrantClient(qdrantClientOptions(url, apiKey));
   }
 
   public async collectionExists(collection: string): Promise<boolean> {

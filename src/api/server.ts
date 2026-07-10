@@ -34,6 +34,20 @@ export const assertApiStartupEnvironment = (environment: NodeJS.ProcessEnv = pro
   }
 };
 
+export const sanitizedUrl = (value: string): string => {
+  const url = new URL(value);
+  if (url.username.length > 0) {
+    url.username = "[redacted]";
+  }
+  if (url.password.length > 0) {
+    url.password = "[redacted]";
+  }
+  for (const name of url.searchParams.keys()) {
+    url.searchParams.set(name, "[redacted]");
+  }
+  return url.toString();
+};
+
 export const runtimeConfigFromEnv = (
   appConfig: AppConfig,
   production = process.env.NODE_ENV === "production"

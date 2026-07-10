@@ -1,4 +1,5 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
+import { qdrantClientOptions } from "../qdrant/clientConfig.js";
 import type { QdrantCollectionDiagnostics, RemoteVectorPoint } from "./types.js";
 
 export interface QdrantDiagnosticsClient {
@@ -43,9 +44,7 @@ export class RestQdrantDiagnosticsClient implements QdrantDiagnosticsClient {
   private readonly client: QdrantClient;
 
   public constructor(url: string, apiKey: string | undefined) {
-    this.client = new QdrantClient(
-      apiKey === undefined || apiKey.trim().length === 0 ? { url } : { url, apiKey }
-    );
+    this.client = new QdrantClient(qdrantClientOptions(url, apiKey));
   }
 
   public async inspectCollection(collection: string): Promise<QdrantCollectionDiagnostics> {

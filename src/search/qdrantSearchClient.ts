@@ -1,5 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import type { Schemas } from "@qdrant/js-client-rest";
+import { qdrantClientOptions } from "../qdrant/clientConfig.js";
 import type { SearchFilters, SearchHit, SearchHitPayload } from "./types.js";
 
 export interface VectorSearchClient {
@@ -98,9 +99,7 @@ export class QdrantVectorSearchClient implements VectorSearchClient {
   private readonly client: QdrantClient;
 
   public constructor(url: string, apiKey: string | undefined) {
-    this.client = new QdrantClient(
-      apiKey === undefined || apiKey.trim().length === 0 ? { url } : { url, apiKey }
-    );
+    this.client = new QdrantClient(qdrantClientOptions(url, apiKey));
   }
 
   public async search(
