@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pipeline Performance Report</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #f7f7f4; color: #1d1d1f; line-height: 1.45; }
+    header { background: #fff; border-bottom: 1px solid #deded8; padding: 28px 40px 18px; }
+    main { max-width: 1080px; margin: 0 auto; padding: 28px 40px 56px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #deded8; font-size: 13px; }
+    th, td { border-bottom: 1px solid #deded8; padding: 9px 10px; text-align: left; }
+    th { background: #eeeeea; }
+    .num { text-align: right; white-space: nowrap; }
+    .muted { color: #666b73; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pipeline Performance Report</h1>
+    <p class="muted">Measured crawl, index, embed, and Qdrant throughput history.</p>
+  </header>
+  <main>
+    <table>
+      <thead><tr><th>Stage</th><th>Measured at</th><th>Items</th><th>Duration</th><th>Throughput</th></tr></thead>
+      <tbody>
+        <tr><td>index</td><td>2026-07-10T00:56:29.479Z</td><td class="num">12661 chunks</td><td class="num">1.61s</td><td class="num">7863.98 chunks/sec</td></tr>
+<tr><td>embed</td><td>2026-07-10T01:09:52.016Z</td><td class="num">0 vectors</td><td class="num">2.08s</td><td class="num">0.00 vectors/sec</td></tr>
+<tr><td>qdrant</td><td>2026-07-10T01:10:39.569Z</td><td class="num">12247 vectors</td><td class="num">31.36s</td><td class="num">390.53 vectors/sec</td></tr>
+<tr><td>crawl</td><td>2026-07-10T01:11:37.604Z</td><td class="num">1 pages</td><td class="num">2.43s</td><td class="num">0.41 pages/sec</td></tr>
+<tr><td>embed</td><td>2026-07-10T01:12:12.104Z</td><td class="num">12183 vectors</td><td class="num">749.79s</td><td class="num">16.25 vectors/sec</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import type { IndexManifests, IndexSummary } from "./types.js";
-import { ensureDir, readJson, writeJson } from "../utils/fs.js";
+import { ensureDir, mapWithFilesystemConcurrency, readJson, writeJson } from "../utils/fs.js";
 
 export class ManifestStore {
   private readonly documentsPath: string;
@@ -14,24 +14,27 @@ export class ManifestStore {
   }
 
   public async load(): Promise<IndexManifests> {
-    const [documents, chunks] = await Promise.all([
-      readJson<IndexManifests["documents"]>(this.documentsPath),
-      readJson<IndexManifests["chunks"]>(this.chunksPath)
-    ]);
+    const [documents, chunks] = await mapWithFilesystemConcurrency(
+      [this.documentsPath, this.chunksPath],
+      async (path) => readJson<IndexManifests["documents"] | IndexManifests["chunks"]>(path)
+    );
 
     return {
-      documents: documents ?? [],
-      chunks: chunks ?? []
+      documents: (documents as IndexManifests["documents"] | null) ?? [],
+      chunks: (chunks as IndexManifests["chunks"] | null) ?? []
     };
   }
 
   public async save(manifests: IndexManifests, summary: IndexSummary): Promise<void> {
     await ensureDir(this.indexDir);
-    await Promise.all([
-      writeJson(this.documentsPath, manifests.documents),
-      writeJson(this.chunksPath, manifests.chunks),
-      writeJson(this.summaryPath, summary)
-    ]);
+    await mapWithFilesystemConcurrency(
+      [
+        [this.documentsPath, manifests.documents],
+        [this.chunksPath, manifests.chunks],
+        [this.summaryPath, summary]
+      ] as const,
+      async ([path, value]) => writeJson(path, value)
+    );
   }
 
   public async loadSummary(): Promise<IndexSummary | null> {

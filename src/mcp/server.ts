@@ -1,5 +1,5 @@
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { readTextFile } from "../utils/fs.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { loadConfig } from "../config/env.js";
@@ -11,7 +11,7 @@ import { registerKnowledgeTools } from "./tools/registerTools.js";
 import { MCP_SERVER_INFO } from "./types.js";
 
 const readPackageVersion = async (): Promise<string> => {
-  const content = await readFile(join(process.cwd(), "package.json"), "utf8");
+  const content = await readTextFile(join(process.cwd(), "package.json"));
   const parsed = JSON.parse(content) as unknown;
   if (
     typeof parsed === "object" &&

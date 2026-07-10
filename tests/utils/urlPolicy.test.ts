@@ -54,4 +54,17 @@ describe("UrlPolicy", () => {
     expect(policy.isAllowed("https://fgulen.com/en/article", 0)).toBe(false);
     expect(policy.isAllowed("https://fgulen.com", 0)).toBe(true);
   });
+
+  it("rejects low-value infrastructure, pagination, and click URLs", () => {
+    const policy = new UrlPolicy(source);
+    expect(policy.isAllowed("https://fgulen.com/privacy-policy", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/terms-of-use", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/component/content/article", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/bize-yazin", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/tag/sohbet", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/tr/makale?page=2", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/tr/makale?start=20", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/banner/click/123", 0)).toBe(false);
+    expect(policy.isAllowed("https://fgulen.com/tr/makale", 0)).toBe(true);
+  });
 });

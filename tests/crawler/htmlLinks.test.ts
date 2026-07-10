@@ -22,4 +22,26 @@ describe("parseHtmlLinks", () => {
       links: ["/next"]
     });
   });
+
+  it("prioritizes chapter links on book landing pages", () => {
+    const html = `
+      <html>
+        <head><title>Book</title></head>
+        <body>
+          <nav><a href="/login">Login</a><a href="/tag/nav">Tag</a></nav>
+          <main class="book">
+            <h1>Book Contents</h1>
+            <a href="/books/example/chapter-1">Chapter 1</a>
+            <a href="/books/example/chapter-2">Chapter 2</a>
+            <a href="/privacy-policy">Privacy</a>
+          </main>
+        </body>
+      </html>
+    `;
+
+    expect(parseHtmlLinks(html).links).toEqual([
+      "/books/example/chapter-1",
+      "/books/example/chapter-2"
+    ]);
+  });
 });

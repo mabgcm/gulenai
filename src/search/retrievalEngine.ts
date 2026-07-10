@@ -120,10 +120,8 @@ export class RetrievalEngine {
       return [];
     }
 
-    const [vector, chunks] = await Promise.all([
-      this.embedder.embedQuery(trimmed),
-      this.readChunks()
-    ]);
+    const vector = await this.embedder.embedQuery(trimmed);
+    const chunks = await this.readChunks();
     const hits = dedupeHits(
       (
         await this.searchClient.search(

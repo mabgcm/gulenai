@@ -1,6 +1,5 @@
-import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ensureDir } from "../utils/fs.js";
+import { ensureDir, writeTextFile } from "../utils/fs.js";
 import type {
   RetrievalDiagnosticsReport,
   RetrievalValidationHtmlReport,
@@ -21,6 +20,16 @@ const heading = (headingPath: readonly string[]): string =>
 export const formatDiagnostics = (report: RetrievalDiagnosticsReport): string =>
   [
     "Retrieval Diagnostics",
+    "",
+    `Queue size: ${report.queueSize}`,
+    `Resume status: ${report.resumeStatus}`,
+    `Remaining URLs: ${report.remainingUrls.length === 0 ? "(none)" : report.remainingUrls.join(", ")}`,
+    `Filesystem concurrency: ${report.filesystemConcurrency}`,
+    `Pending filesystem jobs: ${report.pendingFilesystemJobs}`,
+    `Active filesystem jobs: ${report.activeFilesystemJobs}`,
+    `Open file statistics: ${report.openFileStatistics}`,
+    `Memory RSS: ${Math.round(report.memoryUsage.rssBytes / 1024 / 1024)} MB`,
+    `Memory heap used: ${Math.round(report.memoryUsage.heapUsedBytes / 1024 / 1024)} MB`,
     "",
     `Qdrant connected: ${report.qdrantConnected ? "yes" : "no"}`,
     `Collection: ${report.collection}`,
@@ -113,7 +122,18 @@ export const renderRetrievalValidationHtml = (
       <div class="metric"><span class="muted">Pending chunks</span><strong>${report.diagnostics.pendingChunks}</strong></div>
       <div class="metric"><span class="muted">Missing vectors</span><strong>${report.diagnostics.missingVectors.length}</strong></div>
       <div class="metric"><span class="muted">Orphan vectors</span><strong>${report.diagnostics.orphanVectors.length}</strong></div>
+      <div class="metric"><span class="muted">Queue size</span><strong>${report.diagnostics.queueSize}</strong></div>
+      <div class="metric"><span class="muted">Resume</span><strong>${escapeHtml(report.diagnostics.resumeStatus)}</strong></div>
+      <div class="metric"><span class="muted">FS concurrency</span><strong>${report.diagnostics.filesystemConcurrency}</strong></div>
+      <div class="metric"><span class="muted">Pending FS jobs</span><strong>${report.diagnostics.pendingFilesystemJobs}</strong></div>
+      <div class="metric"><span class="muted">Active FS jobs</span><strong>${report.diagnostics.activeFilesystemJobs}</strong></div>
+      <div class="metric"><span class="muted">Memory RSS</span><strong>${Math.round(report.diagnostics.memoryUsage.rssBytes / 1024 / 1024)} MB</strong></div>
     </section>
+    <h2>Runtime</h2>
+    <pre>Open file statistics: ${escapeHtml(report.diagnostics.openFileStatistics)}
+Memory heap used: ${Math.round(report.diagnostics.memoryUsage.heapUsedBytes / 1024 / 1024)} MB
+Remaining URLs:
+${escapeHtml(report.diagnostics.remainingUrls.length === 0 ? "(none)" : report.diagnostics.remainingUrls.join("\n"))}</pre>
     ${
       report.diagnostics.errors.length === 0
         ? ""
@@ -147,7 +167,7 @@ export class RetrievalValidationReportWriter {
   public async write(report: RetrievalValidationHtmlReport): Promise<string> {
     await ensureDir(this.reportsDir);
     const outputPath = join(this.reportsDir, "retrieval-validation.html");
-    await writeFile(outputPath, renderRetrievalValidationHtml(report), "utf8");
+    await writeTextFile(outputPath, renderRetrievalValidationHtml(report));
     return outputPath;
   }
 }

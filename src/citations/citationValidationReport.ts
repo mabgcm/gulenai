@@ -1,6 +1,5 @@
-import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ensureDir } from "../utils/fs.js";
+import { ensureDir, writeTextFile } from "../utils/fs.js";
 import type { CitedAnswer, CitationChunkPreview } from "./types.js";
 
 export interface CitationValidationCase {
@@ -93,7 +92,7 @@ export class CitationValidationReportWriter {
   public async write(cases: readonly CitationValidationCase[]): Promise<string> {
     await ensureDir(this.reportsDir);
     const outputPath = join(this.reportsDir, "citation-validation.html");
-    await writeFile(outputPath, renderCitationValidationHtml(cases), "utf8");
+    await writeTextFile(outputPath, renderCitationValidationHtml(cases));
     return outputPath;
   }
 }

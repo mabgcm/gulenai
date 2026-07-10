@@ -1,6 +1,5 @@
 import { join } from "node:path";
-import { writeFile } from "node:fs/promises";
-import { ensureDir, writeJson } from "../utils/fs.js";
+import { ensureDir, mapWithFilesystemConcurrency, writeJson, writeTextFile } from "../utils/fs.js";
 import { formatCitedAnswerMarkdown } from "./citationFormatter.js";
 import type { CitedAnswer } from "./types.js";
 
@@ -17,24 +16,28 @@ export class CitationStore {
     const markdownPath = join(this.answersDir, "answer.md");
     const jsonPath = join(this.answersDir, "answer.json");
 
-    await Promise.all([
-      writeFile(markdownPath, `${formatCitedAnswerMarkdown(answer).trimEnd()}\n`, "utf8"),
-      writeJson(jsonPath, {
-        question: answer.question,
-        answer: answer.answer,
-        confidence: answer.confidence,
-        citations: answer.citations.map((citation) => ({
-          id: citation.id,
-          title: citation.title,
-          url: citation.url,
-          headingPath: citation.headingPath,
-          chunkId: citation.chunkId,
-          score: citation.score,
-          chunkIndex: citation.chunkIndex,
-          totalChunks: citation.totalChunks
-        }))
-      })
-    ]);
+    await mapWithFilesystemConcurrency(
+      [
+        async () => writeTextFile(markdownPath, `${formatCitedAnswerMarkdown(answer).trimEnd()}\n`),
+        async () =>
+          writeJson(jsonPath, {
+            question: answer.question,
+            answer: answer.answer,
+            confidence: answer.confidence,
+            citations: answer.citations.map((citation) => ({
+              id: citation.id,
+              title: citation.title,
+              url: citation.url,
+              headingPath: citation.headingPath,
+              chunkId: citation.chunkId,
+              score: citation.score,
+              chunkIndex: citation.chunkIndex,
+              totalChunks: citation.totalChunks
+            }))
+          })
+      ],
+      async (write) => write()
+    );
 
     return { markdownPath, jsonPath };
   }

@@ -1,7 +1,6 @@
-import { writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { ExtractedDocument } from "./types.js";
-import { ensureDir, writeJson } from "../utils/fs.js";
+import { ensureDir, writeJson, writeTextFile } from "../utils/fs.js";
 
 export class CleanDocumentStore {
   public constructor(private readonly cleanDir = "data/clean") {}
@@ -10,7 +9,7 @@ export class CleanDocumentStore {
     const htmlPath = join(this.cleanDir, document.relativePath);
     const metadataPath = htmlPath.replace(/\.html$/i, ".metadata.json");
     await ensureDir(dirname(htmlPath));
-    await writeFile(htmlPath, `${document.cleanedHtml}\n`, "utf8");
+    await writeTextFile(htmlPath, `${document.cleanedHtml}\n`);
     await writeJson(metadataPath, {
       ...document.metadata,
       extractionMethod: document.extractionMethod

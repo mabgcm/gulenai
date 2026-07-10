@@ -13,7 +13,8 @@ export class IndexPipeline {
   ) {}
 
   public async run(): Promise<IndexSummary> {
-    const [chunks, previous] = await Promise.all([this.reader.readAll(), this.store.load()]);
+    const chunks = await this.reader.readAll();
+    const previous = await this.store.load();
     const builder = new ManifestBuilder();
     const { manifests, summary } = builder.build(chunks, previous, this.now().toISOString());
     await this.store.save(manifests, summary);

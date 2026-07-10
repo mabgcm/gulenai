@@ -1,6 +1,5 @@
-import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ensureDir } from "../utils/fs.js";
+import { ensureDir, writeTextFile } from "../utils/fs.js";
 import type { AnswerValidationCase } from "./types.js";
 
 const escapeHtml = (value: string | number | boolean | null | undefined): string =>
@@ -58,7 +57,7 @@ export class AnswerValidationReportWriter {
   public async write(cases: readonly AnswerValidationCase[]): Promise<string> {
     await ensureDir(this.reportsDir);
     const outputPath = join(this.reportsDir, "answer-validation.html");
-    await writeFile(outputPath, renderAnswerValidationHtml(cases), "utf8");
+    await writeTextFile(outputPath, renderAnswerValidationHtml(cases));
     return outputPath;
   }
 }

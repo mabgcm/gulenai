@@ -72,6 +72,36 @@ class CategoryFirstFetcher implements Fetcher {
   public async close(): Promise<void> {}
 }
 
+class ResumeFetcher implements Fetcher {
+  public readonly fetched: string[] = [];
+
+  public async fetchPage(url: string): Promise<CrawledPage> {
+    await Promise.resolve();
+    this.fetched.push(url);
+    const prefix = url.endsWith("/one") ? "resumeone" : "resumetwo";
+    const paragraph = Array.from({ length: 130 }, (_, index) => `${prefix}${index}`).join(" ");
+    const links = url.endsWith("/one") ? ["/two"] : [];
+    return {
+      url,
+      finalUrl: url,
+      canonicalUrl: null,
+      status: 200,
+      contentType: "text/html",
+      html: `<html><body><article><h1>${url}</h1><p>${paragraph}</p></article></body></html>`,
+      title: url,
+      discoveredUrls: links,
+      fetchedAt: "2026-01-01T00:00:00.000Z"
+    };
+  }
+
+  public async fetchText(): Promise<string> {
+    await Promise.resolve();
+    return "User-agent: *\nAllow: /\n";
+  }
+
+  public async close(): Promise<void> {}
+}
+
 const source: SourceConfig = {
   name: "test",
   seeds: ["https://fgulen.com/one"],
@@ -142,5 +172,40 @@ describe("Crawler", () => {
     expect(fetcher.fetched).toEqual(["https://fgulen.com/tr", "https://fgulen.com/tr/article"]);
     expect(result.savedPages).toBe(1);
     expect(rawFiles.filter((file) => file.endsWith(".html"))).toHaveLength(1);
+  });
+
+  it("resumes from a saved queue after a max-pages crawl pass", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "gulenai-crawler-"));
+    const store = new CrawlStore(tempDir);
+    const logger = pino({ enabled: false });
+    const passConfig = { ...source, seeds: ["https://fgulen.com/one"], maxPages: 1, maxDepth: 1 };
+
+    const firstFetcher = new ResumeFetcher();
+    const first = await new Crawler(
+      passConfig,
+      firstFetcher,
+      store,
+      logger,
+      join(tempDir, "reports")
+    ).run();
+    const firstState = await store.loadState();
+
+    const secondFetcher = new ResumeFetcher();
+    const second = await new Crawler(
+      passConfig,
+      secondFetcher,
+      store,
+      logger,
+      join(tempDir, "reports")
+    ).run();
+    const secondState = await store.loadState();
+
+    expect(firstFetcher.fetched).toEqual(["https://fgulen.com/one"]);
+    expect(first.savedPagesThisRun).toBe(1);
+    expect(firstState?.queue.map((target) => target.url)).toEqual(["https://fgulen.com/two"]);
+    expect(secondFetcher.fetched).toEqual(["https://fgulen.com/two"]);
+    expect(second.savedPagesThisRun).toBe(1);
+    expect(secondState?.queue).toHaveLength(0);
+    expect((secondState?.queue.length ?? 0)).toBeLessThan(firstState?.queue.length ?? 0);
   });
 });

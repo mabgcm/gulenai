@@ -51,12 +51,10 @@ export class QdrantSyncPipeline {
   ) {}
 
   public async sync(): Promise<QdrantSyncSummary> {
-    const [documents, manifests, vectors, chunks] = await Promise.all([
-      this.indexStore.loadDocuments(),
-      this.indexStore.loadChunks(),
-      this.vectorReader.readByChunkId(),
-      this.chunkReader.readByChunkId()
-    ]);
+    const documents = await this.indexStore.loadDocuments();
+    const manifests = await this.indexStore.loadChunks();
+    const vectors = await this.vectorReader.readByChunkId();
+    const chunks = await this.chunkReader.readByChunkId();
 
     const manifestById = new Map(manifests.map((manifest) => [manifest.chunkId, manifest]));
     const uploadCandidates = manifests
@@ -118,10 +116,8 @@ export class QdrantSyncPipeline {
   }
 
   public async status(): Promise<QdrantStatus> {
-    const [documents, manifests] = await Promise.all([
-      this.indexStore.loadDocuments(),
-      this.indexStore.loadChunks()
-    ]);
+    const documents = await this.indexStore.loadDocuments();
+    const manifests = await this.indexStore.loadChunks();
     const vectors = await withQdrantRetry(
       () => this.client.count(this.config.collection),
       this.config.retries,

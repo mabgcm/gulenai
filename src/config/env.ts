@@ -118,6 +118,7 @@ const envSchema = z.object({
   EMBEDDING_BATCH_SIZE: integerFromEnv(64),
   EMBEDDING_CONCURRENCY: integerFromEnv(2),
   EMBEDDING_RETRIES: integerFromEnv(3),
+  FS_CONCURRENCY: integerFromEnv(32),
   PORT: integerFromEnv(3000),
   HOST: z.string().default("127.0.0.1"),
   API_PREFIX: z.string().default("/api/v1"),

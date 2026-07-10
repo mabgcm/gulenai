@@ -12,6 +12,7 @@ import { UrlPolicy } from "./urlPolicy.js";
 
 export interface CrawlResult {
   readonly savedPages: number;
+  readonly savedPagesThisRun: number;
   readonly visitedPages: number;
   readonly failedPages: number;
   readonly queuedPages: number;
@@ -24,6 +25,7 @@ export class Crawler {
   private readonly queued = new Set<string>();
   private queue: CrawlTarget[] = [];
   private savedPages = 0;
+  private savedPagesThisRun = 0;
   private robots: RobotsRules | null = null;
   private lastRequestAt = 0;
   private readonly analyzer: ContentQualityAnalyzer;
@@ -74,6 +76,7 @@ export class Crawler {
 
     return {
       savedPages: this.savedPages,
+      savedPagesThisRun: this.savedPagesThisRun,
       visitedPages: this.visited.size,
       failedPages: this.failures.length,
       queuedPages: this.queue.length
@@ -132,7 +135,7 @@ export class Crawler {
   }
 
   private async worker(workerId: number): Promise<void> {
-    while (this.savedPages < this.source.maxPages) {
+    while (this.savedPagesThisRun < this.source.maxPages) {
       const target = this.dequeue();
       if (target === null) {
         return;
@@ -260,6 +263,7 @@ export class Crawler {
       if (resolution.decision.status === "indexed") {
         await this.store.saveRawPage(pageForStorage);
         this.savedPages += 1;
+        this.savedPagesThisRun += 1;
       }
     }
 
@@ -277,9 +281,7 @@ export class Crawler {
 
   private async persistState(): Promise<void> {
     const state = this.store.buildState(this.queue, this.visited, this.failures, this.savedPages);
-    await Promise.all([
-      this.store.saveState(state),
-      this.store.saveQualityState(this.qualityTracker.state())
-    ]);
+    await this.store.saveState(state);
+    await this.store.saveQualityState(this.qualityTracker.state());
   }
 }

@@ -1,7 +1,6 @@
-import { writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { MarkdownDocument } from "./types.js";
-import { ensureDir, writeJson } from "../utils/fs.js";
+import { ensureDir, writeJson, writeTextFile } from "../utils/fs.js";
 
 export class MarkdownStore {
   public constructor(private readonly markdownDir = "data/markdown") {}
@@ -9,7 +8,7 @@ export class MarkdownStore {
   public async save(document: MarkdownDocument): Promise<void> {
     const markdownPath = join(this.markdownDir, document.relativePath).replace(/\.html$/i, ".md");
     await ensureDir(dirname(markdownPath));
-    await writeFile(markdownPath, `${document.markdown}\n`, "utf8");
+    await writeTextFile(markdownPath, `${document.markdown}\n`);
 
     if (document.metadata !== null) {
       const metadataPath = markdownPath.replace(/\.md$/i, ".metadata.json");

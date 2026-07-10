@@ -1,9 +1,14 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
+import {
+  mapWithFilesystemConcurrency,
+  readTextFile,
+  withFilesystemConcurrency
+} from "../utils/fs.js";
 import type { MarkdownInputDocument } from "./types.js";
 
 const walkMarkdownFiles = async (directory: string): Promise<readonly string[]> => {
-  const entries = await readdir(directory, { withFileTypes: true });
+  const entries = await withFilesystemConcurrency(() => readdir(directory, { withFileTypes: true }));
   const files: string[] = [];
 
   for (const entry of entries) {
@@ -20,7 +25,7 @@ const walkMarkdownFiles = async (directory: string): Promise<readonly string[]> 
 
 const readMetadata = async (metadataPath: string): Promise<Record<string, unknown> | null> => {
   try {
-    return JSON.parse(await readFile(metadataPath, "utf8")) as Record<string, unknown>;
+    return JSON.parse(await readTextFile(metadataPath)) as Record<string, unknown>;
   } catch (error: unknown) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
       return null;
@@ -35,19 +40,17 @@ export class MarkdownDocumentReader {
 
   public async readAll(): Promise<readonly MarkdownInputDocument[]> {
     const markdownFiles = await walkMarkdownFiles(this.markdownDir);
-    return Promise.all(
-      markdownFiles.map(async (markdownPath) => {
-        const relativePath = relative(this.markdownDir, markdownPath);
-        const metadataPath = markdownPath.replace(/\.md$/i, ".metadata.json");
+    return mapWithFilesystemConcurrency(markdownFiles, async (markdownPath) => {
+      const relativePath = relative(this.markdownDir, markdownPath);
+      const metadataPath = markdownPath.replace(/\.md$/i, ".metadata.json");
 
-        return {
-          markdownPath,
-          metadataPath,
-          relativePath,
-          markdown: await readFile(markdownPath, "utf8"),
-          metadata: await readMetadata(metadataPath)
-        };
-      })
-    );
+      return {
+        markdownPath,
+        metadataPath,
+        relativePath,
+        markdown: await readTextFile(markdownPath),
+        metadata: await readMetadata(metadataPath)
+      };
+    });
   }
 }

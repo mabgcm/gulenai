@@ -1,5 +1,10 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
+import {
+  mapWithFilesystemConcurrency,
+  readTextFile,
+  withFilesystemConcurrency
+} from "../utils/fs.js";
 import type { RawDocument, RawIndexRecord } from "./types.js";
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -39,7 +44,7 @@ const parseRawIndexRecord = (line: string): RawIndexRecord | null => {
 };
 
 const walkHtmlFiles = async (directory: string): Promise<readonly string[]> => {
-  const entries = await readdir(directory, { withFileTypes: true });
+  const entries = await withFilesystemConcurrency(() => readdir(directory, { withFileTypes: true }));
   const files: string[] = [];
 
   for (const entry of entries) {
@@ -64,26 +69,24 @@ export class RawDocumentReader {
     const index = await this.readIndex();
     const files = await walkHtmlFiles(this.rawDir);
 
-    return Promise.all(
-      files.map(async (rawPath) => {
-        const html = await readFile(rawPath, "utf8");
-        const record = index.get(rawPath);
-        const relativePath = relative(this.rawDir, rawPath);
-        return {
-          id: record?.id ?? relativePath.replace(/\.html$/i, ""),
-          rawPath,
-          relativePath,
-          html,
-          url: record?.canonicalUrl ?? record?.finalUrl ?? record?.url ?? null,
-          crawlDate: record?.fetchedAt ?? null
-        };
-      })
-    );
+    return mapWithFilesystemConcurrency(files, async (rawPath) => {
+      const html = await readTextFile(rawPath);
+      const record = index.get(rawPath);
+      const relativePath = relative(this.rawDir, rawPath);
+      return {
+        id: record?.id ?? relativePath.replace(/\.html$/i, ""),
+        rawPath,
+        relativePath,
+        html,
+        url: record?.canonicalUrl ?? record?.finalUrl ?? record?.url ?? null,
+        crawlDate: record?.fetchedAt ?? null
+      };
+    });
   }
 
   private async readIndex(): Promise<ReadonlyMap<string, RawIndexRecord>> {
     try {
-      const content = await readFile(this.rawIndexPath, "utf8");
+      const content = await readTextFile(this.rawIndexPath);
       const records = content
         .split(/\r?\n/)
         .filter((line) => line.trim().length > 0)

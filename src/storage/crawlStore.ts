@@ -1,8 +1,15 @@
-import { appendFile, rm, unlink, writeFile } from "node:fs/promises";
+import { appendFile, rm, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import type { CrawlQualityState } from "../crawlQuality/types.js";
 import type { CrawledPage, CrawlFailure, CrawlState, CrawlTarget } from "../types/source.js";
-import { ensureDir, readJson, writeJson } from "../utils/fs.js";
+import {
+  ensureDir,
+  mapWithFilesystemConcurrency,
+  readJson,
+  withFilesystemConcurrency,
+  writeJson,
+  writeTextFile
+} from "../utils/fs.js";
 import { sha256, shortHash } from "../utils/hash.js";
 
 export interface SavedRawPageMetadata {
@@ -38,7 +45,7 @@ export class CrawlStore {
   }
 
   public async init(): Promise<void> {
-    await Promise.all([ensureDir(this.crawlDir), ensureDir(this.rawDir)]);
+    await mapWithFilesystemConcurrency([this.crawlDir, this.rawDir], ensureDir);
   }
 
   public async loadState(): Promise<CrawlState | null> {
@@ -47,7 +54,7 @@ export class CrawlStore {
 
   public async saveState(state: CrawlState): Promise<void> {
     await writeJson(this.statePath, state);
-    await writeFile(
+    await writeTextFile(
       this.visitedPath,
       `${state.visited.join("\n")}${state.visited.length ? "\n" : ""}`
     );
@@ -71,8 +78,10 @@ export class CrawlStore {
       rawPath
     };
 
-    await writeFile(rawPath, page.html, "utf8");
-    await appendFile(this.rawIndexPath, `${JSON.stringify(metadata)}\n`, "utf8");
+    await writeTextFile(rawPath, page.html);
+    await withFilesystemConcurrency(() =>
+      appendFile(this.rawIndexPath, `${JSON.stringify(metadata)}\n`, "utf8")
+    );
     return metadata;
   }
 
@@ -85,7 +94,7 @@ export class CrawlStore {
   }
 
   public async removeRawPageById(id: string): Promise<void> {
-    await unlink(this.rawPathForId(id)).catch((error: unknown) => {
+    await withFilesystemConcurrency(() => unlink(this.rawPathForId(id))).catch((error: unknown) => {
       if (error instanceof Error && "code" in error && error.code === "ENOENT") {
         return;
       }
@@ -102,18 +111,21 @@ export class CrawlStore {
   }
 
   public async reset(): Promise<void> {
-    await rm(this.dataDir, { recursive: true, force: true });
-    await Promise.all([
-      ensureDir(join(this.dataDir, "raw")),
-      ensureDir(join(this.dataDir, "clean")),
-      ensureDir(join(this.dataDir, "markdown")),
-      ensureDir(join(this.dataDir, "chunks")),
-      ensureDir(join(this.dataDir, "index")),
-      ensureDir(join(this.dataDir, "embeddings")),
-      ensureDir(join(this.dataDir, "prompts")),
-      ensureDir(join(this.dataDir, "answers")),
-      ensureDir(join(this.dataDir, "crawl"))
-    ]);
+    await withFilesystemConcurrency(() => rm(this.dataDir, { recursive: true, force: true }));
+    await mapWithFilesystemConcurrency(
+      [
+        "raw",
+        "clean",
+        "markdown",
+        "chunks",
+        "index",
+        "embeddings",
+        "prompts",
+        "answers",
+        "crawl"
+      ],
+      async (directory) => ensureDir(join(this.dataDir, directory))
+    );
   }
 
   public buildState(

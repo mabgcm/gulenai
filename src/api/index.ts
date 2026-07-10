@@ -1,11 +1,11 @@
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { readTextFile } from "../utils/fs.js";
 import { loadConfig } from "../config/env.js";
 import { logger } from "../config/logger.js";
 import { createApiServer, runtimeConfigFromEnv } from "./server.js";
 
 const readPackageVersion = async (): Promise<string> => {
-  const content = await readFile(join(process.cwd(), "package.json"), "utf8");
+  const content = await readTextFile(join(process.cwd(), "package.json"));
   const parsed = JSON.parse(content) as unknown;
   if (
     typeof parsed === "object" &&

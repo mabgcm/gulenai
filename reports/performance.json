@@ -1,0 +1,42 @@
+[
+  {
+    "stage": "index",
+    "generatedAt": "2026-07-10T00:56:29.479Z",
+    "durationSeconds": 1.61,
+    "items": 12661,
+    "unit": "chunks",
+    "throughputPerSecond": 7863.975155279502
+  },
+  {
+    "stage": "embed",
+    "generatedAt": "2026-07-10T01:09:52.016Z",
+    "durationSeconds": 2.08,
+    "items": 0,
+    "unit": "vectors",
+    "throughputPerSecond": 0
+  },
+  {
+    "stage": "qdrant",
+    "generatedAt": "2026-07-10T01:10:39.569Z",
+    "durationSeconds": 31.36,
+    "items": 12247,
+    "unit": "vectors",
+    "throughputPerSecond": 390.52933673469386
+  },
+  {
+    "stage": "crawl",
+    "generatedAt": "2026-07-10T01:11:37.604Z",
+    "durationSeconds": 2.427,
+    "items": 1,
+    "unit": "pages",
+    "throughputPerSecond": 0.4120313143798929
+  },
+  {
+    "stage": "embed",
+    "generatedAt": "2026-07-10T01:12:12.104Z",
+    "durationSeconds": 749.79,
+    "items": 12183,
+    "unit": "vectors",
+    "throughputPerSecond": 16.24854959388629
+  }
+]

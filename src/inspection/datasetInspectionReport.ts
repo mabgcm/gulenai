@@ -1,7 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { ensureDir } from "../utils/fs.js";
+import { ensureDir, writeTextFile } from "../utils/fs.js";
 
 interface DocumentEntry {
   readonly documentId: string;
@@ -164,7 +163,7 @@ ${[
 </main></body></html>
 `;
     const outputPath = path.join(this.reportsDir, "dataset-inspection.html");
-    await writeFile(outputPath, html, "utf8");
+    await writeTextFile(outputPath, html);
     return outputPath;
   }
 }

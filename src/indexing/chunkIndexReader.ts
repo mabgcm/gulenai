@@ -1,9 +1,14 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { join } from "node:path";
+import {
+  mapWithFilesystemConcurrency,
+  readTextFile,
+  withFilesystemConcurrency
+} from "../utils/fs.js";
 import type { ChunkJsonDocument, ChunkJsonMetadata } from "./types.js";
 
 const walkJsonFiles = async (directory: string): Promise<readonly string[]> => {
-  const entries = await readdir(directory, { withFileTypes: true });
+  const entries = await withFilesystemConcurrency(() => readdir(directory, { withFileTypes: true }));
   const files: string[] = [];
 
   for (const entry of entries) {
@@ -76,8 +81,8 @@ export class ChunkIndexReader {
 
   public async readAll(): Promise<readonly ChunkJsonDocument[]> {
     const files = await walkJsonFiles(this.chunksDir);
-    return Promise.all(
-      files.map(async (path) => parseChunkJson(await readFile(path, "utf8"), path))
+    return mapWithFilesystemConcurrency(files, async (path) =>
+      parseChunkJson(await readTextFile(path), path)
     );
   }
 }

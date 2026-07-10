@@ -10,6 +10,7 @@ import { QdrantIndexStore } from "../../src/qdrant/qdrantIndexStore.js";
 import type { QdrantDiagnosticsClient } from "../../src/diagnostics/qdrantDiagnosticsClient.js";
 import { RetrievalDiagnostics } from "../../src/diagnostics/retrievalDiagnostics.js";
 import { SearchValidator } from "../../src/diagnostics/validateSearch.js";
+import { CrawlStore } from "../../src/storage/crawlStore.js";
 
 class FakeQdrantDiagnosticsClient implements QdrantDiagnosticsClient {
   public async inspectCollection() {
@@ -58,7 +59,12 @@ describe("retrieval diagnostics", () => {
     }
   });
 
-  const setup = async (): Promise<{ indexDir: string; embeddingsDir: string; chunksDir: string }> => {
+  const setup = async (): Promise<{
+    indexDir: string;
+    embeddingsDir: string;
+    chunksDir: string;
+    dataDir: string;
+  }> => {
     tempDir = await mkdtemp(join(tmpdir(), "gulenai-diagnostics-"));
     const indexDir = join(tempDir, "index");
     const embeddingsDir = join(tempDir, "embeddings");
@@ -139,7 +145,7 @@ describe("retrieval diagnostics", () => {
       markdown: "This is the first chunk with useful content for retrieval diagnostics.",
       plainText: "This is the first chunk with useful content for retrieval diagnostics."
     });
-    return { indexDir, embeddingsDir, chunksDir };
+    return { indexDir, embeddingsDir, chunksDir, dataDir: tempDir };
   };
 
   it("reports local and remote retrieval health", async () => {
@@ -149,7 +155,8 @@ describe("retrieval diagnostics", () => {
       "text-embedding-3-small",
       new QdrantIndexStore(dirs.indexDir),
       new EmbeddingVectorReader(dirs.embeddingsDir),
-      new FakeQdrantDiagnosticsClient()
+      new FakeQdrantDiagnosticsClient(),
+      new CrawlStore(dirs.dataDir)
     ).run();
 
     expect(report).toMatchObject({
@@ -174,7 +181,8 @@ describe("retrieval diagnostics", () => {
       "text-embedding-3-small",
       new QdrantIndexStore(dirs.indexDir),
       new EmbeddingVectorReader(dirs.embeddingsDir),
-      new FakeQdrantDiagnosticsClient()
+      new FakeQdrantDiagnosticsClient(),
+      new CrawlStore(dirs.dataDir)
     ).run();
     const report = await new SearchValidator(
       "fgulen",
@@ -214,7 +222,8 @@ describe("retrieval diagnostics", () => {
       "text-embedding-3-small",
       new QdrantIndexStore(dirs.indexDir),
       new EmbeddingVectorReader(dirs.embeddingsDir),
-      new FakeQdrantDiagnosticsClient()
+      new FakeQdrantDiagnosticsClient(),
+      new CrawlStore(dirs.dataDir)
     ).run();
     const report = await new SearchValidator(
       "fgulen",

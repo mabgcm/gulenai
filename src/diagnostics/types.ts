@@ -17,6 +17,19 @@ export interface QdrantCollectionDiagnostics {
 export interface RetrievalDiagnosticsReport {
   readonly generatedAt: string;
   readonly collection: string;
+  readonly queueSize: number;
+  readonly resumeStatus: string;
+  readonly remainingUrls: readonly string[];
+  readonly filesystemConcurrency: number;
+  readonly pendingFilesystemJobs: number;
+  readonly activeFilesystemJobs: number;
+  readonly openFileStatistics: string;
+  readonly memoryUsage: {
+    readonly rssBytes: number;
+    readonly heapUsedBytes: number;
+    readonly heapTotalBytes: number;
+    readonly externalBytes: number;
+  };
   readonly qdrantConnected: boolean;
   readonly collectionExists: boolean;
   readonly vectorCount: number;

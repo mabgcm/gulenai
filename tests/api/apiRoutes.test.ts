@@ -53,6 +53,7 @@ const config: AppConfig = {
   EMBEDDING_BATCH_SIZE: 64,
   EMBEDDING_CONCURRENCY: 2,
   EMBEDDING_RETRIES: 3,
+  FS_CONCURRENCY: 32,
   PORT: 0,
   HOST: "127.0.0.1",
   API_PREFIX: "/api/v1",
@@ -201,6 +202,19 @@ class FakeService implements KnowledgeApiService {
     return {
       generatedAt: "2026-07-09T00:00:00.000Z",
       collection: "fgulen",
+      queueSize: 0,
+      resumeStatus: "complete",
+      remainingUrls: [],
+      filesystemConcurrency: 32,
+      pendingFilesystemJobs: 0,
+      activeFilesystemJobs: 0,
+      openFileStatistics: "active handles: 0",
+      memoryUsage: {
+        rssBytes: 1,
+        heapUsedBytes: 1,
+        heapTotalBytes: 1,
+        externalBytes: 0
+      },
       qdrantConnected: true,
       collectionExists: true,
       vectorCount: 2,

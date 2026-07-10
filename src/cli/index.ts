@@ -21,6 +21,7 @@ import {
   formatValidationSearch,
   RetrievalValidationReportWriter
 } from "../diagnostics/retrievalValidationReport.js";
+import { PerformanceReportWriter } from "../diagnostics/performanceReport.js";
 import { SearchValidator } from "../diagnostics/validateSearch.js";
 import { ChunkPayloadReader } from "../embedding/chunkPayloadReader.js";
 import { OpenAiEmbeddingClient } from "../embedding/embeddingClient.js";
@@ -70,7 +71,14 @@ const crawl = async (): Promise<void> => {
   const crawler = new Crawler(source, fetcher, store, logger);
 
   try {
+    const startedAt = Date.now();
     const result = await crawler.run();
+    await new PerformanceReportWriter().record(
+      "crawl",
+      Date.now() - startedAt,
+      result.savedPagesThisRun,
+      "pages"
+    );
     logger.info(result, "Crawl complete");
   } finally {
     await fetcher.close();
@@ -126,7 +134,14 @@ const chunk = async (): Promise<void> => {
 
 const index = async (): Promise<void> => {
   const pipeline = new IndexPipeline(new ChunkIndexReader(), new ManifestStore(), logger);
+  const startedAt = Date.now();
   const summary = await pipeline.run();
+  await new PerformanceReportWriter().record(
+    "index",
+    Date.now() - startedAt,
+    summary.totalChunks,
+    "chunks"
+  );
   process.stdout.write(`${formatIndexStatus(summary)}\n`);
 };
 
@@ -148,7 +163,14 @@ const embed = async (): Promise<void> => {
     },
     logger
   );
+  const startedAt = Date.now();
   const result = await pipeline.run();
+  await new PerformanceReportWriter().record(
+    "embed",
+    Date.now() - startedAt,
+    result.completed,
+    "vectors"
+  );
   logger.info(result, "Embedding complete");
 };
 
@@ -200,7 +222,15 @@ const qdrant = async (): Promise<void> => {
     return;
   }
 
-  process.stdout.write(`${formatQdrantStatus(await pipeline.sync())}\n`);
+  const startedAt = Date.now();
+  const result = await pipeline.sync();
+  await new PerformanceReportWriter().record(
+    "qdrant",
+    Date.now() - startedAt,
+    result.uploadedVectors,
+    "vectors"
+  );
+  process.stdout.write(`${formatQdrantStatus(result)}\n`);
 };
 
 const valueAfterFlag = (args: readonly string[], flag: string): string | undefined => {
@@ -413,7 +443,8 @@ const buildRetrievalDiagnostics = (): RetrievalDiagnostics => {
     model,
     new QdrantIndexStore(),
     new EmbeddingVectorReader(),
-    new RestQdrantDiagnosticsClient(config.QDRANT_URL, config.QDRANT_API_KEY)
+    new RestQdrantDiagnosticsClient(config.QDRANT_URL, config.QDRANT_API_KEY),
+    new CrawlStore()
   );
 };
 

@@ -1,6 +1,5 @@
-import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ensureDir } from "../utils/fs.js";
+import { mapWithFilesystemConcurrency, ensureDir, writeTextFile } from "../utils/fs.js";
 import type { CrawlQualityDecision, CrawlQualitySummary } from "./types.js";
 
 const escapeHtml = (value: string | number | boolean | null | undefined): string =>
@@ -187,18 +186,13 @@ export class CrawlQualityReporter {
   public async write(decisions: readonly CrawlQualityDecision[]): Promise<CrawlQualitySummary> {
     await ensureDir(this.reportsDir);
     const generatedAt = new Date().toISOString();
-    await Promise.all([
-      writeFile(
-        join(this.reportsDir, "crawl-quality.html"),
-        renderCrawlQualityHtml(decisions, generatedAt),
-        "utf8"
-      ),
-      writeFile(
-        join(this.reportsDir, "crawl-quality.md"),
-        renderCrawlQualityMarkdown(decisions, generatedAt),
-        "utf8"
-      )
-    ]);
+    await mapWithFilesystemConcurrency(
+      [
+        [join(this.reportsDir, "crawl-quality.html"), renderCrawlQualityHtml(decisions, generatedAt)],
+        [join(this.reportsDir, "crawl-quality.md"), renderCrawlQualityMarkdown(decisions, generatedAt)]
+      ] as const,
+      async ([path, content]) => writeTextFile(path, content)
+    );
     return summarizeCrawlQuality(decisions);
   }
 }

@@ -12,6 +12,7 @@ import { ChunkContentStore } from "../../search/chunkContentStore.js";
 import { OpenAiQueryEmbeddingClient } from "../../search/queryEmbeddingClient.js";
 import { QdrantVectorSearchClient } from "../../search/qdrantSearchClient.js";
 import { RetrievalEngine } from "../../search/retrievalEngine.js";
+import { CrawlStore } from "../../storage/crawlStore.js";
 import type { AppConfig } from "../../config/env.js";
 import type {
   ApiChunkResponse,
@@ -70,11 +71,9 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
   }
 
   public async stats(): Promise<ApiStatsResponse> {
-    const [documents, chunks, diagnostics] = await Promise.all([
-      this.index.loadDocuments(),
-      this.index.loadChunks(),
-      this.diagnostics()
-    ]);
+    const documents = await this.index.loadDocuments();
+    const chunks = await this.index.loadChunks();
+    const diagnostics = await this.diagnostics();
     const indexedLanguages = [
       ...new Set(
         documents
@@ -137,10 +136,8 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
   }
 
   public async chunk(chunkId: string): Promise<ApiChunkResponse | null> {
-    const [chunks, content] = await Promise.all([
-      this.index.loadChunks(),
-      this.chunks.readByChunkId()
-    ]);
+    const chunks = await this.index.loadChunks();
+    const content = await this.chunks.readByChunkId();
     const manifest = chunks.find((chunk) => chunk.chunkId === chunkId);
     const payload = content.get(chunkId);
     if (manifest === undefined && payload === undefined) {
@@ -173,7 +170,8 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
       this.embeddingModel,
       this.index,
       new EmbeddingVectorReader(),
-      new RestQdrantDiagnosticsClient(this.config.QDRANT_URL, this.config.QDRANT_API_KEY)
+      new RestQdrantDiagnosticsClient(this.config.QDRANT_URL, this.config.QDRANT_API_KEY),
+      new CrawlStore()
     ).run();
   }
 
