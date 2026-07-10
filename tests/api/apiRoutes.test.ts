@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertApiStartupEnvironment,
   createApiServer,
+  runtimeConfigFromEnv,
   sanitizedUrl
 } from "../../src/api/server.js";
 import type {
@@ -276,6 +277,24 @@ describe("API startup configuration", () => {
     expect(sanitizedUrl("https://user:secret@example.test/path?api_key=secret")).toBe(
       "https://%5Bredacted%5D:%5Bredacted%5D@example.test/path?api_key=%5Bredacted%5D"
     );
+  });
+
+  it("binds all interfaces by default in production", () => {
+    expect(runtimeConfigFromEnv({ ...config, PORT: 8080 }, true, {})).toMatchObject({
+      host: "0.0.0.0",
+      port: 8080
+    });
+  });
+
+  it("keeps the localhost default outside production", () => {
+    expect(runtimeConfigFromEnv(config, false, {})).toMatchObject({
+      host: "127.0.0.1",
+      port: 0
+    });
+  });
+
+  it("honors an explicit host in production", () => {
+    expect(runtimeConfigFromEnv(config, true, { HOST: "10.0.0.5" }).host).toBe("10.0.0.5");
   });
 });
 

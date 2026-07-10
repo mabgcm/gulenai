@@ -50,9 +50,10 @@ export const sanitizedUrl = (value: string): string => {
 
 export const runtimeConfigFromEnv = (
   appConfig: AppConfig,
-  production = process.env.NODE_ENV === "production"
+  production = process.env.NODE_ENV === "production",
+  environment: NodeJS.ProcessEnv = process.env
 ): ApiRuntimeConfig => ({
-  host: appConfig.HOST,
+  host: environment.HOST?.trim() || (production ? "0.0.0.0" : appConfig.HOST),
   port: appConfig.PORT,
   prefix: appConfig.API_PREFIX.trim() === "/" ? "" : appConfig.API_PREFIX.trim(),
   version: appConfig.API_VERSION,
