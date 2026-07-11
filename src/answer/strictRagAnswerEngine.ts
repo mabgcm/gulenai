@@ -2,6 +2,7 @@ import type { TokenCounter } from "../chunking/tokenCounter.js";
 import { PromptAssembler } from "../prompt/promptAssembler.js";
 import type { PromptChunk, TrimmedPromptChunk } from "../prompt/types.js";
 import { ContextDiversityOptimizer } from "../prompt/contextDiversityOptimizer.js";
+import { StructuredContextBuilder } from "../prompt/structuredContextBuilder.js";
 import type { SearchResult } from "../search/types.js";
 import type { RetrievalAuditReporter } from "../diagnostics/retrievalAudit.js";
 import type {
@@ -162,6 +163,7 @@ const calculateConfidence = (
 export class StrictRagAnswerEngine {
   private readonly assembler: PromptAssembler;
   private readonly diversityOptimizer = new ContextDiversityOptimizer();
+  private readonly contextBuilder = new StructuredContextBuilder();
 
   public constructor(
     private readonly chatClient: ChatCompletionClient,
@@ -177,11 +179,13 @@ export class StrictRagAnswerEngine {
     options: AnswerGenerationOptions
   ): Promise<StrictRagAnswer> {
     const optimizedChunks = this.diversityOptimizer.optimize(retrievedChunks);
-    const prompt = this.assembler.assemble(question, optimizedChunks, {
+    const structuredContext = this.contextBuilder.build(optimizedChunks);
+    const prompt = this.assembler.assemble(question, structuredContext.chunks, {
       maxContextTokens: options.maxContextTokens,
       systemPrompt: STRICT_SYSTEM_PROMPT,
       instructions: STRICT_INSTRUCTIONS,
-      preserveInputOrder: true
+      preserveInputOrder: true,
+      sectionByChunkId: structuredContext.sectionByChunkId
     });
 
     const finalPrompt =
@@ -205,6 +209,12 @@ export class StrictRagAnswerEngine {
         systemPrompt: STRICT_SYSTEM_PROMPT,
         instructions: STRICT_INSTRUCTIONS
       });
+      const unstructuredPrompt = this.assembler.assemble(question, optimizedChunks, {
+        maxContextTokens: options.maxContextTokens,
+        systemPrompt: STRICT_SYSTEM_PROMPT,
+        instructions: STRICT_INSTRUCTIONS,
+        preserveInputOrder: true
+      });
       await this.auditReporter.write({
         question,
         embeddingModel: options.retrievalAudit.embeddingModel,
@@ -212,6 +222,8 @@ export class StrictRagAnswerEngine {
         retrievedChunks,
         optimizedChunks,
         beforeOptimizationPrompt,
+        unstructuredPrompt,
+        structuredContext,
         assembledPrompt: prompt,
         finalPrompt
       });

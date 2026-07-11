@@ -118,4 +118,23 @@ describe("PromptAssembler", () => {
     expect(JSON.stringify(first.chunks)).toBe(JSON.stringify(second.chunks));
     expect(first.trimmedChunks).toEqual(second.trimmedChunks);
   });
+
+  it("renders deterministic sections while preserving retrieved Markdown exactly", () => {
+    const original = "  Original wording.\n\n\nSecond line.  ";
+    const prompt = assembler.assemble(
+      "Question",
+      [result({ chunkId: "exact", score: 0.9, markdown: original })],
+      {
+        maxContextTokens: 100,
+        preserveInputOrder: true,
+        sectionByChunkId: { exact: "Definition" }
+      }
+    );
+
+    expect(prompt.chunks[0]?.markdown).toBe(original);
+    expect(prompt.promptMarkdown).toContain("## Definition");
+    expect(prompt.promptMarkdown).toContain(`\n${original}\n`);
+    expect(prompt.promptMarkdown.match(/## Definition/g)).toHaveLength(1);
+    expect(prompt.promptMarkdown).toContain("Chunk ID: exact");
+  });
 });

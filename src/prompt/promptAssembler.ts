@@ -15,11 +15,9 @@ const DEFAULT_INSTRUCTIONS = [
 const headingLabel = (headingPath: readonly string[]): string =>
   headingPath.length === 0 ? "(none)" : headingPath.join(" -> ");
 
-const normalizeMarkdown = (markdown: string): string => markdown.trim().replace(/\n{3,}/g, "\n\n");
-
-const renderChunk = (chunk: PromptChunk): string =>
+const renderChunk = (chunk: PromptChunk, headingLevel = "##"): string =>
   [
-    `## Context ${chunk.rank}`,
+    `${headingLevel} Context ${chunk.rank}`,
     "",
     `Title: ${chunk.metadata.title ?? "(unknown)"}`,
     `URL: ${chunk.metadata.url ?? "(unknown)"}`,
@@ -36,7 +34,8 @@ const renderPromptMarkdown = (
   systemPrompt: string,
   userQuestion: string,
   chunks: readonly PromptChunk[],
-  instructions: readonly string[]
+  instructions: readonly string[],
+  sectionByChunkId?: Readonly<Record<string, string>>
 ): string =>
   [
     "# SYSTEM",
@@ -49,14 +48,40 @@ const renderPromptMarkdown = (
     "",
     "# RETRIEVED CONTEXT",
     "",
-    chunks.length === 0
-      ? "No retrieved context was included."
-      : chunks.map(renderChunk).join("\n\n"),
+    renderContext(chunks, sectionByChunkId),
     "",
     "# INSTRUCTIONS",
     "",
     ...instructions.map((instruction) => `- ${instruction}`)
   ].join("\n");
+
+const renderContext = (
+  chunks: readonly PromptChunk[],
+  sectionByChunkId?: Readonly<Record<string, string>>
+): string => {
+  if (chunks.length === 0) {
+    return "No retrieved context was included.";
+  }
+  if (sectionByChunkId === undefined) {
+    return chunks.map((chunk) => renderChunk(chunk)).join("\n\n");
+  }
+  const groups = new Map<string, PromptChunk[]>();
+  for (const chunk of chunks) {
+    const label = sectionByChunkId[chunk.metadata.chunkId] ?? "Supporting Evidence";
+    const existing = groups.get(label) ?? [];
+    existing.push(chunk);
+    groups.set(label, existing);
+  }
+  return [...groups.entries()]
+    .map(([label, sectionChunks]) =>
+      [
+        `## ${label}`,
+        "",
+        sectionChunks.map((chunk) => renderChunk(chunk, "###")).join("\n\n")
+      ].join("\n")
+    )
+    .join("\n\n---\n\n");
+};
 
 export class PromptAssembler {
   public constructor(private readonly tokenCounter: TokenCounter) {}
@@ -79,7 +104,7 @@ export class PromptAssembler {
             left.chunkId.localeCompare(right.chunkId)
         );
     const chunks = ordered.map((result, index): PromptChunk => {
-      const markdown = normalizeMarkdown(result.markdown);
+      const markdown = result.markdown;
       return {
         rank: index + 1,
         metadata: {
@@ -125,7 +150,8 @@ export class PromptAssembler {
       systemPrompt,
       userQuestion.trim(),
       selected,
-      instructions
+      instructions,
+      options.sectionByChunkId
     );
     return {
       systemPrompt,

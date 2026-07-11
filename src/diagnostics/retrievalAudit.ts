@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import type { TokenCounter } from "../chunking/tokenCounter.js";
 import type { AssembledPrompt } from "../prompt/types.js";
+import type { StructuredContext } from "../prompt/structuredContextBuilder.js";
 import type { SearchResult } from "../search/types.js";
 import { ensureDir, writeJson, writeTextFile } from "../utils/fs.js";
 import type { ChatCompletionRequest } from "../answer/types.js";
@@ -13,6 +14,8 @@ export interface RetrievalAuditInput {
   readonly retrievedChunks: readonly SearchResult[];
   readonly optimizedChunks: readonly SearchResult[];
   readonly beforeOptimizationPrompt: AssembledPrompt;
+  readonly unstructuredPrompt: AssembledPrompt;
+  readonly structuredContext: StructuredContext;
   readonly assembledPrompt: AssembledPrompt;
   readonly finalPrompt: ChatCompletionRequest | null;
 }
@@ -135,6 +138,25 @@ export class RetrievalAuditReporter {
         },
         beforeOptimizationTable: beforeRows,
         afterOptimizationTable: rows,
+        contextStructure: {
+          rawContextLayout: input.optimizedChunks.map((chunk, index) => ({
+            position: index + 1,
+            chunkId: chunk.chunkId
+          })),
+          structuredContextLayout: input.structuredContext.sections.map((section) => ({
+            section: section.label,
+            chunkIds: section.chunks.map((chunk) => chunk.chunkId)
+          })),
+          tokenDifference:
+            input.assembledPrompt.estimatedTokens - input.unstructuredPrompt.estimatedTokens,
+          sectionCount: input.structuredContext.sections.length,
+          chunkDistribution: Object.fromEntries(
+            input.structuredContext.sections.map((section) => [
+              section.label,
+              section.chunks.length
+            ])
+          )
+        },
         finalPrompt: input.finalPrompt
       };
       const id = `${report.generatedAt.replace(/[:.]/g, "-")}-${randomUUID()}`;
@@ -173,6 +195,24 @@ export class RetrievalAuditReporter {
         `- Duplicate reduction: ${report.optimization.duplicateReduction}`,
         `- Prompt token savings: ${report.optimization.promptTokenSavings}`,
         `- Context diversity score: ${report.optimization.contextDiversityScore}`,
+        "",
+        "## Raw Context Layout",
+        "",
+        ...report.contextStructure.rawContextLayout.map(
+          (item) => `${item.position}. ${item.chunkId}`
+        ),
+        "",
+        "## Structured Context Layout",
+        "",
+        ...report.contextStructure.structuredContextLayout.flatMap((section) => [
+          `### ${section.section}`,
+          "",
+          ...section.chunkIds.map((chunkId) => `- ${chunkId}`),
+          ""
+        ]),
+        `- Token difference: ${report.contextStructure.tokenDifference}`,
+        `- Section count: ${report.contextStructure.sectionCount}`,
+        `- Chunk distribution: ${JSON.stringify(report.contextStructure.chunkDistribution)}`,
         "",
         "## Context diversity",
         "",

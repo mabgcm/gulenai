@@ -494,6 +494,12 @@ Answer generation applies a deterministic diversity layer after semantic retriev
 
 Adjacent results from the same document are suppressed only when their normalized term overlap is at least `80%`; distinct neighboring chunks are retained. Within the narrow similarity window, selection priority is new book, new heading path, new document, and then original semantic order. This preserves relevance while allowing diverse evidence to enter the context budget earlier. The prompt assembler preserves this optimized order only for answer generation; standalone retrieval and prompt APIs retain their existing behavior.
 
+### Structured context builder
+
+After diversity optimization, answer generation passes the retained chunks through a deterministic context builder. The builder does not summarize, paraphrase, rewrite, or call an LLM. It assigns each chunk to one fixed section—`Definition`, `Core Concepts`, `Supporting Evidence`, `Complementary Evidence`, `Examples`, or `Related Concepts`—using ordered, documented keyword rules over the existing title, heading path, and content. Unmatched chunks go to `Supporting Evidence`.
+
+Sections follow the fixed order shown above, while chunks retain their incoming order inside each section. The builder preserves every input chunk object, primary chunk ID, merged chunk-ID list, citation metadata, and Markdown string exactly. It adds only deterministic section labels and `---` separators. A section heading is emitted once, which collapses duplicate organizational labels without deleting or modifying headings contained in source Markdown. No retrieved content is removed by this stage; context-budget trimming remains the prompt assembler’s separate existing responsibility.
+
 The structured answer result contains:
 
 ```json
@@ -801,6 +807,8 @@ RETRIEVAL_AUDIT_ENABLED=true pnpm answer "ihlas nedir?"
 Each answer request writes matching JSON and Markdown files under `reports/retrieval-audit/`. A report records the question, embedding model, requested and returned `topK`, retrieval counts, unique documents, books and heading paths, token totals, ordered chunk details, diversity metrics, and the exact chat-completion request. If no context survives prompt assembly, `finalPrompt` is `null` because no LLM request is sent.
 
 The report includes ordered before/after optimization tables plus documents represented, books represented, heading diversity, duplicate reduction, prompt-token savings, and a context-diversity score. The score is the mean of document, book, and heading uniqueness ratios, expressed from 0 to 100. Prompt-token savings compare assembled prompt estimates before and after optimization under the same context budget.
+
+It also records `Raw Context Layout` (the optimizer output entering the builder), `Structured Context Layout`, the signed token difference introduced by deterministic labels and separators, section count, and per-section chunk distribution.
 
 For audit metrics, a “book” is the first heading-path component, a heading group is the complete heading path, and duplicate percentage is the share of retrieved results beyond the first result from each document. Context tokens are the indexed token counts of chunks included in the final context; prompt tokens count the exact system and user message contents. Audit write failures are isolated from answer generation.
 

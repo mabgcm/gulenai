@@ -43,4 +43,5 @@ export interface PromptAssemblyOptions {
   readonly systemPrompt?: string;
   readonly instructions?: readonly string[];
   readonly preserveInputOrder?: boolean;
+  readonly sectionByChunkId?: Readonly<Record<string, string>>;
 }

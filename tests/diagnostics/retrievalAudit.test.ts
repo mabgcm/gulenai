@@ -52,6 +52,19 @@ describe("RetrievalAuditReporter", () => {
         trimmedChunks: [],
         promptMarkdown: "before prompt"
       },
+      unstructuredPrompt: {
+        systemPrompt: "exact system",
+        userQuestion: "Question?",
+        chunks: [],
+        estimatedTokens: 4,
+        trimmedChunks: [],
+        promptMarkdown: "raw prompt"
+      },
+      structuredContext: {
+        chunks: [result],
+        sections: [{ label: "Definition", chunks: [result] }],
+        sectionByChunkId: { "chunk-1": "Definition" }
+      },
       assembledPrompt: {
         systemPrompt: "exact system",
         userQuestion: "Question?",
@@ -104,6 +117,13 @@ describe("RetrievalAuditReporter", () => {
         duplicateReduction: 0,
         promptTokenSavings: 2,
         contextDiversityScore: 100
+      },
+      contextStructure: {
+        rawContextLayout: [{ position: 1, chunkId: "chunk-1" }],
+        structuredContextLayout: [{ section: "Definition", chunkIds: ["chunk-1"] }],
+        tokenDifference: 1,
+        sectionCount: 1,
+        chunkDistribution: { Definition: 1 }
       },
       finalPrompt
     });
