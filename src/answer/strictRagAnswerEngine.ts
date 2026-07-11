@@ -2,6 +2,7 @@ import type { TokenCounter } from "../chunking/tokenCounter.js";
 import { PromptAssembler } from "../prompt/promptAssembler.js";
 import type { PromptChunk, TrimmedPromptChunk } from "../prompt/types.js";
 import type { SearchResult } from "../search/types.js";
+import type { RetrievalAuditReporter } from "../diagnostics/retrievalAudit.js";
 import type {
   AnswerChunkReference,
   AnswerGenerationOptions,
@@ -153,7 +154,8 @@ export class StrictRagAnswerEngine {
 
   public constructor(
     private readonly chatClient: ChatCompletionClient,
-    private readonly tokenCounter: TokenCounter
+    private readonly tokenCounter: TokenCounter,
+    private readonly auditReporter?: RetrievalAuditReporter
   ) {
     this.assembler = new PromptAssembler(tokenCounter);
   }
@@ -169,6 +171,32 @@ export class StrictRagAnswerEngine {
       instructions: STRICT_INSTRUCTIONS
     });
 
+    const finalPrompt =
+      prompt.chunks.length === 0
+        ? null
+        : {
+            model: options.model,
+            temperature: options.temperature,
+            maxOutputTokens: options.maxOutputTokens,
+            messages: [
+              { role: "system" as const, content: STRICT_SYSTEM_PROMPT },
+              {
+                role: "user" as const,
+                content: [prompt.promptMarkdown, "", JSON_SCHEMA_INSTRUCTION].join("\n")
+              }
+            ]
+          };
+    if (options.retrievalAudit !== undefined && this.auditReporter !== undefined) {
+      await this.auditReporter.write({
+        question,
+        embeddingModel: options.retrievalAudit.embeddingModel,
+        topKRequested: options.retrievalAudit.topKRequested,
+        retrievedChunks,
+        assembledPrompt: prompt,
+        finalPrompt
+      });
+    }
+
     if (prompt.chunks.length === 0) {
       return {
         answer: UNSUPPORTED_ANSWER,
@@ -181,18 +209,7 @@ export class StrictRagAnswerEngine {
     }
 
     const availableById = new Map(prompt.chunks.map((chunk) => [chunk.metadata.chunkId, chunk]));
-    const raw = await this.chatClient.complete({
-      model: options.model,
-      temperature: options.temperature,
-      maxOutputTokens: options.maxOutputTokens,
-      messages: [
-        { role: "system", content: STRICT_SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: [prompt.promptMarkdown, "", JSON_SCHEMA_INSTRUCTION].join("\n")
-        }
-      ]
-    });
+    const raw = await this.chatClient.complete(finalPrompt!);
     const payload = parseModelPayload(raw);
     const validUsedIds = unique(payload.usedChunkIds).filter((chunkId) =>
       availableById.has(chunkId)

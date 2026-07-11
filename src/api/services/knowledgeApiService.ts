@@ -5,6 +5,7 @@ import { OpenAiTokenCounter } from "../../chunking/tokenCounter.js";
 import { CitationEngine } from "../../citations/citationEngine.js";
 import { RestQdrantDiagnosticsClient } from "../../diagnostics/qdrantDiagnosticsClient.js";
 import { RetrievalDiagnostics } from "../../diagnostics/retrievalDiagnostics.js";
+import { RetrievalAuditReporter } from "../../diagnostics/retrievalAudit.js";
 import { EmbeddingVectorReader } from "../../qdrant/qdrantDataReaders.js";
 import { QdrantIndexStore } from "../../qdrant/qdrantIndexStore.js";
 import { PromptAssembler } from "../../prompt/promptAssembler.js";
@@ -114,14 +115,27 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
   }
 
   public async answer(request: ApiSearchRequest): Promise<CitedAnswer> {
+    const searchOptions = this.searchOptions(request);
+    const retrievedChunks = await this.retrieval().search(request.question, searchOptions);
     const strictAnswer = await new StrictRagAnswerEngine(
       new OpenAiChatCompletionClient(this.config.OPENAI_API_KEY),
-      this.tokenCounter
-    ).answer(request.question, await this.search(request), {
+      this.tokenCounter,
+      this.config.RETRIEVAL_AUDIT_ENABLED
+        ? new RetrievalAuditReporter(this.tokenCounter)
+        : undefined
+    ).answer(request.question, retrievedChunks, {
       model: this.config.OPENAI_CHAT_MODEL,
       temperature: this.config.TEMPERATURE,
       maxOutputTokens: this.config.MAX_OUTPUT_TOKENS,
-      maxContextTokens: this.config.PROMPT_MAX_CONTEXT_TOKENS
+      maxContextTokens: this.config.PROMPT_MAX_CONTEXT_TOKENS,
+      ...(this.config.RETRIEVAL_AUDIT_ENABLED
+        ? {
+            retrievalAudit: {
+              embeddingModel: this.embeddingModel,
+              topKRequested: searchOptions.topK
+            }
+          }
+        : {})
     });
     return new CitationEngine().build(request.question, strictAnswer);
   }

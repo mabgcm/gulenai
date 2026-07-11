@@ -66,7 +66,8 @@ const config: AppConfig = {
   API_VERSION: "1.0",
   CORS_ORIGIN: "*",
   API_BODY_LIMIT_BYTES: 1048576,
-  LOG_LEVEL: "silent"
+  LOG_LEVEL: "silent",
+  RETRIEVAL_AUDIT_ENABLED: false
 };
 
 const citation: Citation = {

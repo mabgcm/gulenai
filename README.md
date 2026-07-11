@@ -777,6 +777,19 @@ pnpm validate-search "sincerity" --language en
 
 `validate-search` prints the generated query embedding dimension and the top 20 retrieved chunks with similarity score, title, heading path, URL, chunk ID, and the first 200 characters of chunk text. If no results are returned, it explains the likely cause, such as an empty collection, pending embeddings, missing Qdrant vectors, or a Qdrant payload-index requirement for filtered searches.
 
+### Retrieval audit mode
+
+Retrieval auditing is disabled by default and does not alter retrieval, ranking, prompts, or API responses. Enable it explicitly for API, MCP, or CLI answer requests:
+
+```bash
+RETRIEVAL_AUDIT_ENABLED=true pnpm api
+RETRIEVAL_AUDIT_ENABLED=true pnpm answer "ihlas nedir?"
+```
+
+Each answer request writes matching JSON and Markdown files under `reports/retrieval-audit/`. A report records the question, embedding model, requested and returned `topK`, retrieval counts, unique documents, books and heading paths, token totals, ordered chunk details, diversity metrics, and the exact chat-completion request. If no context survives prompt assembly, `finalPrompt` is `null` because no LLM request is sent.
+
+For audit metrics, a “book” is the first heading-path component, a heading group is the complete heading path, and duplicate percentage is the share of retrieved results beyond the first result from each document. Context tokens are the indexed token counts of chunks included in the final context; prompt tokens count the exact system and user message contents. Audit write failures are isolated from answer generation.
+
 ## Development
 
 ```bash

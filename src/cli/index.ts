@@ -16,6 +16,7 @@ import { PlaywrightFetcher } from "../crawler/fetcher.js";
 import { CrawlQualityReporter } from "../crawlQuality/crawlQualityReporter.js";
 import { RestQdrantDiagnosticsClient } from "../diagnostics/qdrantDiagnosticsClient.js";
 import { RetrievalDiagnostics } from "../diagnostics/retrievalDiagnostics.js";
+import { RetrievalAuditReporter } from "../diagnostics/retrievalAudit.js";
 import {
   formatDiagnostics,
   formatValidationSearch,
@@ -410,14 +411,20 @@ const answer = async (): Promise<void> => {
     config.PROMPT_MAX_CONTEXT_TOKENS,
     (value) => Number.isInteger(value) && value >= 0
   );
+  const tokenCounter = new OpenAiTokenCounter();
+  const retrievedChunks = await engine.search(query, options);
   const result = await new StrictRagAnswerEngine(
     new OpenAiChatCompletionClient(config.OPENAI_API_KEY),
-    new OpenAiTokenCounter()
-  ).answer(query, await engine.search(query, options), {
+    tokenCounter,
+    config.RETRIEVAL_AUDIT_ENABLED ? new RetrievalAuditReporter(tokenCounter) : undefined
+  ).answer(query, retrievedChunks, {
     model: config.OPENAI_CHAT_MODEL,
     temperature: config.TEMPERATURE,
     maxOutputTokens: config.MAX_OUTPUT_TOKENS,
-    maxContextTokens
+    maxContextTokens,
+    ...(config.RETRIEVAL_AUDIT_ENABLED
+      ? { retrievalAudit: { embeddingModel, topKRequested: options.topK } }
+      : {})
   });
 
   if (withSources) {

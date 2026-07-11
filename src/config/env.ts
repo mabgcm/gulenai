@@ -126,7 +126,8 @@ const envSchema = z.object({
   API_VERSION: z.string().default("1.0"),
   CORS_ORIGIN: z.string().default("*"),
   API_BODY_LIMIT_BYTES: integerFromEnv(1048576),
-  LOG_LEVEL: z.string().default("info")
+  LOG_LEVEL: z.string().default("info"),
+  RETRIEVAL_AUDIT_ENABLED: booleanFromEnv(false)
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

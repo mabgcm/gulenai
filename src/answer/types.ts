@@ -26,6 +26,10 @@ export interface AnswerGenerationOptions {
   readonly temperature: number;
   readonly maxOutputTokens: number;
   readonly maxContextTokens: number;
+  readonly retrievalAudit?: {
+    readonly embeddingModel: string;
+    readonly topKRequested: number;
+  };
 }
 
 export interface ChatCompletionMessage {
