@@ -4,7 +4,7 @@ import {
   StrictRagAnswerEngine,
   UNSUPPORTED_ANSWER
 } from "../../src/answer/strictRagAnswerEngine.js";
-import type { ChatCompletionClient } from "../../src/answer/types.js";
+import type { ChatCompletionClient, ChatCompletionRequest } from "../../src/answer/types.js";
 import type { SearchResult } from "../../src/search/types.js";
 
 class WordCounter implements TokenCounter {
@@ -15,12 +15,14 @@ class WordCounter implements TokenCounter {
 
 class FakeChatClient implements ChatCompletionClient {
   public calls = 0;
+  public lastRequest: ChatCompletionRequest | null = null;
 
   public constructor(private readonly response: string) {}
 
-  public async complete(): Promise<string> {
+  public async complete(request: ChatCompletionRequest): Promise<string> {
     await Promise.resolve();
     this.calls += 1;
+    this.lastRequest = request;
     return this.response;
   }
 }
@@ -83,6 +85,36 @@ describe("StrictRagAnswerEngine", () => {
     expect(result.usedChunks.map((item) => item.chunkId)).toEqual(["chunk-1", "chunk-2"]);
     expect(result.confidence).toBeGreaterThan(80);
     expect(chat.calls).toBe(1);
+  });
+
+  it("requests structured Turkish synthesis while preserving grounding and citations", async () => {
+    const chat = new FakeChatClient(
+      JSON.stringify({
+        answer: "Tanım ve açıklama. [chunk-1]",
+        usedChunkIds: ["chunk-1"],
+        ignoredChunkIds: [],
+        answerSupported: true,
+        conflictingEvidence: false,
+        evidenceComplete: true
+      })
+    );
+    await new StrictRagAnswerEngine(chat, new WordCounter()).answer(
+      "İhlas nedir?",
+      [chunk({ chunkId: "chunk-1", score: 0.9, markdown: "İhlas açıklaması." })],
+      options
+    );
+
+    const system = chat.lastRequest?.messages[0]?.content ?? "";
+    const user = chat.lastRequest?.messages[1]?.content ?? "";
+    expect(system).toContain("Begin by defining the concept");
+    expect(system).toContain("complete, connected paragraphs");
+    expect(system).toContain("complementary viewpoints");
+    expect(system).toContain("synthesize their compatible evidence");
+    expect(system).toContain("Do not intentionally shorten an answer");
+    expect(system).toContain("use only the supplied context");
+    expect(system).toContain("exact supporting Context Chunk ID");
+    expect(user).toContain("Synthesize all relevant evidence");
+    expect(user).toContain('"usedChunkIds": ["chunk-id"]');
   });
 
   it("returns the required unsupported answer when the model marks context unsupported", async () => {

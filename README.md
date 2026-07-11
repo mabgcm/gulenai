@@ -479,8 +479,14 @@ pnpm answer "İhlas nedir?"
 Answer generation is intentionally strict. The system prompt requires the model to answer only from supplied context, never use outside knowledge, never guess, never hallucinate, and never fabricate references. When the retrieved context is insufficient, the answer must be exactly:
 
 ```text
-The indexed sources do not contain enough information to answer this question.
+Bu soru mevcut HürKul arşivindeki kaynaklarla cevaplanamıyor.
 ```
+
+### Answer prompt design
+
+The answer prompt is structured as a research-assistant workflow rather than a restrictions-only checklist. It directs the model to define the requested concept first, explain it in complete and connected Turkish paragraphs, use all relevant retrieved evidence, synthesize compatible discussions from multiple books into one coherent account, and compare complementary viewpoints when the context supports that comparison. Repetition, isolated source-by-source summaries, unnecessary headings, and intentional shortening are discouraged so that answer depth follows the available evidence rather than an arbitrary preference for brevity.
+
+Grounding remains the controlling constraint. Every claim must come from the supplied context and carry its exact supporting Context Chunk ID; claims combining evidence must cite every directly supporting chunk. The prompt still forbids outside knowledge, guesses, invented information, and fabricated references. The insufficient-context sentence, chat-completion parameters, answer JSON structure, `usedChunkIds` and `ignoredChunkIds` bookkeeping, and downstream citation objects are unchanged. The redesign affects answer-generation instructions only; it does not alter retrieval, ranking, `topK`, context ordering, or context-budget trimming.
 
 The structured answer result contains:
 
