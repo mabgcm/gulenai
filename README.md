@@ -559,19 +559,18 @@ Each internal citation includes document title, source URL, heading path, source
 For local development, start the API server directly from TypeScript:
 
 ```bash
-pnpm api
+pnpm dev
 ```
 
-For production, install dependencies, compile the project, and use the standard npm start
-command:
+For a production-style local run, install dependencies, compile the project, and start the compiled API:
 
 ```bash
-npm ci
-npm run build
-NODE_ENV=production npm start
+pnpm install
+pnpm build
+NODE_ENV=production pnpm start
 ```
 
-`npm start` runs the compiled REST API. The following environment variables must be set to
+`pnpm start` verifies Node 22 and rebuilds `dist` in its `prestart` lifecycle before running the compiled REST API. The explicit `pnpm build` above is useful as an early compile check; `prestart` intentionally repeats it so stale production output cannot be started. The following environment variables must be set to
 non-empty values or startup fails with a clear error:
 
 ```env
@@ -813,6 +812,48 @@ It also records `Raw Context Layout` (the optimizer output entering the builder)
 For audit metrics, a “book” is the first heading-path component, a heading group is the complete heading path, and duplicate percentage is the share of retrieved results beyond the first result from each document. Context tokens are the indexed token counts of chunks included in the final context; prompt tokens count the exact system and user message contents. Audit write failures are isolated from answer generation.
 
 ## Development
+
+### Runtime consistency
+
+Node.js 22 is pinned in both `.nvmrc` and `package.json#engines`. `.npmrc` enables strict engine validation, so dependency installation fails under a different major version instead of silently producing a mismatched runtime. The `start`, `dev`, and legacy `api` lifecycles also verify the active Node major and stop with the current executable path when Node is not 22.x.
+
+Activate the pinned runtime and package manager before installing:
+
+```bash
+nvm install
+nvm use
+corepack enable
+pnpm install
+```
+
+Use the production-style workflow when validating deploy behavior:
+
+```bash
+pnpm build
+pnpm start
+```
+
+`pnpm start` always rebuilds before launching `dist/src/api/index.js`, even if `dist` already exists. For source-based development, use:
+
+```bash
+pnpm dev
+```
+
+`pnpm api` remains an alias-compatible source runner and has the same Node 22 runtime guard as `pnpm dev`. All three entry points inherit the same active Node executable from the package-manager process.
+
+Railway detects `packageManager: pnpm@9.15.4`, installs that pnpm release through Corepack, and resolves Node 22 from `engines.node`. With no repository Dockerfile or Railway config override, Railpack uses the package build/start scripts: the TypeScript build produces `dist`, and the start lifecycle verifies Node, rebuilds once more, then executes `node dist/src/api/index.js`. Railway supplies `NODE_ENV=production` and `PORT`; the server’s production runtime binds to `0.0.0.0` unless `HOST` is explicitly configured. Any dashboard Build Command or Start Command override must remain consistent with these scripts.
+
+Verify the shell, package-manager, and application runtime before comparing local behavior with Railway:
+
+```bash
+node --version
+node --print 'process.execPath'
+pnpm exec node --version
+pnpm exec node --print 'process.execPath'
+pnpm verify:runtime
+```
+
+Every version command should report Node 22.x, and both executable-path commands should resolve to the same Node installation. In Railway, compare these values with the Node version in the Railpack build plan and the `Node runtime verified` line emitted during startup. Also confirm the deployed Git commit and that the build log runs the pinned pnpm 9.15.4.
 
 ### Answer evaluation benchmark
 
