@@ -814,6 +814,37 @@ For audit metrics, a “book” is the first heading-path component, a heading g
 
 ## Development
 
+### Answer evaluation benchmark
+
+The human-review benchmark is stored in `tests/evaluation/questions.json`. Each entry has a unique `id`, a stable `category`, the exact `question`, and a `difficulty` of `easy`, `medium`, or `hard`:
+
+```json
+{
+  "id": "concept-ihlas-01",
+  "category": "core-concepts",
+  "question": "İhlas nedir?",
+  "difficulty": "easy"
+}
+```
+
+Add questions by appending objects with unique IDs. Keep existing IDs and wording stable when longitudinal comparison matters; changing either creates a different benchmark input even if the subject is similar. The loader rejects missing fields, invalid difficulty values, empty files, and duplicate IDs.
+
+Run the complete benchmark against the configured local answer pipeline:
+
+```bash
+pnpm run evaluate
+```
+
+The command uses the current `.env` configuration and therefore requires the same OpenAI and Qdrant access as a normal local answer request. Questions run sequentially. Results are written to `reports/evaluation/YYYY-MM-DD/evaluation.json` and `evaluation.md`. Each result contains the full answer, citations, confidence, response time, total answer-pipeline token estimate, character length, fallback status, and any execution error. The command still writes reports when individual questions fail, then exits nonzero. No automatic quality score is calculated.
+
+For a readable comparison, open two dated Markdown reports side by side. For an exact machine-readable comparison, use Git or another JSON-aware diff tool, for example:
+
+```bash
+git diff --no-index reports/evaluation/2026-07-10/evaluation.json reports/evaluation/2026-07-11/evaluation.json
+```
+
+Compare matching question IDs and review answer text, citations, confidence, timing, and token changes together. Runtime measurements can vary with network and provider load, so they should not be interpreted as answer-quality scores.
+
 ```bash
 pnpm typecheck
 pnpm lint

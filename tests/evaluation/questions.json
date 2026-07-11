@@ -1,0 +1,74 @@
+[
+  {
+    "id": "concept-ihlas-01",
+    "category": "core-concepts",
+    "question": "İhlas nedir?",
+    "difficulty": "easy"
+  },
+  {
+    "id": "concept-sabir-01",
+    "category": "core-concepts",
+    "question": "Sabır kavramı nasıl açıklanır?",
+    "difficulty": "easy"
+  },
+  {
+    "id": "concept-tevekkul-01",
+    "category": "core-concepts",
+    "question": "Tevekkülün anlamı ve insan hayatındaki yeri nedir?",
+    "difficulty": "medium"
+  },
+  {
+    "id": "concept-tevazu-01",
+    "category": "ethics",
+    "question": "Tevazu ile insanın kendini değersiz görmesi arasındaki fark nedir?",
+    "difficulty": "medium"
+  },
+  {
+    "id": "concept-hizmet-01",
+    "category": "service",
+    "question": "Hizmet düşüncesinin temel esasları nelerdir?",
+    "difficulty": "medium"
+  },
+  {
+    "id": "concept-dua-01",
+    "category": "spiritual-life",
+    "question": "Duanın kulluk hayatındaki anlamı nasıl ele alınır?",
+    "difficulty": "medium"
+  },
+  {
+    "id": "concept-iman-amel-01",
+    "category": "theology",
+    "question": "İman ile amel arasındaki ilişki nasıl açıklanır?",
+    "difficulty": "hard"
+  },
+  {
+    "id": "concept-akil-kalp-01",
+    "category": "human-nature",
+    "question": "Akıl ve kalbin hakikati anlamadaki rolleri nasıl birlikte değerlendirilir?",
+    "difficulty": "hard"
+  },
+  {
+    "id": "concept-egitim-01",
+    "category": "education",
+    "question": "İdeal bir eğitim anlayışında öğretmen hangi özelliklere sahip olmalıdır?",
+    "difficulty": "medium"
+  },
+  {
+    "id": "concept-diyalog-01",
+    "category": "dialogue",
+    "question": "Farklı inanç ve kültürlerle diyalog kurmanın gerekçeleri nelerdir?",
+    "difficulty": "hard"
+  },
+  {
+    "id": "concept-merhamet-01",
+    "category": "ethics",
+    "question": "Merhamet bireysel ve toplumsal hayatta nasıl tezahür eder?",
+    "difficulty": "medium"
+  },
+  {
+    "id": "concept-sorumluluk-01",
+    "category": "ethics",
+    "question": "İnsanın topluma karşı sorumlulukları hangi temellere dayanır?",
+    "difficulty": "hard"
+  }
+]
