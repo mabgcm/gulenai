@@ -1,6 +1,7 @@
 import type { TokenCounter } from "../chunking/tokenCounter.js";
 import { PromptAssembler } from "../prompt/promptAssembler.js";
 import type { PromptChunk, TrimmedPromptChunk } from "../prompt/types.js";
+import { ContextDiversityOptimizer } from "../prompt/contextDiversityOptimizer.js";
 import type { SearchResult } from "../search/types.js";
 import type { RetrievalAuditReporter } from "../diagnostics/retrievalAudit.js";
 import type {
@@ -160,6 +161,7 @@ const calculateConfidence = (
 
 export class StrictRagAnswerEngine {
   private readonly assembler: PromptAssembler;
+  private readonly diversityOptimizer = new ContextDiversityOptimizer();
 
   public constructor(
     private readonly chatClient: ChatCompletionClient,
@@ -174,10 +176,12 @@ export class StrictRagAnswerEngine {
     retrievedChunks: readonly SearchResult[],
     options: AnswerGenerationOptions
   ): Promise<StrictRagAnswer> {
-    const prompt = this.assembler.assemble(question, retrievedChunks, {
+    const optimizedChunks = this.diversityOptimizer.optimize(retrievedChunks);
+    const prompt = this.assembler.assemble(question, optimizedChunks, {
       maxContextTokens: options.maxContextTokens,
       systemPrompt: STRICT_SYSTEM_PROMPT,
-      instructions: STRICT_INSTRUCTIONS
+      instructions: STRICT_INSTRUCTIONS,
+      preserveInputOrder: true
     });
 
     const finalPrompt =
@@ -196,11 +200,18 @@ export class StrictRagAnswerEngine {
             ]
           };
     if (options.retrievalAudit !== undefined && this.auditReporter !== undefined) {
+      const beforeOptimizationPrompt = this.assembler.assemble(question, retrievedChunks, {
+        maxContextTokens: options.maxContextTokens,
+        systemPrompt: STRICT_SYSTEM_PROMPT,
+        instructions: STRICT_INSTRUCTIONS
+      });
       await this.auditReporter.write({
         question,
         embeddingModel: options.retrievalAudit.embeddingModel,
         topKRequested: options.retrievalAudit.topKRequested,
         retrievedChunks,
+        optimizedChunks,
+        beforeOptimizationPrompt,
         assembledPrompt: prompt,
         finalPrompt
       });

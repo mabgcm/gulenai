@@ -11,6 +11,8 @@ export interface RetrievalAuditInput {
   readonly embeddingModel: string;
   readonly topKRequested: number;
   readonly retrievedChunks: readonly SearchResult[];
+  readonly optimizedChunks: readonly SearchResult[];
+  readonly beforeOptimizationPrompt: AssembledPrompt;
   readonly assembledPrompt: AssembledPrompt;
   readonly finalPrompt: ChatCompletionRequest | null;
 }
@@ -41,6 +43,38 @@ const markdownTable = (rows: readonly RetrievalAuditRow[]): string => {
   return [header, ...body].join("\n");
 };
 
+const rowsFor = (chunks: readonly SearchResult[]): readonly RetrievalAuditRow[] =>
+  chunks.map((chunk, index): RetrievalAuditRow => ({
+    rank: index + 1,
+    similarityScore: chunk.similarityScore,
+    title: chunk.title,
+    headingPath: chunk.headingPath,
+    sourceFile: chunk.metadata.sourceFile,
+    chunkIndex: chunk.metadata.chunkIndex,
+    tokenCount: chunk.metadata.tokenCount
+  }));
+
+const metricsFor = (chunks: readonly SearchResult[]) => {
+  const documents = new Set(chunks.map((chunk) => chunk.documentId));
+  const books = new Set(chunks.map(bookKey).filter((book): book is string => book !== null));
+  const headings = new Set(chunks.map(headingKey));
+  const duplicates = Math.max(0, chunks.length - documents.size);
+  return {
+    chunkCount: chunks.length,
+    documentsRepresented: documents.size,
+    booksRepresented: books.size,
+    headingDiversity: headings.size,
+    duplicateCount: duplicates,
+    duplicatePercentage: percentage(duplicates, chunks.length),
+    contextDiversityScore:
+      chunks.length === 0
+        ? 0
+        : Number(
+            (((documents.size + books.size + headings.size) / (chunks.length * 3)) * 100).toFixed(2)
+          )
+  };
+};
+
 export class RetrievalAuditReporter {
   public constructor(
     private readonly tokenCounter: TokenCounter,
@@ -49,24 +83,19 @@ export class RetrievalAuditReporter {
 
   public async write(input: RetrievalAuditInput): Promise<void> {
     try {
-      const rows = input.retrievedChunks.map((chunk, index): RetrievalAuditRow => ({
-        rank: index + 1,
-        similarityScore: chunk.similarityScore,
-        title: chunk.title,
-        headingPath: chunk.headingPath,
-        sourceFile: chunk.metadata.sourceFile,
-        chunkIndex: chunk.metadata.chunkIndex,
-        tokenCount: chunk.metadata.tokenCount
-      }));
+      const beforeRows = rowsFor(input.retrievedChunks);
+      const rows = rowsFor(input.optimizedChunks);
+      const beforeOptimization = metricsFor(input.retrievedChunks);
+      const afterOptimization = metricsFor(input.optimizedChunks);
       const documents = new Set(input.retrievedChunks.map((chunk) => chunk.documentId));
       const books = new Set(
         input.retrievedChunks.map(bookKey).filter((book): book is string => book !== null)
       );
       const headings = new Set(input.retrievedChunks.map(headingKey));
       const averageSimilarity =
-        rows.length === 0
+        beforeRows.length === 0
           ? 0
-          : rows.reduce((sum, row) => sum + row.similarityScore, 0) / rows.length;
+          : beforeRows.reduce((sum, row) => sum + row.similarityScore, 0) / beforeRows.length;
       const promptTokens =
         input.finalPrompt?.messages.reduce(
           (sum, message) => sum + this.tokenCounter.count(message.content),
@@ -77,8 +106,8 @@ export class RetrievalAuditReporter {
         userQuestion: input.question,
         embeddingModel: input.embeddingModel,
         topKRequested: input.topKRequested,
-        topKReturned: rows.length,
-        retrievedChunkCount: rows.length,
+        topKReturned: beforeRows.length,
+        retrievedChunkCount: beforeRows.length,
         uniqueDocumentCount: documents.size,
         uniqueBookCount: books.size,
         uniqueHeadingPathCount: headings.size,
@@ -87,13 +116,25 @@ export class RetrievalAuditReporter {
           0
         ),
         totalPromptTokens: promptTokens,
-        retrievalTable: rows,
+        retrievalTable: beforeRows,
         contextDiversity: {
           booksRepresented: books.size,
           headingGroups: headings.size,
           averageSimilarity: Number(averageSimilarity.toFixed(6)),
-          duplicatePercentage: percentage(rows.length - documents.size, rows.length)
+          duplicatePercentage: percentage(beforeRows.length - documents.size, beforeRows.length)
         },
+        optimization: {
+          before: beforeOptimization,
+          after: afterOptimization,
+          duplicateReduction: beforeOptimization.duplicateCount - afterOptimization.duplicateCount,
+          promptTokenSavings: Math.max(
+            0,
+            input.beforeOptimizationPrompt.estimatedTokens - input.assembledPrompt.estimatedTokens
+          ),
+          contextDiversityScore: afterOptimization.contextDiversityScore
+        },
+        beforeOptimizationTable: beforeRows,
+        afterOptimizationTable: rows,
         finalPrompt: input.finalPrompt
       };
       const id = `${report.generatedAt.replace(/[:.]/g, "-")}-${randomUUID()}`;
@@ -112,9 +153,26 @@ export class RetrievalAuditReporter {
         `- Total context tokens: ${report.totalContextTokens}`,
         `- Total prompt tokens: ${report.totalPromptTokens}`,
         "",
-        "## Ordered retrieval",
+        "## Before optimization",
+        "",
+        markdownTable(beforeRows),
+        "",
+        `- Documents represented: ${beforeOptimization.documentsRepresented}`,
+        `- Books represented: ${beforeOptimization.booksRepresented}`,
+        `- Heading diversity: ${beforeOptimization.headingDiversity}`,
+        `- Duplicate percentage: ${beforeOptimization.duplicatePercentage}%`,
+        "",
+        "## After optimization",
         "",
         markdownTable(rows),
+        "",
+        `- Documents represented: ${afterOptimization.documentsRepresented}`,
+        `- Books represented: ${afterOptimization.booksRepresented}`,
+        `- Heading diversity: ${afterOptimization.headingDiversity}`,
+        `- Duplicate percentage: ${afterOptimization.duplicatePercentage}%`,
+        `- Duplicate reduction: ${report.optimization.duplicateReduction}`,
+        `- Prompt token savings: ${report.optimization.promptTokenSavings}`,
+        `- Context diversity score: ${report.optimization.contextDiversityScore}`,
         "",
         "## Context diversity",
         "",

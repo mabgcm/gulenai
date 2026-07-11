@@ -43,6 +43,15 @@ describe("RetrievalAuditReporter", () => {
       embeddingModel: "embedding-model",
       topKRequested: 8,
       retrievedChunks: [result],
+      optimizedChunks: [result],
+      beforeOptimizationPrompt: {
+        systemPrompt: "exact system",
+        userQuestion: "Question?",
+        chunks: [],
+        estimatedTokens: 7,
+        trimmedChunks: [],
+        promptMarkdown: "before prompt"
+      },
       assembledPrompt: {
         systemPrompt: "exact system",
         userQuestion: "Question?",
@@ -89,6 +98,13 @@ describe("RetrievalAuditReporter", () => {
       uniqueBookCount: 1,
       totalContextTokens: 2,
       totalPromptTokens: 5,
+      optimization: {
+        before: { documentsRepresented: 1, booksRepresented: 1, headingDiversity: 1 },
+        after: { documentsRepresented: 1, booksRepresented: 1, headingDiversity: 1 },
+        duplicateReduction: 0,
+        promptTokenSavings: 2,
+        contextDiversityScore: 100
+      },
       finalPrompt
     });
   });

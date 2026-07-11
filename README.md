@@ -486,7 +486,13 @@ Bu soru mevcut HürKul arşivindeki kaynaklarla cevaplanamıyor.
 
 The answer prompt is structured as a research-assistant workflow rather than a restrictions-only checklist. It directs the model to define the requested concept first, explain it in complete and connected Turkish paragraphs, use all relevant retrieved evidence, synthesize compatible discussions from multiple books into one coherent account, and compare complementary viewpoints when the context supports that comparison. Repetition, isolated source-by-source summaries, unnecessary headings, and intentional shortening are discouraged so that answer depth follows the available evidence rather than an arbitrary preference for brevity.
 
-Grounding remains the controlling constraint. Every claim must come from the supplied context and carry its exact supporting Context Chunk ID; claims combining evidence must cite every directly supporting chunk. The prompt still forbids outside knowledge, guesses, invented information, and fabricated references. The insufficient-context sentence, chat-completion parameters, answer JSON structure, `usedChunkIds` and `ignoredChunkIds` bookkeeping, and downstream citation objects are unchanged. The redesign affects answer-generation instructions only; it does not alter retrieval, ranking, `topK`, context ordering, or context-budget trimming.
+Grounding remains the controlling constraint. Every claim must come from the supplied context and carry its exact supporting Context Chunk ID; claims combining evidence must cite every directly supporting chunk. The prompt still forbids outside knowledge, guesses, invented information, and fabricated references. The insufficient-context sentence, chat-completion parameters, answer JSON structure, `usedChunkIds` and `ignoredChunkIds` bookkeeping, and downstream citation objects are unchanged. The prompt redesign itself affects answer-generation instructions only; it does not alter retrieval, ranking, `topK`, or context-budget trimming.
+
+### Context diversity optimization
+
+Answer generation applies a deterministic diversity layer after semantic retrieval and before prompt construction. Search itself, Qdrant queries, embeddings, similarity scores, `topK`, and search API results remain unchanged. The optimizer keeps the highest-scoring result first, allows at most two prompt results from one document, and favors a previously unrepresented book or heading path when candidates are within `0.03` similarity. A book is identified by the first heading-path component, falling back to title and then document ID.
+
+Adjacent results from the same document are suppressed only when their normalized term overlap is at least `80%`; distinct neighboring chunks are retained. Within the narrow similarity window, selection priority is new book, new heading path, new document, and then original semantic order. This preserves relevance while allowing diverse evidence to enter the context budget earlier. The prompt assembler preserves this optimized order only for answer generation; standalone retrieval and prompt APIs retain their existing behavior.
 
 The structured answer result contains:
 
@@ -793,6 +799,8 @@ RETRIEVAL_AUDIT_ENABLED=true pnpm answer "ihlas nedir?"
 ```
 
 Each answer request writes matching JSON and Markdown files under `reports/retrieval-audit/`. A report records the question, embedding model, requested and returned `topK`, retrieval counts, unique documents, books and heading paths, token totals, ordered chunk details, diversity metrics, and the exact chat-completion request. If no context survives prompt assembly, `finalPrompt` is `null` because no LLM request is sent.
+
+The report includes ordered before/after optimization tables plus documents represented, books represented, heading diversity, duplicate reduction, prompt-token savings, and a context-diversity score. The score is the mean of document, book, and heading uniqueness ratios, expressed from 0 to 100. Prompt-token savings compare assembled prompt estimates before and after optimization under the same context budget.
 
 For audit metrics, a “book” is the first heading-path component, a heading group is the complete heading path, and duplicate percentage is the share of retrieved results beyond the first result from each document. Context tokens are the indexed token counts of chunks included in the final context; prompt tokens count the exact system and user message contents. Audit write failures are isolated from answer generation.
 

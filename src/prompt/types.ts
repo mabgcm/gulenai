@@ -42,4 +42,5 @@ export interface PromptAssemblyOptions {
   readonly maxContextTokens: number;
   readonly systemPrompt?: string;
   readonly instructions?: readonly string[];
+  readonly preserveInputOrder?: boolean;
 }

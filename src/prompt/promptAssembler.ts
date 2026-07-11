@@ -69,13 +69,15 @@ export class PromptAssembler {
     const systemPrompt = options.systemPrompt ?? DEFAULT_SYSTEM_PROMPT;
     const instructions = options.instructions ?? DEFAULT_INSTRUCTIONS;
     const maxContextTokens = Math.max(0, options.maxContextTokens);
-    const ordered = [...retrievedChunks].sort(
-      (left, right) =>
-        right.similarityScore - left.similarityScore ||
-        left.documentId.localeCompare(right.documentId) ||
-        left.metadata.chunkIndex - right.metadata.chunkIndex ||
-        left.chunkId.localeCompare(right.chunkId)
-    );
+    const ordered = options.preserveInputOrder
+      ? [...retrievedChunks]
+      : [...retrievedChunks].sort(
+          (left, right) =>
+            right.similarityScore - left.similarityScore ||
+            left.documentId.localeCompare(right.documentId) ||
+            left.metadata.chunkIndex - right.metadata.chunkIndex ||
+            left.chunkId.localeCompare(right.chunkId)
+        );
     const chunks = ordered.map((result, index): PromptChunk => {
       const markdown = normalizeMarkdown(result.markdown);
       return {
