@@ -9,6 +9,8 @@ export const RISALE_SOURCE = {
   attribution: "eRisale — Risale-i Nur Külliyatı"
 } as const;
 
+export const RISALE_CATALOG_SELECTOR = "JavaScript variable: var books = [...]";
+
 const isBook = (value: unknown): value is RisaleBook =>
   typeof value === "object" &&
   value !== null &&

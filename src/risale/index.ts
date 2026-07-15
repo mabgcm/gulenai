@@ -63,6 +63,7 @@ const main = async (): Promise<void> => {
   }
 
   const runCrawl = async (): Promise<void> => {
+    logger.info("Crawler stage start");
     const summary = await new RisaleCrawler(
       {
         dataDir: DATA_DIR,
@@ -80,15 +81,19 @@ const main = async (): Promise<void> => {
       skippedPages: summary.skippedPages,
       failedPages: summary.failedPages
     });
+    logger.info({ summary }, "Crawler stage complete");
   };
   const runParse = async (): Promise<void> => {
+    logger.info("HTML page parsing start");
     const summary = await new RisaleParsingPipeline(DATA_DIR, new RisalePageParser(), logger).run();
     Object.assign(report, {
       pagesParsed: summary.pagesParsed,
       failedPages: report.failedPages + summary.failedPages
     });
+    logger.info({ summary }, "HTML page parsing complete");
   };
   const runChunk = async (): Promise<void> => {
+    logger.info("Chunk generation start");
     const summary = await new ChunkingPipeline(
       new MarkdownDocumentReader(join(DATA_DIR, "markdown")),
       new MarkdownChunker(
@@ -104,6 +109,7 @@ const main = async (): Promise<void> => {
       logger
     ).run();
     Object.assign(report, { chunksCreated: summary.writtenChunks });
+    logger.info({ summary }, "Chunk generation complete");
   };
   const runIndex = async (): Promise<void> => {
     await new IndexPipeline(
@@ -113,6 +119,7 @@ const main = async (): Promise<void> => {
     ).run();
   };
   const runEmbed = async (): Promise<void> => {
+    logger.info("Embedding start");
     const summary = await new EmbeddingPipeline(
       new EmbeddingIndexManifestStore(join(DATA_DIR, "index")),
       new ChunkPayloadReader(join(DATA_DIR, "chunks")),
@@ -128,11 +135,13 @@ const main = async (): Promise<void> => {
       logger
     ).run();
     Object.assign(report, { embeddingsGenerated: summary.completed });
+    logger.info({ summary }, "Embedding complete");
   };
   const runQdrant = async (): Promise<void> => {
     if (config.RISALE_QDRANT_COLLECTION === config.QDRANT_COLLECTION) {
       throw new Error("RISALE_QDRANT_COLLECTION must differ from QDRANT_COLLECTION");
     }
+    logger.info({ collection: config.RISALE_QDRANT_COLLECTION }, "Qdrant upsert start");
     const summary = await new QdrantSyncPipeline(
       new QdrantIndexStore(join(DATA_DIR, "index")),
       new EmbeddingVectorReader(join(DATA_DIR, "embeddings")),
@@ -148,6 +157,7 @@ const main = async (): Promise<void> => {
       logger
     ).sync();
     Object.assign(report, { vectorsInserted: summary.uploadedVectors });
+    logger.info({ summary }, "Qdrant upsert complete");
   };
 
   const phases: Record<string, () => Promise<void>> = {

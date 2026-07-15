@@ -1,7 +1,7 @@
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { MarkdownChunker } from "../../src/chunking/chunker.js";
 import type { TokenCounter } from "../../src/chunking/tokenCounter.js";
 import { logger } from "../../src/config/logger.js";
@@ -10,7 +10,12 @@ import {
   parseRisaleCatalog,
   targetsForBooks
 } from "../../src/risale/catalog.js";
-import { RisaleCrawler, type RisaleHttpClient } from "../../src/risale/crawler.js";
+import {
+  FetchRisaleHttpClient,
+  RisaleCrawler,
+  RisaleHttpTimeoutError,
+  type RisaleHttpClient
+} from "../../src/risale/crawler.js";
 import { RisalePageParser } from "../../src/risale/parser.js";
 import type { RisaleRawPageMetadata } from "../../src/risale/types.js";
 
@@ -49,6 +54,10 @@ class WordCounter implements TokenCounter {
 }
 
 describe("Risale ingestion", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("discovers every Turkish book and page from the public catalog", () => {
     const books = parseRisaleCatalog(catalogHtml);
     expect(books).toEqual([
@@ -137,5 +146,21 @@ describe("Risale ingestion", () => {
       language: "tr"
     });
     expect(calls.filter((url) => url.endsWith("/robots.txt"))).toHaveLength(2);
+  });
+
+  it("aborts an external HTTP request after 30 seconds", async () => {
+    vi.useFakeTimers();
+    const request = vi.fn<typeof fetch>(() => new Promise<Response>(() => undefined));
+    const pending = new FetchRisaleHttpClient("test-agent", request).get(
+      "https://www.erisale.com/slow"
+    );
+    const result = pending.catch((error: unknown) => error);
+
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(await result).toMatchObject({
+      name: RisaleHttpTimeoutError.name,
+      url: "https://www.erisale.com/slow"
+    });
+    expect((await result as RisaleHttpTimeoutError).elapsedMs).toBeGreaterThanOrEqual(0);
   });
 });
