@@ -892,7 +892,16 @@ RISALE_MAX_PAGES=0
 Run the full workflow:
 
 ```bash
+pnpm run doctor
 pnpm risale ingest
+```
+
+`pnpm risale ingest` runs a preflight before requesting the eRisale catalog. It requires Node 22, a non-empty `OPENAI_API_KEY`, an accessible `QDRANT_URL` (and `QDRANT_API_KEY` when required), and different FGülen and Risale collection names. A missing dedicated Risale collection is valid because the Qdrant phase creates it; failure to list collections is not. Preflight failures stop before crawling and identify the setting that needs attention.
+
+Validate ingestion startup without crawling, embedding, or writing vectors:
+
+```bash
+pnpm risale ingest --preflight-only
 ```
 
 Or run resumable phases independently:
@@ -912,7 +921,7 @@ The complete ingestion writes JSON and Markdown validation reports with books di
 
 ### Runtime consistency
 
-Node.js 22 is pinned in both `.nvmrc` and `package.json#engines`. `.npmrc` enables strict engine validation, so dependency installation fails under a different major version instead of silently producing a mismatched runtime. The `start`, `dev`, and legacy `api` lifecycles also verify the active Node major and stop with the current executable path when Node is not 22.x.
+Node.js 22 is pinned in both `.nvmrc` and `package.json#engines`; `package.json#packageManager` pins pnpm 9.15.4. `.npmrc` enables strict engine validation, so dependency installation fails under a different major version instead of silently producing a mismatched runtime. Every project script runs through `scripts/node-runtime.sh`, which selects the package manager's own Node executable and rejects any major other than 22. This prevents an unrelated `node` binary in a parent `node_modules/.bin` directory from changing npm, npx, tsx, or pnpm script behavior.
 
 Activate the pinned runtime and package manager before installing:
 
@@ -922,6 +931,8 @@ nvm use
 corepack enable
 pnpm install
 ```
+
+If `pnpm` is still unavailable, make sure `nvm use` ran before `corepack enable`; Corepack installs its shim beside the active Node executable. Open a new shell or run `hash -r` after changing runtimes.
 
 Use the production-style workflow when validating deploy behavior:
 
@@ -936,21 +947,22 @@ pnpm start
 pnpm dev
 ```
 
-`pnpm api` remains an alias-compatible source runner and has the same Node 22 runtime guard as `pnpm dev`. All three entry points inherit the same active Node executable from the package-manager process.
+`pnpm api` remains an alias-compatible source runner and has the same Node 22 runtime guard as `pnpm dev`. All project entry points inherit the same executable from the package-manager process.
 
 Railway detects `packageManager: pnpm@9.15.4`, installs that pnpm release through Corepack, and resolves Node 22 from `engines.node`. With no repository Dockerfile or Railway config override, Railpack uses the package build/start scripts: the TypeScript build produces `dist`, and the start lifecycle verifies Node, rebuilds once more, then executes `node dist/src/api/index.js`. Railway supplies `NODE_ENV=production` and `PORT`; the server’s production runtime binds to `0.0.0.0` unless `HOST` is explicitly configured. Any dashboard Build Command or Start Command override must remain consistent with these scripts.
 
-Verify the shell, package-manager, and application runtime before comparing local behavior with Railway:
+Run the project environment report before ingestion or before comparing local behavior with Railway:
 
 ```bash
-node --version
-node --print 'process.execPath'
-pnpm exec node --version
-pnpm exec node --print 'process.execPath'
+pnpm run doctor
 pnpm verify:runtime
 ```
 
-Every version command should report Node 22.x, and both executable-path commands should resolve to the same Node installation. In Railway, compare these values with the Node version in the Railpack build plan and the `Node runtime verified` line emitted during startup. Also confirm the deployed Git commit and that the build log runs the pinned pnpm 9.15.4.
+The report prints the Node and pnpm versions, resolved executable, OpenAI models, a redacted Qdrant URL, both collection names, and individual PASS/FAIL checks for Node, pnpm, npm, npx, and tsx. It exits nonzero if any runtime differs or if both corpora target the same collection.
+
+pnpm reserves `pnpm doctor` for its own built-in package-manager diagnostic, so the repository script must be invoked explicitly as `pnpm run doctor`. The built-in command does not read `package.json#scripts` and does not print application configuration.
+
+In Railway, compare the project doctor values with the Node version in the Railpack build plan and the `Node runtime verified` line emitted during startup. Also confirm the deployed Git commit and that the build log runs the pinned pnpm 9.15.4.
 
 ### Answer evaluation benchmark
 

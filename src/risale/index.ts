@@ -21,6 +21,7 @@ import { QdrantSyncPipeline } from "../qdrant/qdrantPipeline.js";
 import { RISALE_SOURCE } from "./catalog.js";
 import { FetchRisaleHttpClient, RisaleCrawler } from "./crawler.js";
 import { RisalePageParser, RisaleParsingPipeline } from "./parser.js";
+import { runRisalePreflight } from "./preflight.js";
 import type { RisaleValidationReport } from "./types.js";
 import { RisaleValidationReportWriter } from "./validationReport.js";
 
@@ -30,6 +31,7 @@ const userAgent = "HurkKul-Risale-Ingestion/1.0 (+source: https://www.erisale.co
 const main = async (): Promise<void> => {
   const config = loadConfig();
   const phase = process.argv[2] ?? "ingest";
+  const preflightOnly = process.argv.includes("--preflight-only");
   const model = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
   const report: RisaleValidationReport = {
     generatedAt: new Date().toISOString(),
@@ -44,6 +46,21 @@ const main = async (): Promise<void> => {
     skippedPages: 0,
     failedPages: 0
   };
+
+  const preflight = await runRisalePreflight(config);
+  logger.info(
+    {
+      node: process.version,
+      executable: process.execPath,
+      qdrantCollections: preflight.qdrantCollections,
+      risaleCollectionExists: preflight.risaleCollectionExists
+    },
+    "Risale ingestion preflight passed"
+  );
+  if (preflightOnly) {
+    logger.info("Preflight-only validation complete; no ingestion phases were run");
+    return;
+  }
 
   const runCrawl = async (): Promise<void> => {
     const summary = await new RisaleCrawler(
