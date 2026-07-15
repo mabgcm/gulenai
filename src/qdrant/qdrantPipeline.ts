@@ -38,7 +38,26 @@ const pointFromCandidate = (candidate: QdrantSyncCandidate): QdrantPoint => ({
     tokenCount: candidate.chunk.metadata.tokenCount,
     contentHash: candidate.chunk.metadata.contentHash,
     source: candidate.chunk.metadata.sourceFile,
-    content: candidate.chunk.markdown
+    content: candidate.chunk.markdown,
+    ...(candidate.chunk.metadata.knowledgeSource == null
+      ? {}
+      : { knowledgeSource: candidate.chunk.metadata.knowledgeSource }),
+    ...(candidate.chunk.metadata.book == null ? {} : { book: candidate.chunk.metadata.book }),
+    ...(candidate.chunk.metadata.section == null
+      ? {}
+      : { section: candidate.chunk.metadata.section }),
+    ...(candidate.chunk.metadata.subsection == null
+      ? {}
+      : { subsection: candidate.chunk.metadata.subsection }),
+    ...(candidate.chunk.metadata.canonicalUrl == null
+      ? {}
+      : { canonicalUrl: candidate.chunk.metadata.canonicalUrl }),
+    ...(candidate.chunk.metadata.sourceAttribution == null
+      ? {}
+      : { sourceAttribution: candidate.chunk.metadata.sourceAttribution }),
+    ...((candidate.chunk.metadata.copyrightNotices?.length ?? 0) === 0
+      ? {}
+      : { copyrightNotices: candidate.chunk.metadata.copyrightNotices })
   }
 });
 

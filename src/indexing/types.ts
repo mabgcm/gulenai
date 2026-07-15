@@ -50,6 +50,13 @@ export interface ChunkJsonMetadata {
   readonly totalChunks: number;
   readonly tokenCount: number;
   readonly contentHash: string;
+  readonly knowledgeSource?: string | null;
+  readonly book?: string | null;
+  readonly section?: string | null;
+  readonly subsection?: string | null;
+  readonly canonicalUrl?: string | null;
+  readonly sourceAttribution?: string | null;
+  readonly copyrightNotices?: readonly string[];
 }
 
 export interface ChunkJsonDocument {

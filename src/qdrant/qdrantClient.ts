@@ -35,7 +35,22 @@ const toPointStruct = (point: QdrantPoint): Schemas["PointStruct"] => ({
     tokenCount: point.payload.tokenCount,
     contentHash: point.payload.contentHash,
     source: point.payload.source,
-    content: point.payload.content
+    content: point.payload.content,
+    ...(point.payload.knowledgeSource === undefined
+      ? {}
+      : { knowledgeSource: point.payload.knowledgeSource }),
+    ...(point.payload.book === undefined ? {} : { book: point.payload.book }),
+    ...(point.payload.section === undefined ? {} : { section: point.payload.section }),
+    ...(point.payload.subsection === undefined ? {} : { subsection: point.payload.subsection }),
+    ...(point.payload.canonicalUrl === undefined
+      ? {}
+      : { canonicalUrl: point.payload.canonicalUrl }),
+    ...(point.payload.sourceAttribution === undefined
+      ? {}
+      : { sourceAttribution: point.payload.sourceAttribution }),
+    ...(point.payload.copyrightNotices === undefined
+      ? {}
+      : { copyrightNotices: [...point.payload.copyrightNotices] })
   }
 });
 

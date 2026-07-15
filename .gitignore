@@ -10,6 +10,7 @@ data/index/*
 data/embeddings/*
 data/prompts/*
 data/answers/*
+data/risale/*
 !data/raw/.gitkeep
 !data/clean/.gitkeep
 !data/markdown/.gitkeep

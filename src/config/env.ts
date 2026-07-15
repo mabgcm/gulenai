@@ -127,7 +127,11 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default("*"),
   API_BODY_LIMIT_BYTES: integerFromEnv(1048576),
   LOG_LEVEL: z.string().default("info"),
-  RETRIEVAL_AUDIT_ENABLED: booleanFromEnv(false)
+  RETRIEVAL_AUDIT_ENABLED: booleanFromEnv(false),
+  RISALE_QDRANT_COLLECTION: z.string().default("risale"),
+  RISALE_CRAWL_DELAY_MS: integerFromEnv(1000),
+  RISALE_CRAWL_RETRIES: integerFromEnv(3),
+  RISALE_MAX_PAGES: integerFromEnv(0)
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

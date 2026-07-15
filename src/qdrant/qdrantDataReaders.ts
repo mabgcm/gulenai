@@ -12,7 +12,9 @@ import type {
 } from "./types.js";
 
 const walkJsonFiles = async (directory: string): Promise<readonly string[]> => {
-  const entries = await withFilesystemConcurrency(() => readdir(directory, { withFileTypes: true }));
+  const entries = await withFilesystemConcurrency(() =>
+    readdir(directory, { withFileTypes: true })
+  );
   const files: string[] = [];
 
   for (const entry of entries) {
@@ -89,7 +91,16 @@ const parseChunkMetadata = (value: unknown, path: string): QdrantChunkPayloadMet
     chunkIndex: value.chunkIndex,
     totalChunks: value.totalChunks,
     tokenCount: value.tokenCount,
-    contentHash: value.contentHash
+    contentHash: value.contentHash,
+    knowledgeSource: nullableString(value.knowledgeSource),
+    book: nullableString(value.book),
+    section: nullableString(value.section),
+    subsection: nullableString(value.subsection),
+    canonicalUrl: nullableString(value.canonicalUrl),
+    sourceAttribution: nullableString(value.sourceAttribution),
+    copyrightNotices: Array.isArray(value.copyrightNotices)
+      ? value.copyrightNotices.filter((notice): notice is string => typeof notice === "string")
+      : []
   };
 };
 

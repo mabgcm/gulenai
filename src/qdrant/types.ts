@@ -52,6 +52,13 @@ export interface QdrantChunkPayloadMetadata {
   readonly totalChunks: number;
   readonly tokenCount: number;
   readonly contentHash: string;
+  readonly knowledgeSource?: string | null;
+  readonly book?: string | null;
+  readonly section?: string | null;
+  readonly subsection?: string | null;
+  readonly canonicalUrl?: string | null;
+  readonly sourceAttribution?: string | null;
+  readonly copyrightNotices?: readonly string[];
 }
 
 export interface QdrantChunkPayloadFile {
@@ -82,6 +89,13 @@ export interface QdrantPayload {
   readonly contentHash: string;
   readonly source: string;
   readonly content: string;
+  readonly knowledgeSource?: string;
+  readonly book?: string;
+  readonly section?: string;
+  readonly subsection?: string | null;
+  readonly canonicalUrl?: string;
+  readonly sourceAttribution?: string;
+  readonly copyrightNotices?: readonly string[];
 }
 
 export interface QdrantPoint {

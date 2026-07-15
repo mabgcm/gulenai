@@ -67,7 +67,11 @@ const config: AppConfig = {
   CORS_ORIGIN: "*",
   API_BODY_LIMIT_BYTES: 1048576,
   LOG_LEVEL: "silent",
-  RETRIEVAL_AUDIT_ENABLED: false
+  RETRIEVAL_AUDIT_ENABLED: false,
+  RISALE_QDRANT_COLLECTION: "risale",
+  RISALE_CRAWL_DELAY_MS: 1000,
+  RISALE_CRAWL_RETRIES: 3,
+  RISALE_MAX_PAGES: 0
 };
 
 const citation: Citation = {

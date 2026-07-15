@@ -21,6 +21,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "evaluate": "tsx src/evaluation/index.ts",
+    "risale": "tsx src/risale/index.ts",
     "crawl": "tsx src/cli/index.ts crawl",
     "extract": "tsx src/cli/index.ts extract",
     "markdown": "tsx src/cli/index.ts markdown",

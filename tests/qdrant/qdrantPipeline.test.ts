@@ -127,7 +127,8 @@ const documentManifest = (overrides: Partial<QdrantDocumentEntry> = {}): QdrantD
 const writeFixture = async (
   root: string,
   chunks: readonly QdrantChunkEntry[],
-  documents: readonly QdrantDocumentEntry[] = [documentManifest()]
+  documents: readonly QdrantDocumentEntry[] = [documentManifest()],
+  metadataOverrides: Readonly<Record<string, unknown>> = {}
 ): Promise<void> => {
   const indexDir = join(root, "index");
   const chunksDir = join(root, "chunks", "en", "article");
@@ -180,7 +181,8 @@ const writeFixture = async (
             chunkIndex: chunk.chunkIndex,
             totalChunks: chunks.length,
             tokenCount: chunk.tokenCount,
-            contentHash: chunk.contentHash
+            contentHash: chunk.contentHash,
+            ...metadataOverrides
           },
           markdown: "# Article",
           plainText: "Article"
@@ -226,6 +228,32 @@ describe("QdrantSyncPipeline", () => {
     expect(updated[0]?.vectorId).toBe(vectorIdForChunk("chunk-1"));
     expect(updated[0]?.embeddingStatus).toBe("embedded");
     expect(summary.uploadedVectors).toBe(1);
+  });
+
+  it("preserves knowledge-source metadata in the vector payload", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "gulenai-qdrant-"));
+    await writeFixture(tempDir, [chunkManifest("chunk-1", "hash-1")], [documentManifest()], {
+      knowledgeSource: "risale",
+      book: "Sözler",
+      section: "Birinci Söz",
+      subsection: "Bismillah",
+      canonicalUrl: "https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=1",
+      sourceAttribution: "eRisale",
+      copyrightNotices: ["Copyright notice"]
+    });
+    const client = new FakeQdrantClient();
+
+    await pipeline(tempDir, client).sync();
+
+    expect(client.points.values().next().value?.payload).toMatchObject({
+      knowledgeSource: "risale",
+      book: "Sözler",
+      section: "Birinci Söz",
+      subsection: "Bismillah",
+      canonicalUrl: "https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=1",
+      sourceAttribution: "eRisale",
+      copyrightNotices: ["Copyright notice"]
+    });
   });
 
   it("retries upload failures", async () => {
@@ -374,9 +402,7 @@ describe("QdrantSyncPipeline", () => {
   it("deletes orphan remote vectors during sync", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "gulenai-qdrant-"));
     const vectorId = vectorIdForChunk("chunk-1");
-    await writeFixture(tempDir, [
-      chunkManifest("chunk-1", "hash-1", { vectorId })
-    ]);
+    await writeFixture(tempDir, [chunkManifest("chunk-1", "hash-1", { vectorId })]);
     const client = new FakeQdrantClient();
     client.exists = true;
     client.points.set(vectorId, {

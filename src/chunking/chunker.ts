@@ -202,7 +202,9 @@ export class MarkdownChunker {
     return chunks;
   }
 
-  private ensureEmbeddingSafe(blocks: readonly MarkdownBlock[]): readonly (readonly MarkdownBlock[])[] {
+  private ensureEmbeddingSafe(
+    blocks: readonly MarkdownBlock[]
+  ): readonly (readonly MarkdownBlock[])[] {
     const draft = this.buildDraft(blocks);
     if (draft.embeddingTokenCount <= this.embeddingMaxTokens) {
       return [blocks];
@@ -215,7 +217,8 @@ export class MarkdownChunker {
     }
 
     const oversizedBlockIndex = contentBlocks.findIndex(
-      (block) => this.buildDraft([...headingContext, block]).embeddingTokenCount > this.embeddingMaxTokens
+      (block) =>
+        this.buildDraft([...headingContext, block]).embeddingTokenCount > this.embeddingMaxTokens
     );
     if (oversizedBlockIndex >= 0) {
       const oversizedBlock = contentBlocks[oversizedBlockIndex];
@@ -313,7 +316,10 @@ export class MarkdownChunker {
 
     const separators = [/\n{2,}/, /\n/, /(?<=[.!?])\s+/, /\s+/];
     for (const separator of separators) {
-      const parts = normalized.split(separator).map((part) => part.trim()).filter(Boolean);
+      const parts = normalized
+        .split(separator)
+        .map((part) => part.trim())
+        .filter(Boolean);
       if (parts.length > 1) {
         return this.packTextParts(parts, targetTokens);
       }
@@ -443,7 +449,38 @@ export class MarkdownChunker {
       totalChunks,
       tokenCount: draft.tokenCount,
       wordCount: draft.wordCount,
-      contentHash: draft.contentHash
+      contentHash: draft.contentHash,
+      ...this.sourceMetadata(document.metadata)
     };
+  }
+
+  private sourceMetadata(metadata: Record<string, unknown> | null): Partial<ChunkMetadata> {
+    if (metadata === null) return {};
+    const optionalString = (key: string): string | undefined =>
+      typeof metadata[key] === "string" && metadata[key].trim().length > 0
+        ? metadata[key]
+        : undefined;
+    const notices = Array.isArray(metadata.copyrightNotices)
+      ? metadata.copyrightNotices.filter((notice): notice is string => typeof notice === "string")
+      : undefined;
+    const subsection =
+      metadata.subsection === null || typeof metadata.subsection === "string"
+        ? metadata.subsection
+        : undefined;
+    const result: Partial<ChunkMetadata> = {};
+    const assignString = (
+      key: "knowledgeSource" | "book" | "section" | "canonicalUrl" | "sourceAttribution"
+    ) => {
+      const value = optionalString(key);
+      if (value !== undefined) Object.assign(result, { [key]: value });
+    };
+    assignString("knowledgeSource");
+    assignString("book");
+    assignString("section");
+    assignString("canonicalUrl");
+    assignString("sourceAttribution");
+    if (subsection !== undefined) Object.assign(result, { subsection });
+    if (notices !== undefined) Object.assign(result, { copyrightNotices: notices });
+    return result;
   }
 }

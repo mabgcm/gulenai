@@ -25,6 +25,13 @@ export interface ChunkMetadata {
   readonly tokenCount: number;
   readonly wordCount: number;
   readonly contentHash: string;
+  readonly knowledgeSource?: string;
+  readonly book?: string;
+  readonly section?: string;
+  readonly subsection?: string | null;
+  readonly canonicalUrl?: string;
+  readonly sourceAttribution?: string;
+  readonly copyrightNotices?: readonly string[];
 }
 
 export interface MarkdownChunk {

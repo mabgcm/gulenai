@@ -811,6 +811,103 @@ It also records `Raw Context Layout` (the optimizer output entering the builder)
 
 For audit metrics, a “book” is the first heading-path component, a heading group is the complete heading path, and duplicate percentage is the share of retrieved results beyond the first result from each document. Context tokens are the indexed token counts of chunks included in the final context; prompt tokens count the exact system and user message contents. Audit write failures are isolated from answer generation.
 
+## Risale-i Nur ingestion from eRisale
+
+The Risale workflow is an isolated corpus-preparation pipeline for the public Turkish pages at `https://www.erisale.com`. Its knowledge-source identity is:
+
+```text
+id: risale
+name: Risale-i Nur Külliyatı
+language: tr
+```
+
+It does not add the corpus to runtime retrieval. FGülen commands, data directories, collection configuration, retrieval, ranking, prompts, and answer generation remain unchanged.
+
+### Crawler and resume behavior
+
+The crawler requests the Turkish catalog page and reads its public `books` metadata to discover every book and declared page count. It then deterministically creates every canonical page URL in this form:
+
+```text
+https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=1
+```
+
+Before crawling, it requests `https://www.erisale.com/robots.txt` and applies published allow, disallow, and crawl-delay rules. When the site publishes no robots file (currently HTTP 404), the crawler records that condition and applies its own minimum one-second delay. Crawling is sequential, retries transient failures, stores raw HTML without modification, and persists state after every attempted page.
+
+Resume is automatic. `data/risale/crawl/state.json` records discovered books, completed `bookId:pageNo` keys, active failures, and the update time. A page is skipped if its key is complete or its raw HTML already exists. Successful retries remove the page’s previous failure record. `RISALE_MAX_PAGES` limits new attempts per run for a controlled test crawl; `0` means the complete collection.
+
+### Parser and attribution
+
+eRisale pages provide the visible book text in a server-rendered `<noscript>` block. The parser reads only that content, removes scripts and interface elements, and preserves source paragraphs, headings, footnotes, Turkish wording, and quoted source-language passages. It does not summarize or paraphrase. Book, section, and optional subsection values come from the page’s source title hierarchy.
+
+Every page and chunk retains its canonical eRisale URL and the attribution `eRisale — Risale-i Nur Külliyatı`. Copyright or rights notices visible in a source page are copied verbatim into `copyrightNotices`; the raw HTML is also retained so no source notice is lost even when it is outside the book-text block.
+
+### Chunk metadata
+
+The existing token-aware `MarkdownChunker` is used without a separate Risale chunking algorithm. Every Risale chunk contains:
+
+```json
+{
+  "knowledgeSource": "risale",
+  "book": "Sözler",
+  "section": "Birinci Söz",
+  "subsection": null,
+  "canonicalUrl": "https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=1",
+  "language": "tr",
+  "chunkIndex": 0,
+  "totalChunks": 1
+}
+```
+
+Source attribution and preserved copyright notices accompany these fields and are also included in the dedicated Qdrant payload.
+
+### Directory layout
+
+```text
+data/risale/
+  crawl/state.json               discovery, resume, and failure state
+  raw/book-XX/                   original HTML and canonical metadata
+  markdown/book-XX/              parsed source text and metadata
+  chunks/book-XX/                existing-strategy chunk JSON
+  index/                         isolated document/chunk manifests
+  embeddings/                    isolated embedding vectors
+
+reports/risale-ingestion/
+  validation.json
+  validation.md
+```
+
+### Commands and dedicated collection
+
+Configure the dedicated collection and crawl policy:
+
+```env
+RISALE_QDRANT_COLLECTION=risale
+RISALE_CRAWL_DELAY_MS=1000
+RISALE_CRAWL_RETRIES=3
+RISALE_MAX_PAGES=0
+```
+
+`RISALE_QDRANT_COLLECTION` must differ from `QDRANT_COLLECTION`; synchronization fails before upload if they match. The existing embedding model and embedding pipeline are reused, but manifests, vector files, and Qdrant vectors remain isolated.
+
+Run the full workflow:
+
+```bash
+pnpm risale ingest
+```
+
+Or run resumable phases independently:
+
+```bash
+pnpm risale crawl
+pnpm risale parse
+pnpm risale chunk
+pnpm risale index
+pnpm risale embed
+pnpm risale qdrant
+```
+
+The complete ingestion writes JSON and Markdown validation reports with books discovered, pages downloaded, pages parsed, chunks created, embeddings generated, vectors inserted, skipped pages, and failed pages. Embedding and Qdrant phases use resume mode. Because the public catalog contains thousands of pages, a complete polite crawl takes substantial time and embedding generation incurs provider usage.
+
 ## Development
 
 ### Runtime consistency
