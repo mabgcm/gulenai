@@ -55,27 +55,30 @@ Implemented:
 
 ## Requirements
 
-- Node.js 22+
-- pnpm
+- Node.js 22.23.1
+- pnpm 9.15.4 through Corepack
 - Chromium browser for Playwright
 
-If pnpm is not globally installed, use:
+Activate the repository runtime before installing:
 
 ```bash
-npx pnpm@9.15.4 install
+nvm install
+nvm use
+corepack enable
+pnpm install
 ```
 
 Install Playwright's Chromium browser before a real crawl:
 
 ```bash
-npx playwright install chromium
+pnpm exec playwright install chromium
 ```
 
 ## Setup
 
 ```bash
 cp .env.example .env
-npx pnpm@9.15.4 install
+pnpm install
 ```
 
 Default crawl scope is restricted to `fgulen.com`:
@@ -904,24 +907,23 @@ Validate ingestion startup without crawling, embedding, or writing vectors:
 pnpm risale ingest --preflight-only
 ```
 
-Or run resumable phases independently:
-
-```bash
-pnpm risale crawl
-pnpm risale parse
-pnpm risale chunk
-pnpm risale index
-pnpm risale embed
-pnpm risale qdrant
-```
-
 The complete ingestion writes JSON and Markdown validation reports with books discovered, pages downloaded, pages parsed, chunks created, embeddings generated, vectors inserted, skipped pages, and failed pages. Embedding and Qdrant phases use resume mode. Because the public catalog contains thousands of pages, a complete polite crawl takes substantial time and embedding generation incurs provider usage.
 
 ## Development
 
 ### Runtime consistency
 
-Node.js 22 is pinned in both `.nvmrc` and `package.json#engines`; `package.json#packageManager` pins pnpm 9.15.4. `.npmrc` enables strict engine validation, so dependency installation fails under a different major version instead of silently producing a mismatched runtime. Every project script runs through `scripts/node-runtime.sh`, which selects the package manager's own Node executable and rejects any major other than 22. This prevents an unrelated `node` binary in a parent `node_modules/.bin` directory from changing npm, npx, tsx, or pnpm script behavior.
+Node.js 22.23.1 is the single project runtime. `.nvmrc` and `.node-version` pin it for nvm, nodenv, asdf, and mise-compatible tooling; `package.json#engines` and `package.json#volta` pin the same release for package managers, Railway, and Volta. `package.json#packageManager` and Volta pin pnpm 9.15.4. No repository Railway file, Dockerfile, mise file, or GitHub Actions workflow currently overrides these values.
+
+The observed Node 20 runtime came from the developer machine's nvm `default` alias, which was set to 20.20.1. Repository version files do not automatically change an already-open shell. Correct the shell once and verify it:
+
+```bash
+nvm alias default 22.23.1
+nvm use
+node --version
+```
+
+`.npmrc` enables strict engine validation, so dependency installation fails under a different runtime. Every project script also runs through `scripts/node-runtime.sh`, which selects the package manager's own Node executable and rejects anything other than 22.23.1. This prevents an unrelated `node` binary in a parent `node_modules/.bin` directory from changing npm, npx, tsx, or pnpm script behavior.
 
 Activate the pinned runtime and package manager before installing:
 
@@ -958,7 +960,7 @@ pnpm run doctor
 pnpm verify:runtime
 ```
 
-The report prints the Node and pnpm versions, resolved executable, OpenAI models, a redacted Qdrant URL, both collection names, and individual PASS/FAIL checks for Node, pnpm, npm, npx, and tsx. It exits nonzero if any runtime differs or if both corpora target the same collection.
+The report prints the Node and pnpm versions, resolved executable, detected runtime manager, environment readiness, CLI wiring, runtime configuration, OpenAI models, a redacted Qdrant URL, both collection names, and individual PASS/FAIL checks for Node, pnpm, npm, npx, and tsx. It exits nonzero when any required check fails.
 
 pnpm reserves `pnpm doctor` for its own built-in package-manager diagnostic, so the repository script must be invoked explicitly as `pnpm run doctor`. The built-in command does not read `package.json#scripts` and does not print application configuration.
 
@@ -1000,14 +1002,6 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm build
-```
-
-When pnpm is unavailable globally:
-
-```bash
-npx pnpm@9.15.4 typecheck
-npx pnpm@9.15.4 lint
-npx pnpm@9.15.4 test
 ```
 
 ## Extensibility

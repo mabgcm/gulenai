@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { accessSync, readFileSync } from "node:fs";
 import { delimiter, dirname } from "node:path";
 import { loadConfig } from "../config/env.js";
 
@@ -60,18 +61,46 @@ const redactUrl = (value: string): string => {
 };
 
 const config = loadConfig();
+const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
+  engines?: { node?: string };
+  packageManager?: string;
+  scripts?: Record<string, string>;
+  volta?: { node?: string; pnpm?: string };
+};
+const fileValue = (path: string): string => {
+  try {
+    return readFileSync(path, "utf8").trim();
+  } catch {
+    return "missing";
+  }
+};
+const fileExists = (path: string): boolean => {
+  try {
+    accessSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+};
+const detectedRuntime = process.execPath.includes("/.nvm/")
+  ? "nvm"
+  : process.env.VOLTA_HOME !== undefined && process.execPath.startsWith(process.env.VOLTA_HOME)
+    ? "Volta"
+    : process.env.MISE_SHELL !== undefined
+      ? "mise"
+      : "system/PATH";
 const expectedExecutable = process.execPath;
 const runtimeChecks = runtimes.map((runtime) => ({
   ...runtime,
   pass:
     runtime.error === undefined &&
-    runtime.version.startsWith("v22.") &&
+    runtime.version === "v22.23.1" &&
     runtime.executable === expectedExecutable
 }));
 const checks = [
   {
-    label: "Node version is 22.x",
-    pass: process.versions.node.split(".")[0] === "22"
+    label: "Node version is 22.23.1",
+    pass: process.versions.node === "22.23.1"
   },
   ...runtimeChecks.map((runtime) => ({
     label: `${runtime.label} resolves ${runtime.executable} (${runtime.version})`,
@@ -80,6 +109,27 @@ const checks = [
   {
     label: "Qdrant collections are isolated",
     pass: config.QDRANT_COLLECTION !== config.RISALE_QDRANT_COLLECTION
+  },
+  {
+    label: "OPENAI_API_KEY is configured",
+    pass: (config.OPENAI_API_KEY?.trim().length ?? 0) > 0
+  },
+  {
+    label: "Runtime configuration agrees on Node 22.23.1",
+    pass:
+      fileValue(".nvmrc") === "22.23.1" &&
+      fileValue(".node-version") === "22.23.1" &&
+      packageJson.engines?.node === "22.23.1" &&
+      packageJson.volta?.node === "22.23.1" &&
+      packageJson.packageManager === "pnpm@9.15.4" &&
+      packageJson.volta?.pnpm === "9.15.4"
+  },
+  {
+    label: "Risale CLI is wired",
+    pass:
+      packageJson.scripts?.risale?.includes("src/risale/index.ts") === true &&
+      fileExists("src/risale/index.ts") &&
+      fileExists("scripts/node-runtime.sh")
   }
 ];
 const pass = checks.every((check) => check.pass);
@@ -97,11 +147,29 @@ console.log("HürKul runtime doctor");
 console.log(`Node version: ${process.version}`);
 console.log(`pnpm version: ${pnpmVersion}`);
 console.log(`Resolved Node executable: ${process.execPath}`);
+console.log(`Detected runtime: ${detectedRuntime}`);
 console.log(`OpenAI model: ${config.OPENAI_CHAT_MODEL}`);
 console.log(`Embedding model: ${config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL}`);
 console.log(`Qdrant URL: ${redactUrl(config.QDRANT_URL)}`);
 console.log(`FGülen collection: ${config.QDRANT_COLLECTION}`);
 console.log(`Risale collection: ${config.RISALE_QDRANT_COLLECTION}`);
+console.log("Environment validation:");
+console.log(`  ${config.OPENAI_API_KEY?.trim() ? "PASS" : "FAIL"} OPENAI_API_KEY configured`);
+console.log(`  PASS QDRANT_URL valid and redacted`);
+console.log(
+  `  ${config.QDRANT_COLLECTION !== config.RISALE_QDRANT_COLLECTION ? "PASS" : "FAIL"} collection names isolated`
+);
+console.log("CLI validation:");
+console.log(
+  `  ${packageJson.scripts?.risale?.includes("src/risale/index.ts") === true ? "PASS" : "FAIL"} pnpm risale ingest entrypoint`
+);
+console.log(`  ${fileExists("src/risale/index.ts") ? "PASS" : "FAIL"} Risale CLI source exists`);
+console.log("Runtime configuration:");
+console.log(`  .nvmrc: ${fileValue(".nvmrc")}`);
+console.log(`  .node-version: ${fileValue(".node-version")}`);
+console.log(`  package.json engines.node: ${packageJson.engines?.node ?? "missing"}`);
+console.log(`  package.json packageManager: ${packageJson.packageManager ?? "missing"}`);
+console.log(`  Volta Node: ${packageJson.volta?.node ?? "missing"}`);
 console.log("Runtime consistency checks:");
 for (const check of checks) console.log(`  ${check.pass ? "PASS" : "FAIL"} ${check.label}`);
 console.log(`Overall: ${pass ? "PASS" : "FAIL"}`);
