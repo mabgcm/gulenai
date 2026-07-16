@@ -1,3 +1,10 @@
+export type KnowledgeSource = "fgulen" | "risale";
+
+export interface RetrievalCollection {
+  readonly source: KnowledgeSource;
+  readonly collection: string;
+}
+
 export interface SearchFilters {
   readonly language?: string;
   readonly documentId?: string;
@@ -17,6 +24,8 @@ export interface QueryEmbeddingClient {
 }
 
 export interface SearchHitPayload {
+  readonly source?: KnowledgeSource;
+  readonly collection?: string;
   readonly chunkId: string;
   readonly documentId: string;
   readonly url: string | null;
@@ -44,6 +53,8 @@ export interface ChunkContent {
 }
 
 export interface SearchResult {
+  readonly source?: KnowledgeSource;
+  readonly collection?: string;
   readonly chunkId: string;
   readonly documentId: string;
   readonly title: string | null;
@@ -61,4 +72,15 @@ export interface SearchResult {
     readonly contentHash: string;
     readonly merged: boolean;
   };
+}
+
+export interface CollectionSearchResults {
+  readonly source: KnowledgeSource;
+  readonly collection: string;
+  readonly hits: readonly SearchHit[];
+}
+
+export interface RetrievalSearchResult {
+  readonly results: readonly SearchResult[];
+  readonly resultsByCollection: readonly CollectionSearchResults[];
 }

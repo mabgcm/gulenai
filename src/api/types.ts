@@ -3,7 +3,7 @@ import type { CitedAnswer, Citation } from "../citations/types.js";
 import type { RetrievalDiagnosticsReport } from "../diagnostics/types.js";
 import type { DocumentManifestEntry } from "../indexing/types.js";
 import type { AssembledPrompt } from "../prompt/types.js";
-import type { SearchFilters, SearchResult } from "../search/types.js";
+import type { KnowledgeSource, SearchFilters, SearchResult } from "../search/types.js";
 
 export interface ApiRuntimeConfig {
   readonly host: string;
@@ -17,6 +17,7 @@ export interface ApiRuntimeConfig {
 
 export interface ApiSearchRequest {
   readonly question: string;
+  readonly sources?: readonly KnowledgeSource[];
   readonly topK?: number;
   readonly threshold?: number;
   readonly language?: string;

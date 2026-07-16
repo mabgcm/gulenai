@@ -38,6 +38,7 @@ describe("CitationEngine", () => {
     expect(result.citations).toHaveLength(1);
     expect(result.citations[0]).toMatchObject({
       id: 1,
+      source: "fgulen",
       title: "Kırık Testi",
       url: "https://example.test/ihlas",
       chunkId: "chunk-1",
@@ -51,6 +52,23 @@ describe("CitationEngine", () => {
     expect(result.citations[0]?.excerpt).not.toContain("**");
     expect(result.citations[0]?.excerpt.length).toBeGreaterThanOrEqual(120);
     expect(result.citations[0]?.excerpt.length).toBeLessThanOrEqual(220);
+  });
+
+  it("preserves risale citation provenance", () => {
+    const result = new CitationEngine().build(
+      "Sözler nedir?",
+      baseAnswer({
+        usedChunks: [
+          {
+            ...baseAnswer().usedChunks[0]!,
+            source: "risale",
+            collection: "risale"
+          }
+        ]
+      })
+    );
+
+    expect(result.citations[0]?.source).toBe("risale");
   });
 
   it("numbers different sources by first appearance", () => {

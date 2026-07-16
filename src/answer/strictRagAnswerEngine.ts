@@ -92,6 +92,8 @@ const parseModelPayload = (content: string): ModelAnswerPayload => {
 };
 
 const chunkReference = (chunk: PromptChunk): AnswerChunkReference => ({
+  source: chunk.metadata.source,
+  collection: chunk.metadata.collection,
   chunkId: chunk.metadata.chunkId,
   title: chunk.metadata.title,
   url: chunk.metadata.url,
@@ -104,6 +106,8 @@ const chunkReference = (chunk: PromptChunk): AnswerChunkReference => ({
 });
 
 const trimmedReference = (chunk: TrimmedPromptChunk): AnswerChunkReference => ({
+  source: chunk.source,
+  collection: chunk.collection,
   chunkId: chunk.chunkId,
   title: chunk.title,
   url: null,
@@ -219,6 +223,11 @@ export class StrictRagAnswerEngine {
         question,
         embeddingModel: options.retrievalAudit.embeddingModel,
         topKRequested: options.retrievalAudit.topKRequested,
+        requestedSources: options.retrievalAudit.requestedSources ?? ["fgulen"],
+        searchedCollections:
+          options.retrievalAudit.searchedCollections ??
+          [{ source: "fgulen", collection: "fgulen" }],
+        resultsByCollection: options.retrievalAudit.resultsByCollection ?? [],
         retrievedChunks,
         optimizedChunks,
         beforeOptimizationPrompt,

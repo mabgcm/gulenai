@@ -42,6 +42,9 @@ describe("RetrievalAuditReporter", () => {
       question: "Question?",
       embeddingModel: "embedding-model",
       topKRequested: 8,
+      requestedSources: ["fgulen"],
+      searchedCollections: [{ source: "fgulen", collection: "fgulen" }],
+      resultsByCollection: [],
       retrievedChunks: [result],
       optimizedChunks: [result],
       beforeOptimizationPrompt: {
@@ -72,6 +75,8 @@ describe("RetrievalAuditReporter", () => {
           {
             rank: 1,
             metadata: {
+              source: result.source ?? "fgulen",
+              collection: result.collection ?? "fgulen",
               title: result.title,
               url: result.url,
               headingPath: result.headingPath,
@@ -106,6 +111,10 @@ describe("RetrievalAuditReporter", () => {
     expect(report).toMatchObject({
       embeddingModel: "embedding-model",
       topKRequested: 8,
+      requestedSources: ["fgulen"],
+      searchedCollections: [{ source: "fgulen", collection: "fgulen" }],
+      resultsPerCollection: [],
+      mergedRanking: [{ source: "fgulen", collection: "fgulen" }],
       topKReturned: 1,
       uniqueDocumentCount: 1,
       uniqueBookCount: 1,
@@ -125,6 +134,15 @@ describe("RetrievalAuditReporter", () => {
         sectionCount: 1,
         chunkDistribution: { Definition: 1 }
       },
+      finalContextComposition: [
+        {
+          position: 1,
+          source: "fgulen",
+          collection: "fgulen",
+          chunkId: "chunk-1",
+          section: "Definition"
+        }
+      ],
       finalPrompt
     });
   });

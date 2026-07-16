@@ -17,6 +17,7 @@ import type { SearchResult } from "../../src/search/types.js";
 
 const citation: Citation = {
   id: 1,
+  source: "fgulen",
   title: "Kırık Testi",
   url: "https://example.test",
   headingPath: ["Kitap", "İhlas"],

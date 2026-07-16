@@ -1,6 +1,13 @@
-import type { SearchResult } from "../search/types.js";
+import type {
+  CollectionSearchResults,
+  KnowledgeSource,
+  RetrievalCollection,
+  SearchResult
+} from "../search/types.js";
 
 export interface AnswerChunkReference {
+  readonly source?: KnowledgeSource;
+  readonly collection?: string;
   readonly chunkId: string;
   readonly title: string | null;
   readonly url: string | null;
@@ -29,6 +36,9 @@ export interface AnswerGenerationOptions {
   readonly retrievalAudit?: {
     readonly embeddingModel: string;
     readonly topKRequested: number;
+    readonly requestedSources?: readonly KnowledgeSource[];
+    readonly searchedCollections?: readonly RetrievalCollection[];
+    readonly resultsByCollection?: readonly CollectionSearchResults[];
   };
 }
 

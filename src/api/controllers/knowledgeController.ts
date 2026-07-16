@@ -4,6 +4,7 @@ import type { ApiSearchRequest, KnowledgeApiService } from "../types.js";
 import { createSearchSnippet } from "../../search/searchSnippet.js";
 
 const citationResponse = (citation: {
+  readonly source: "fgulen" | "risale";
   readonly title: string | null;
   readonly url: string | null;
   readonly headingPath: readonly string[];
@@ -12,6 +13,7 @@ const citationResponse = (citation: {
   readonly chunkIndex: number;
   readonly totalChunks: number;
 }) => ({
+  source: citation.source,
   title: citation.title,
   heading: citation.headingPath.at(-1) ?? citation.title,
   excerpt: citation.excerpt,
@@ -47,7 +49,11 @@ export class KnowledgeController {
     readonly confidence: number;
     readonly citations: readonly ReturnType<typeof citationResponse>[];
   }> {
-    const answer = await this.service.answer(this.request(body));
+    const request = this.request(body);
+    const answer = await this.service.answer({
+      ...request,
+      sources: request.sources ?? ["fgulen"]
+    });
     return {
       answer: answer.answer,
       confidence: answer.confidence,

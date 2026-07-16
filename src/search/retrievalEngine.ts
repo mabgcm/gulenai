@@ -1,5 +1,7 @@
 import type {
   QueryEmbeddingClient,
+  RetrievalCollection,
+  RetrievalSearchResult,
   SearchHit,
   SearchOptions,
   SearchResult
@@ -14,9 +16,10 @@ interface RankedHit {
 const dedupeHits = (hits: readonly SearchHit[]): readonly SearchHit[] => {
   const byChunkId = new Map<string, SearchHit>();
   for (const hit of hits) {
-    const existing = byChunkId.get(hit.payload.chunkId);
+    const key = `${hit.payload.collection ?? ""}:${hit.payload.chunkId}`;
+    const existing = byChunkId.get(key);
     if (existing === undefined || hit.score > existing.score) {
-      byChunkId.set(hit.payload.chunkId, hit);
+      byChunkId.set(key, hit);
     }
   }
 
@@ -30,6 +33,7 @@ const dedupeHits = (hits: readonly SearchHit[]): readonly SearchHit[] => {
 };
 
 const isAdjacent = (left: RankedHit, right: RankedHit): boolean =>
+  (left.hit.payload.collection ?? "") === (right.hit.payload.collection ?? "") &&
   left.hit.payload.documentId === right.hit.payload.documentId &&
   Math.abs(left.hit.payload.chunkIndex - right.hit.payload.chunkIndex) === 1;
 
@@ -78,6 +82,8 @@ const resultFromHits = (hits: readonly RankedHit[]): SearchResult => {
   const tokenCount = ordered.reduce((sum, item) => sum + item.hit.payload.tokenCount, 0);
 
   return {
+    source: best.hit.payload.source ?? "fgulen",
+    collection: best.hit.payload.collection ?? "fgulen",
     chunkId: best.hit.payload.chunkId,
     documentId: best.hit.payload.documentId,
     title: best.hit.payload.title,
@@ -128,30 +134,57 @@ const mergeAdjacent = (hits: readonly RankedHit[]): readonly SearchResult[] => {
 };
 
 export class RetrievalEngine {
+  private readonly collections: readonly RetrievalCollection[];
+
   public constructor(
-    private readonly collection: string,
+    collections: string | readonly RetrievalCollection[],
     private readonly embedder: QueryEmbeddingClient,
     private readonly searchClient: VectorSearchClient
-  ) {}
+  ) {
+    this.collections =
+      typeof collections === "string"
+        ? [{ source: "fgulen", collection: collections }]
+        : collections;
+  }
 
   public async search(query: string, options: SearchOptions): Promise<readonly SearchResult[]> {
+    return (await this.searchWithDetails(query, options)).results;
+  }
+
+  public async searchWithDetails(
+    query: string,
+    options: SearchOptions
+  ): Promise<RetrievalSearchResult> {
     const trimmed = query.trim();
     if (trimmed.length === 0) {
-      return [];
+      return { results: [], resultsByCollection: [] };
     }
 
     const vector = await this.embedder.embedQuery(trimmed);
-    const qdrantHits = await this.searchClient.search(
-      this.collection,
-      vector,
-      Math.max(1, options.topK),
-      options.threshold,
-      options.filters
+    const resultsByCollection = await Promise.all(
+      this.collections.map(async ({ source, collection }) => {
+        const hits = await this.searchClient.search(
+          collection,
+          vector,
+          Math.max(1, options.topK),
+          options.threshold,
+          options.filters
+        );
+        return {
+          source,
+          collection,
+          hits: hits.map((hit) => ({
+            ...hit,
+            payload: { ...hit.payload, source, collection }
+          }))
+        };
+      })
     );
+    const qdrantHits = resultsByCollection.flatMap((result) => result.hits);
     const thresholdHits = qdrantHits.filter((hit) => hit.score >= options.threshold);
     const hits = dedupeHits(thresholdHits.map((hit) => rerankHitByTitle(trimmed, hit)));
     const rankedHits: RankedHit[] = hits.map((hit) => ({ hit }));
     const results = mergeAdjacent(rankedHits).slice(0, Math.max(1, options.topK));
-    return results;
+    return { results, resultsByCollection };
   }
 }

@@ -32,6 +32,7 @@ const dedupeCitations = (answer: StrictRagAnswer): readonly Citation[] => {
     seen.add(chunk.chunkId);
     citations.push({
       id: 0,
+      source: chunk.source ?? "fgulen",
       title: chunk.title,
       collectionTitle: collectionTitleFromUrl(chunk.url),
       url: chunk.url,

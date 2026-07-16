@@ -3,7 +3,12 @@ import { join } from "node:path";
 import type { TokenCounter } from "../chunking/tokenCounter.js";
 import type { AssembledPrompt } from "../prompt/types.js";
 import type { StructuredContext } from "../prompt/structuredContextBuilder.js";
-import type { SearchResult } from "../search/types.js";
+import type {
+  CollectionSearchResults,
+  KnowledgeSource,
+  RetrievalCollection,
+  SearchResult
+} from "../search/types.js";
 import { ensureDir, writeJson, writeTextFile } from "../utils/fs.js";
 import type { ChatCompletionRequest } from "../answer/types.js";
 
@@ -11,6 +16,9 @@ export interface RetrievalAuditInput {
   readonly question: string;
   readonly embeddingModel: string;
   readonly topKRequested: number;
+  readonly requestedSources: readonly KnowledgeSource[];
+  readonly searchedCollections: readonly RetrievalCollection[];
+  readonly resultsByCollection: readonly CollectionSearchResults[];
   readonly retrievedChunks: readonly SearchResult[];
   readonly optimizedChunks: readonly SearchResult[];
   readonly beforeOptimizationPrompt: AssembledPrompt;
@@ -22,6 +30,8 @@ export interface RetrievalAuditInput {
 
 interface RetrievalAuditRow {
   readonly rank: number;
+  readonly source: KnowledgeSource;
+  readonly collection: string;
   readonly similarityScore: number;
   readonly title: string | null;
   readonly headingPath: readonly string[];
@@ -37,11 +47,11 @@ const percentage = (part: number, total: number): number =>
 
 const markdownTable = (rows: readonly RetrievalAuditRow[]): string => {
   const header =
-    "| Rank | Similarity | Title | Heading path | Source file | Chunk index | Tokens |\n" +
-    "| ---: | ---: | --- | --- | --- | ---: | ---: |";
+    "| Rank | Source | Collection | Similarity | Title | Heading path | Source file | Chunk index | Tokens |\n" +
+    "| ---: | --- | --- | ---: | --- | --- | --- | ---: | ---: |";
   const body = rows.map(
     (row) =>
-      `| ${row.rank} | ${row.similarityScore.toFixed(6)} | ${row.title ?? "(unknown)"} | ${row.headingPath.join(" > ") || "(none)"} | ${row.sourceFile} | ${row.chunkIndex} | ${row.tokenCount} |`
+      `| ${row.rank} | ${row.source} | ${row.collection} | ${row.similarityScore.toFixed(6)} | ${row.title ?? "(unknown)"} | ${row.headingPath.join(" > ") || "(none)"} | ${row.sourceFile} | ${row.chunkIndex} | ${row.tokenCount} |`
   );
   return [header, ...body].join("\n");
 };
@@ -49,6 +59,8 @@ const markdownTable = (rows: readonly RetrievalAuditRow[]): string => {
 const rowsFor = (chunks: readonly SearchResult[]): readonly RetrievalAuditRow[] =>
   chunks.map((chunk, index): RetrievalAuditRow => ({
     rank: index + 1,
+    source: chunk.source ?? "fgulen",
+    collection: chunk.collection ?? "fgulen",
     similarityScore: chunk.similarityScore,
     title: chunk.title,
     headingPath: chunk.headingPath,
@@ -58,7 +70,9 @@ const rowsFor = (chunks: readonly SearchResult[]): readonly RetrievalAuditRow[] 
   }));
 
 const metricsFor = (chunks: readonly SearchResult[]) => {
-  const documents = new Set(chunks.map((chunk) => chunk.documentId));
+  const documents = new Set(
+    chunks.map((chunk) => `${chunk.collection ?? "fgulen"}:${chunk.documentId}`)
+  );
   const books = new Set(chunks.map(bookKey).filter((book): book is string => book !== null));
   const headings = new Set(chunks.map(headingKey));
   const duplicates = Math.max(0, chunks.length - documents.size);
@@ -90,7 +104,11 @@ export class RetrievalAuditReporter {
       const rows = rowsFor(input.optimizedChunks);
       const beforeOptimization = metricsFor(input.retrievedChunks);
       const afterOptimization = metricsFor(input.optimizedChunks);
-      const documents = new Set(input.retrievedChunks.map((chunk) => chunk.documentId));
+      const documents = new Set(
+        input.retrievedChunks.map(
+          (chunk) => `${chunk.collection ?? "fgulen"}:${chunk.documentId}`
+        )
+      );
       const books = new Set(
         input.retrievedChunks.map(bookKey).filter((book): book is string => book !== null)
       );
@@ -109,6 +127,23 @@ export class RetrievalAuditReporter {
         userQuestion: input.question,
         embeddingModel: input.embeddingModel,
         topKRequested: input.topKRequested,
+        requestedSources: input.requestedSources,
+        searchedCollections: input.searchedCollections,
+        resultsPerCollection: input.resultsByCollection.map(
+          ({ source, collection, hits }) => ({
+            source,
+            collection,
+            count: hits.length,
+            results: hits.map((hit, index) => ({
+              rank: index + 1,
+              chunkId: hit.payload.chunkId,
+              documentId: hit.payload.documentId,
+              similarityScore: hit.score,
+              title: hit.payload.title
+            }))
+          })
+        ),
+        mergedRanking: beforeRows,
         topKReturned: beforeRows.length,
         retrievedChunkCount: beforeRows.length,
         uniqueDocumentCount: documents.size,
@@ -157,6 +192,13 @@ export class RetrievalAuditReporter {
             ])
           )
         },
+        finalContextComposition: input.assembledPrompt.chunks.map((chunk, index) => ({
+          position: index + 1,
+          source: chunk.metadata.source,
+          collection: chunk.metadata.collection,
+          chunkId: chunk.metadata.chunkId,
+          section: input.structuredContext.sectionByChunkId[chunk.metadata.chunkId]
+        })),
         finalPrompt: input.finalPrompt
       };
       const id = `${report.generatedAt.replace(/[:.]/g, "-")}-${randomUUID()}`;
@@ -167,6 +209,8 @@ export class RetrievalAuditReporter {
         `- User question: ${report.userQuestion}`,
         `- Embedding model: ${report.embeddingModel}`,
         `- topK requested: ${report.topKRequested}`,
+        `- Requested sources: ${report.requestedSources.join(", ")}`,
+        `- Searched collections: ${report.searchedCollections.map((item) => item.collection).join(", ")}`,
         `- topK returned: ${report.topKReturned}`,
         `- Retrieved chunks: ${report.retrievedChunkCount}`,
         `- Unique documents: ${report.uniqueDocumentCount}`,
@@ -178,6 +222,22 @@ export class RetrievalAuditReporter {
         "## Before optimization",
         "",
         markdownTable(beforeRows),
+        "",
+        "## Results per collection",
+        "",
+        ...report.resultsPerCollection.flatMap((item) => [
+          `### ${item.source} (${item.collection})`,
+          "",
+          `- Results: ${item.count}`,
+          ...item.results.map(
+            (result) =>
+              `- ${result.rank}. ${result.chunkId} — ${result.similarityScore.toFixed(6)} — ${result.title ?? "(unknown)"}`
+          ),
+          ""
+        ]),
+        "## Merged ranking",
+        "",
+        markdownTable(report.mergedRanking),
         "",
         `- Documents represented: ${beforeOptimization.documentsRepresented}`,
         `- Books represented: ${beforeOptimization.booksRepresented}`,
@@ -213,6 +273,13 @@ export class RetrievalAuditReporter {
         `- Token difference: ${report.contextStructure.tokenDifference}`,
         `- Section count: ${report.contextStructure.sectionCount}`,
         `- Chunk distribution: ${JSON.stringify(report.contextStructure.chunkDistribution)}`,
+        "",
+        "## Final context composition",
+        "",
+        ...report.finalContextComposition.map(
+          (item) =>
+            `${item.position}. ${item.source}/${item.collection} — ${item.chunkId} — ${item.section ?? "Supporting Evidence"}`
+        ),
         "",
         "## Context diversity",
         "",

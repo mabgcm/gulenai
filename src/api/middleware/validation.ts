@@ -2,9 +2,11 @@ import { z } from "zod";
 import type { ApiSearchRequest } from "../types.js";
 
 const optionalNonEmpty = z.string().trim().min(1).optional();
+const knowledgeSource = z.enum(["fgulen", "risale"]);
 
 export const searchRequestSchema = z.object({
   question: z.string().trim().min(1),
+  sources: z.array(knowledgeSource).min(1).optional(),
   topK: z.number().int().positive().max(50).optional(),
   threshold: z.number().min(0).max(1).optional(),
   language: optionalNonEmpty,
@@ -18,6 +20,7 @@ export const parseSearchRequest = (body: unknown): ApiSearchRequest => {
   const parsed = searchRequestSchema.parse(body);
   return {
     question: parsed.question,
+    ...(parsed.sources === undefined ? {} : { sources: parsed.sources }),
     ...(parsed.topK === undefined ? {} : { topK: parsed.topK }),
     ...(parsed.threshold === undefined ? {} : { threshold: parsed.threshold }),
     ...(parsed.language === undefined ? {} : { language: parsed.language }),

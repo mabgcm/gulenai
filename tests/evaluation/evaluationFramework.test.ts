@@ -25,6 +25,7 @@ const answer = (text: string, confidence: number, citationCount: number): CitedA
   confidence,
   citations: Array.from({ length: citationCount }, (_, index) => ({
     id: index + 1,
+    source: "fgulen",
     title: "Book",
     url: null,
     headingPath: ["Book"],

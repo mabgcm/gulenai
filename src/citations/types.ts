@@ -1,7 +1,9 @@
 import type { StrictRagAnswer } from "../answer/types.js";
+import type { KnowledgeSource } from "../search/types.js";
 
 export interface Citation {
   readonly id: number;
+  readonly source: KnowledgeSource;
   readonly title: string | null;
   readonly collectionTitle?: string | null;
   readonly url: string | null;

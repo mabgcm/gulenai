@@ -7,6 +7,8 @@ const NEAR_DUPLICATE_OVERLAP = 0.8;
 const bookKey = (chunk: SearchResult): string =>
   chunk.headingPath[0] ?? chunk.title ?? chunk.documentId;
 const headingKey = (chunk: SearchResult): string => chunk.headingPath.join(" > ");
+const documentKey = (chunk: SearchResult): string =>
+  `${chunk.collection ?? "fgulen"}:${chunk.documentId}`;
 
 const terms = (markdown: string): ReadonlySet<string> =>
   new Set(
@@ -39,6 +41,7 @@ const isNearIdenticalNeighbour = (
   selected.some(
     (existing) =>
       existing.documentId === candidate.documentId &&
+      (existing.collection ?? "fgulen") === (candidate.collection ?? "fgulen") &&
       Math.abs(existing.metadata.chunkIndex - candidate.metadata.chunkIndex) <= 1 &&
       overlap(existing.markdown, candidate.markdown) >= NEAR_DUPLICATE_OVERLAP
   );
@@ -63,7 +66,7 @@ export class ContextDiversityOptimizer {
     while (remaining.length > 0) {
       const eligible = remaining.filter(
         (chunk) =>
-          (documentCounts.get(chunk.documentId) ?? 0) < MAX_CHUNKS_PER_DOCUMENT &&
+          (documentCounts.get(documentKey(chunk)) ?? 0) < MAX_CHUNKS_PER_DOCUMENT &&
           !isNearIdenticalNeighbour(chunk, selected)
       );
       if (eligible.length === 0) {
@@ -79,8 +82,8 @@ export class ContextDiversityOptimizer {
         const rightNewBook = representedBooks.has(bookKey(right)) ? 0 : 1;
         const leftNewHeading = representedHeadings.has(headingKey(left)) ? 0 : 1;
         const rightNewHeading = representedHeadings.has(headingKey(right)) ? 0 : 1;
-        const leftNewDocument = documentCounts.has(left.documentId) ? 0 : 1;
-        const rightNewDocument = documentCounts.has(right.documentId) ? 0 : 1;
+        const leftNewDocument = documentCounts.has(documentKey(left)) ? 0 : 1;
+        const rightNewDocument = documentCounts.has(documentKey(right)) ? 0 : 1;
         return (
           rightNewBook - leftNewBook ||
           rightNewHeading - leftNewHeading ||
@@ -91,7 +94,8 @@ export class ContextDiversityOptimizer {
       })[0]!;
 
       selected.push(candidate);
-      documentCounts.set(candidate.documentId, (documentCounts.get(candidate.documentId) ?? 0) + 1);
+      const candidateDocument = documentKey(candidate);
+      documentCounts.set(candidateDocument, (documentCounts.get(candidateDocument) ?? 0) + 1);
       representedBooks.add(bookKey(candidate));
       representedHeadings.add(headingKey(candidate));
       remaining.splice(remaining.indexOf(candidate), 1);

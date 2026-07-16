@@ -1,7 +1,12 @@
 import type { FastifyRequest } from "fastify";
 import { KnowledgeController } from "../controllers/knowledgeController.js";
 import type { ApiDependencies, RouteRegistrar } from "../types.js";
-import { citationSchema, routeErrorResponses, searchRequestJsonSchema } from "./schemas.js";
+import {
+  answerRequestJsonSchema,
+  citationSchema,
+  routeErrorResponses,
+  searchRequestJsonSchema
+} from "./schemas.js";
 
 interface IdParams {
   readonly documentId?: string;
@@ -133,7 +138,7 @@ export const knowledgeRoutes: RouteRegistrar = async (
     {
       schema: {
         tags: ["Knowledge"],
-        body: searchRequestJsonSchema,
+        body: answerRequestJsonSchema,
         response: {
           200: {
             type: "object",

@@ -16,6 +16,7 @@ class FakeEmbedder implements QueryEmbeddingClient {
 }
 
 class FakeSearchClient implements VectorSearchClient {
+  public readonly searchedCollections: string[] = [];
   public lastFilters: SearchFilters | null = null;
   public lastTopK: number | null = null;
   public lastThreshold: number | null = null;
@@ -23,17 +24,32 @@ class FakeSearchClient implements VectorSearchClient {
   public constructor(private readonly hits: readonly SearchHit[]) {}
 
   public async search(
-    _collection: string,
+    collection: string,
     _vector: readonly number[],
     topK: number,
     threshold: number,
     filters: SearchFilters
   ): Promise<readonly SearchHit[]> {
     await Promise.resolve();
+    this.searchedCollections.push(collection);
     this.lastTopK = topK;
     this.lastThreshold = threshold;
     this.lastFilters = filters;
     return this.hits;
+  }
+}
+
+class CollectionSearchClient implements VectorSearchClient {
+  public readonly searchedCollections: string[] = [];
+
+  public constructor(
+    private readonly hitsByCollection: Readonly<Record<string, readonly SearchHit[]>>
+  ) {}
+
+  public async search(collection: string): Promise<readonly SearchHit[]> {
+    await Promise.resolve();
+    this.searchedCollections.push(collection);
+    return this.hitsByCollection[collection] ?? [];
   }
 }
 
@@ -74,6 +90,71 @@ const engine = (hits: readonly SearchHit[]) =>
   new RetrievalEngine("fgulen", new FakeEmbedder(), new FakeSearchClient(hits));
 
 describe("RetrievalEngine", () => {
+  it("searches only the fgulen collection", async () => {
+    const client = new CollectionSearchClient({ fgulen: [hit("fgulen-1", 0.9, 0)] });
+    const retrieval = new RetrievalEngine(
+      [{ source: "fgulen", collection: "fgulen" }],
+      new FakeEmbedder(),
+      client
+    );
+
+    const results = await retrieval.search("query", options());
+
+    expect(client.searchedCollections).toEqual(["fgulen"]);
+    expect(results[0]).toMatchObject({ source: "fgulen", collection: "fgulen" });
+  });
+
+  it("searches only the risale collection", async () => {
+    const client = new CollectionSearchClient({ risale: [hit("risale-1", 0.9, 0)] });
+    const retrieval = new RetrievalEngine(
+      [{ source: "risale", collection: "risale" }],
+      new FakeEmbedder(),
+      client
+    );
+
+    const results = await retrieval.search("query", options());
+
+    expect(client.searchedCollections).toEqual(["risale"]);
+    expect(results[0]).toMatchObject({ source: "risale", collection: "risale" });
+  });
+
+  it("searches both collections and ranks their merged hits together", async () => {
+    const client = new CollectionSearchClient({
+      fgulen: [
+        {
+          ...hit("fgulen-1", 0.8, 0),
+          payload: payload("fgulen-1", 0, { documentId: "fgulen-doc" })
+        }
+      ],
+      risale: [
+        {
+          ...hit("risale-1", 0.95, 0),
+          payload: payload("risale-1", 0, { documentId: "risale-doc" })
+        }
+      ]
+    });
+    const retrieval = new RetrievalEngine(
+      [
+        { source: "fgulen", collection: "fgulen" },
+        { source: "risale", collection: "risale" }
+      ],
+      new FakeEmbedder(),
+      client
+    );
+
+    const detailed = await retrieval.searchWithDetails("query", options());
+
+    expect(client.searchedCollections).toEqual(["fgulen", "risale"]);
+    expect(detailed.resultsByCollection.map((result) => result.collection)).toEqual([
+      "fgulen",
+      "risale"
+    ]);
+    expect(detailed.results.map((result) => [result.source, result.chunkId])).toEqual([
+      ["risale", "risale-1"],
+      ["fgulen", "fgulen-1"]
+    ]);
+  });
+
   it("retrieves ranked results with markdown and metadata", async () => {
     const results = await engine([hit("chunk-1", 0.94, 0)]).search(
       "ihlas nedir",

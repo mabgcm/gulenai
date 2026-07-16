@@ -1,4 +1,8 @@
+import type { KnowledgeSource } from "../search/types.js";
+
 export interface PromptChunkMetadata {
+  readonly source: KnowledgeSource;
+  readonly collection: string;
   readonly title: string | null;
   readonly url: string | null;
   readonly headingPath: readonly string[];
@@ -22,6 +26,8 @@ export interface PromptChunk {
 }
 
 export interface TrimmedPromptChunk {
+  readonly source: KnowledgeSource;
+  readonly collection: string;
   readonly rank: number;
   readonly chunkId: string;
   readonly title: string | null;

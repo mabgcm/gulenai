@@ -20,6 +20,8 @@ const renderChunk = (chunk: PromptChunk, headingLevel = "##"): string =>
     `${headingLevel} Context ${chunk.rank}`,
     "",
     `Title: ${chunk.metadata.title ?? "(unknown)"}`,
+    `Source: ${chunk.metadata.source}`,
+    `Collection: ${chunk.metadata.collection}`,
     `URL: ${chunk.metadata.url ?? "(unknown)"}`,
     `Heading: ${headingLabel(chunk.metadata.headingPath)}`,
     `Chunk ID: ${chunk.metadata.chunkId}`,
@@ -108,6 +110,8 @@ export class PromptAssembler {
       return {
         rank: index + 1,
         metadata: {
+          source: result.source ?? "fgulen",
+          collection: result.collection ?? "fgulen",
           title: result.title,
           url: result.url,
           headingPath: result.headingPath,
@@ -138,6 +142,8 @@ export class PromptAssembler {
       }
 
       trimmed.push({
+        source: chunk.metadata.source,
+        collection: chunk.metadata.collection,
         rank: chunk.rank,
         chunkId: chunk.metadata.chunkId,
         title: chunk.metadata.title,
@@ -168,6 +174,8 @@ const renderChunkForBudget = (rank: number, result: SearchResult, markdown: stri
   renderChunk({
     rank,
     metadata: {
+      source: result.source ?? "fgulen",
+      collection: result.collection ?? "fgulen",
       title: result.title,
       url: result.url,
       headingPath: result.headingPath,

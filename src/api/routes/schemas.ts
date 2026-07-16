@@ -30,10 +30,25 @@ export const searchRequestJsonSchema = {
   additionalProperties: false
 } as const;
 
+export const answerRequestJsonSchema = {
+  ...searchRequestJsonSchema,
+  properties: {
+    ...searchRequestJsonSchema.properties,
+    sources: {
+      type: "array",
+      minItems: 1,
+      uniqueItems: true,
+      items: { type: "string", enum: ["fgulen", "risale"] },
+      default: ["fgulen"]
+    }
+  }
+} as const;
+
 export const citationSchema = {
   type: "object",
   properties: {
     title: { anyOf: [{ type: "string" }, { type: "null" }] },
+    source: { type: "string", enum: ["fgulen", "risale"] },
     heading: { anyOf: [{ type: "string" }, { type: "null" }] },
     excerpt: { type: "string" },
     url: { anyOf: [{ type: "string" }, { type: "null" }] },
@@ -43,6 +58,7 @@ export const citationSchema = {
   },
   required: [
     "title",
+    "source",
     "heading",
     "excerpt",
     "url",

@@ -76,6 +76,7 @@ const config: AppConfig = {
 
 const citation: Citation = {
   id: 1,
+  source: "fgulen",
   title: "Kırık Testi",
   url: "https://example.test",
   headingPath: ["Kitap", "İhlas"],
@@ -361,7 +362,8 @@ describe("REST API routes", () => {
   });
 
   it("serves answers with citations", async () => {
-    const server = await app();
+    const service = new FakeService();
+    const server = await app(service);
     const response = await server.inject({
       method: "POST",
       url: "/api/v1/answer",
@@ -375,6 +377,7 @@ describe("REST API routes", () => {
       confidence: 94,
       citations: [
         {
+          source: "fgulen",
           title: "Kırık Testi",
           heading: "İhlas",
           excerpt: "İhlas, amelin yalnız Allah rızası için yapılmasıdır.",
@@ -383,6 +386,39 @@ describe("REST API routes", () => {
           totalChunks: 2
         }
       ]
+    });
+    expect(service.lastSearchRequest).toMatchObject({
+      question: "İhlas nedir?",
+      sources: ["fgulen"]
+    });
+  });
+
+  it("accepts selected answer sources", async () => {
+    const service = new FakeService();
+    const server = await app(service);
+    const response = await server.inject({
+      method: "POST",
+      url: "/api/v1/answer",
+      payload: { question: "İhlas nedir?", sources: ["fgulen", "risale"] }
+    });
+    await server.close();
+
+    expect(response.statusCode).toBe(200);
+    expect(service.lastSearchRequest?.sources).toEqual(["fgulen", "risale"]);
+  });
+
+  it("rejects an invalid answer source", async () => {
+    const server = await app();
+    const response = await server.inject({
+      method: "POST",
+      url: "/api/v1/answer",
+      payload: { question: "İhlas nedir?", sources: ["unknown"] }
+    });
+    await server.close();
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({
+      error: { code: "VALIDATION_ERROR", message: "Request validation failed" }
     });
   });
 

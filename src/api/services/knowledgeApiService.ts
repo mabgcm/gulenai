@@ -27,7 +27,12 @@ import { filtersFromRequest } from "../types.js";
 import type { CitedAnswer, Citation } from "../../citations/types.js";
 import type { RetrievalDiagnosticsReport } from "../../diagnostics/types.js";
 import type { DocumentManifestEntry } from "../../indexing/types.js";
-import type { SearchOptions, SearchResult } from "../../search/types.js";
+import type {
+  KnowledgeSource,
+  RetrievalCollection,
+  SearchOptions,
+  SearchResult
+} from "../../search/types.js";
 
 const SUPPORTED_FEATURES = [
   "crawl",
@@ -116,7 +121,12 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
 
   public async answer(request: ApiSearchRequest): Promise<CitedAnswer> {
     const searchOptions = this.searchOptions(request);
-    const retrievedChunks = await this.retrieval().search(request.question, searchOptions);
+    const requestedSources = request.sources ?? ["fgulen"];
+    const retrieval = await this.retrieval(requestedSources).searchWithDetails(
+      request.question,
+      searchOptions
+    );
+    const retrievedChunks = retrieval.results;
     const strictAnswer = await new StrictRagAnswerEngine(
       new OpenAiChatCompletionClient(this.config.OPENAI_API_KEY),
       this.tokenCounter,
@@ -132,7 +142,12 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
         ? {
             retrievalAudit: {
               embeddingModel: this.embeddingModel,
-              topKRequested: searchOptions.topK
+              topKRequested: searchOptions.topK,
+              requestedSources,
+              searchedCollections: retrieval.resultsByCollection.map(
+                ({ source, collection }) => ({ source, collection })
+              ),
+              resultsByCollection: retrieval.resultsByCollection
             }
           }
         : {})
@@ -199,9 +214,16 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
     };
   }
 
-  private retrieval(): RetrievalEngine {
+  private retrieval(sources: readonly KnowledgeSource[] = ["fgulen"]): RetrievalEngine {
+    const collections: readonly RetrievalCollection[] = sources.map((source) => ({
+      source,
+      collection:
+        source === "risale"
+          ? this.config.RISALE_QDRANT_COLLECTION
+          : this.config.QDRANT_COLLECTION
+    }));
     return new RetrievalEngine(
-      this.config.QDRANT_COLLECTION,
+      collections,
       new OpenAiQueryEmbeddingClient(this.config.OPENAI_API_KEY, this.embeddingModel),
       new QdrantVectorSearchClient(this.config.QDRANT_URL, this.config.QDRANT_API_KEY)
     );
