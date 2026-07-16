@@ -223,6 +223,32 @@ describe("EmbeddingPipeline", () => {
     expect(updated.find((item) => item.chunkId === "chunk-2")?.embeddingStatus).toBe("pending");
   });
 
+  it("reports every failed batch without stopping later work", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "gulenai-embed-"));
+    await writeFixture(tempDir, [manifest("chunk-1", "hash-1"), manifest("chunk-2", "hash-2")]);
+    const failures: string[][] = [];
+    const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    try {
+      const summary = await new EmbeddingPipeline(
+        new EmbeddingIndexManifestStore(join(tempDir, "index")),
+        new ChunkPayloadReader(join(tempDir, "chunks")),
+        new EmbeddingVectorStore(join(tempDir, "embeddings")),
+        new FakeEmbeddingClient(0),
+        { model: "test-model", batchSize: 1, concurrency: 1, retries: 0, resume: true },
+        pino({ enabled: false }),
+        () => new Date("2026-07-09T01:02:03.000Z"),
+        (chunks) => {
+          failures.push(chunks.map((chunk) => chunk.manifest.chunkId));
+        }
+      ).run();
+
+      expect(summary.failed).toBe(2);
+      expect(failures).toEqual([["chunk-1"], ["chunk-2"]]);
+    } finally {
+      writeSpy.mockRestore();
+    }
+  });
+
   it("produces deterministic vector file content with deterministic client and clock", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "gulenai-embed-"));
     await writeFixture(tempDir, [manifest("chunk-1", "hash-1")]);

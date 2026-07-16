@@ -20,6 +20,11 @@ import { QdrantIndexStore } from "../qdrant/qdrantIndexStore.js";
 import { QdrantSyncPipeline } from "../qdrant/qdrantPipeline.js";
 import { RISALE_SOURCE } from "./catalog.js";
 import { FetchRisaleHttpClient, RisaleCrawler } from "./crawler.js";
+import {
+  RisaleEmbeddingFailureReporter,
+  classifyEmbeddingError,
+  type RisaleEmbeddingFailure
+} from "./embeddingFailureReport.js";
 import { RisalePageParser, RisaleParsingPipeline } from "./parser.js";
 import { runRisalePreflight } from "./preflight.js";
 import type { RisaleValidationReport } from "./types.js";
@@ -159,6 +164,101 @@ const main = async (): Promise<void> => {
     Object.assign(report, { vectorsInserted: summary.uploadedVectors });
     logger.info({ summary }, "Qdrant upsert complete");
   };
+  const runEmbedRetry = async (): Promise<void> => {
+    const manifestStore = new EmbeddingIndexManifestStore(join(DATA_DIR, "index"));
+    const chunkReader = new QdrantChunkPayloadReader(join(DATA_DIR, "chunks"));
+    const reporter = new RisaleEmbeddingFailureReporter(
+      join(process.cwd(), "reports", "risale-embedding-failures"),
+      new OpenAiTokenCounter(),
+      config.EMBEDDING_MAX_INPUT_TOKENS
+    );
+    const before = await manifestStore.loadChunks();
+    const chunks = await chunkReader.readByChunkId();
+    const initialReport = reporter.analyze(before, chunks);
+    const initialPaths =
+      initialReport.totalFailed > 0
+        ? await reporter.write(initialReport, "embedding-failures-initial")
+        : null;
+    logger.info(
+      {
+        totalFailed: initialReport.totalFailed,
+        categories: initialReport.categories,
+        paths: initialPaths
+      },
+      "Risale embedding failure report written"
+    );
+    const retryErrors = new Map<string, RisaleEmbeddingFailure>();
+    const summary = await new EmbeddingPipeline(
+      manifestStore,
+      new ChunkPayloadReader(join(DATA_DIR, "chunks")),
+      new EmbeddingVectorStore(join(DATA_DIR, "embeddings")),
+      new OpenAiEmbeddingClient(config.OPENAI_API_KEY, model, config.EMBEDDING_RETRIES, logger),
+      {
+        model,
+        batchSize: Math.max(1, config.EMBEDDING_BATCH_SIZE),
+        concurrency: Math.max(1, config.EMBEDDING_CONCURRENCY),
+        retries: config.EMBEDDING_RETRIES,
+        resume: true
+      },
+      logger,
+      () => new Date(),
+      (failedChunks, error) => {
+        const classified = classifyEmbeddingError(error);
+        for (const failed of failedChunks) {
+          const chunk = chunks.get(failed.manifest.chunkId);
+          const pageValue =
+            chunk?.metadata.canonicalUrl?.match(/[?&]pageNo=(\d+)/)?.[1] ??
+            chunk?.metadata.sourceFile.match(/page-(\d+)/)?.[1];
+          retryErrors.set(failed.manifest.chunkId, {
+            book: chunk?.metadata.book ?? chunk?.metadata.headingPath[0] ?? "Unknown",
+            page: pageValue === undefined ? null : Number.parseInt(pageValue, 10),
+            chunkId: failed.manifest.chunkId,
+            ...classified
+          });
+        }
+      }
+    ).run();
+    const after = await manifestStore.loadChunks();
+    const beforePending = new Set(
+      before.filter((entry) => entry.embeddingStatus === "pending").map((entry) => entry.chunkId)
+    );
+    const newlyEmbedded = new Set(
+      after
+        .filter((entry) => beforePending.has(entry.chunkId) && entry.embeddingStatus === "embedded")
+        .map((entry) => entry.chunkId)
+    );
+    const remainingBase = reporter.analyze(after, chunks);
+    const remaining = reporter.build(
+      remainingBase.failures.map((failure) => retryErrors.get(failure.chunkId) ?? failure)
+    );
+    const finalPaths = await reporter.write(remaining);
+    logger.info(
+      {
+        summary,
+        newlyEmbedded: newlyEmbedded.size,
+        remaining: remaining.totalFailed,
+        paths: finalPaths
+      },
+      "Embedding retry complete"
+    );
+    if (newlyEmbedded.size === 0) return;
+    logger.info({ vectors: newlyEmbedded.size }, "Qdrant retry upsert start");
+    const qdrantSummary = await new QdrantSyncPipeline(
+      new QdrantIndexStore(join(DATA_DIR, "index")),
+      new EmbeddingVectorReader(join(DATA_DIR, "embeddings")),
+      chunkReader,
+      new RestQdrantVectorClient(config.QDRANT_URL, config.QDRANT_API_KEY),
+      {
+        collection: config.RISALE_QDRANT_COLLECTION,
+        batchSize: Math.max(1, config.QDRANT_BATCH_SIZE),
+        concurrency: Math.max(1, config.QDRANT_CONCURRENCY),
+        retries: config.QDRANT_RETRIES,
+        resume: true
+      },
+      logger
+    ).syncChunkIds(newlyEmbedded);
+    logger.info({ summary: qdrantSummary }, "Qdrant retry upsert complete");
+  };
 
   const phases: Record<string, () => Promise<void>> = {
     crawl: runCrawl,
@@ -171,11 +271,14 @@ const main = async (): Promise<void> => {
   if (phase === "ingest") {
     for (const run of Object.values(phases)) await run();
   } else {
-    const run = phases[phase];
+    const run = phase === "embed-retry" ? runEmbedRetry : phases[phase];
     if (run === undefined)
-      throw new Error("Usage: pnpm risale <ingest|crawl|parse|chunk|index|embed|qdrant>");
+      throw new Error(
+        "Usage: pnpm risale <ingest|crawl|parse|chunk|index|embed|embed-retry|qdrant>"
+      );
     await run();
   }
+  if (phase === "embed-retry") return;
   const paths = await new RisaleValidationReportWriter().write({
     ...report,
     generatedAt: new Date().toISOString()

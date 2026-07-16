@@ -157,6 +157,54 @@ export class QdrantSyncPipeline {
     };
   }
 
+  public async syncChunkIds(chunkIds: ReadonlySet<string>): Promise<QdrantSyncSummary> {
+    const manifests = await this.indexStore.loadChunks();
+    const vectors = await this.vectorReader.readByChunkId();
+    const chunks = await this.chunkReader.readByChunkId();
+    const manifestById = new Map(manifests.map((manifest) => [manifest.chunkId, manifest]));
+    const uploadCandidates = manifests
+      .filter(
+        (manifest) => chunkIds.has(manifest.chunkId) && manifest.embeddingStatus === "embedded"
+      )
+      .map((manifest) => {
+        const vector = vectors.get(manifest.chunkId);
+        const chunk = chunks.get(manifest.chunkId);
+        if (
+          vector === undefined ||
+          chunk === undefined ||
+          vector.contentHash !== manifest.contentHash ||
+          chunk.metadata.contentHash !== manifest.contentHash
+        )
+          return null;
+        return {
+          manifest,
+          vector,
+          chunk,
+          vectorId: manifest.vectorId ?? vectorIdForChunk(manifest.chunkId)
+        };
+      })
+      .filter((candidate): candidate is QdrantSyncCandidate => candidate !== null);
+    const firstDimension = uploadCandidates[0]?.vector.dimensions;
+    if (firstDimension !== undefined) await this.ensureCollection(firstDimension);
+    let uploadedVectors = 0;
+    await this.uploadCandidates(uploadCandidates, manifestById, manifests, (count) => {
+      uploadedVectors += count;
+    });
+    const vectorsCount = await withQdrantRetry(
+      () => this.client.count(this.config.collection),
+      this.config.retries,
+      this.logger,
+      { collection: this.config.collection, operation: "count" }
+    );
+    return {
+      collection: this.config.collection,
+      vectors: vectorsCount,
+      pendingUploads: chunkIds.size - uploadedVectors,
+      deletedVectors: 0,
+      uploadedVectors
+    };
+  }
+
   public async status(): Promise<QdrantStatus> {
     const documents = await this.indexStore.loadDocuments();
     const manifests = await this.indexStore.loadChunks();

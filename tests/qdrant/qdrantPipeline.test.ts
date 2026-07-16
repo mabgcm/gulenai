@@ -230,6 +230,21 @@ describe("QdrantSyncPipeline", () => {
     expect(summary.uploadedVectors).toBe(1);
   });
 
+  it("uploads only explicitly selected newly embedded vectors", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "gulenai-qdrant-"));
+    await writeFixture(tempDir, [
+      chunkManifest("chunk-1", "hash-1"),
+      chunkManifest("chunk-2", "hash-2")
+    ]);
+    const client = new FakeQdrantClient();
+
+    const summary = await pipeline(tempDir, client).syncChunkIds(new Set(["chunk-2"]));
+
+    expect(summary.uploadedVectors).toBe(1);
+    expect(client.points.has(vectorIdForChunk("chunk-1"))).toBe(false);
+    expect(client.points.has(vectorIdForChunk("chunk-2"))).toBe(true);
+  });
+
   it("preserves knowledge-source metadata in the vector payload", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "gulenai-qdrant-"));
     await writeFixture(tempDir, [chunkManifest("chunk-1", "hash-1")], [documentManifest()], {

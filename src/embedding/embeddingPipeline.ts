@@ -42,7 +42,11 @@ export class EmbeddingPipeline {
     private readonly client: EmbeddingClient,
     private readonly config: EmbeddingConfig,
     private readonly logger: Logger,
-    private readonly now: () => Date = () => new Date()
+    private readonly now: () => Date = () => new Date(),
+    private readonly onFailure: (
+      chunks: readonly PendingEmbeddingChunk[],
+      error: unknown
+    ) => void | Promise<void> = () => undefined
   ) {}
 
   public async run(): Promise<EmbeddingSummary> {
@@ -141,6 +145,7 @@ export class EmbeddingPipeline {
         } catch (error: unknown) {
           failed += current.length;
           this.logger.error({ err: error, batchSize: current.length }, "Embedding batch failed");
+          await this.onFailure(current, error);
         }
       }
     };

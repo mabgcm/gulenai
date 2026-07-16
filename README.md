@@ -899,6 +899,16 @@ pnpm run doctor
 pnpm risale ingest
 ```
 
+Retry only missing Risale embeddings and upsert only vectors created by that retry:
+
+```bash
+pnpm risale embed-retry
+```
+
+The retry command skips completed embeddings, continues after failed batches, persists progress,
+and writes per-chunk JSON and Markdown failure reports under
+`reports/risale-embedding-failures/`. It does not crawl, parse, or chunk.
+
 `pnpm risale ingest` runs a preflight before requesting the eRisale catalog. It requires Node 22, a non-empty `OPENAI_API_KEY`, an accessible `QDRANT_URL` (and `QDRANT_API_KEY` when required), and different FGülen and Risale collection names. A missing dedicated Risale collection is valid because the Qdrant phase creates it; failure to list collections is not. Preflight failures stop before crawling and identify the setting that needs attention.
 
 Validate ingestion startup without crawling, embedding, or writing vectors:
