@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-07-15T20:04:49.913Z",
+  "knowledgeSource": "risale",
+  "collection": "risale",
+  "booksDiscovered": 15,
+  "pagesDownloaded": 8241,
+  "pagesParsed": 7939,
+  "chunksCreated": 16501,
+  "embeddingsGenerated": 14069,
+  "vectorsInserted": 14069,
+  "skippedPages": 219,
+  "failedPages": 302
+}
