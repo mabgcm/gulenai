@@ -15,6 +15,19 @@ class FakeEmbedder implements QueryEmbeddingClient {
   }
 }
 
+class BatchEmbedder implements QueryEmbeddingClient {
+  public batches: readonly string[][] = [];
+  public async embedQuery(query: string): Promise<readonly number[]> {
+    await Promise.resolve();
+    return [query.length];
+  }
+  public async embedQueries(queries: readonly string[]): Promise<readonly (readonly number[])[]> {
+    await Promise.resolve();
+    this.batches = [...this.batches, [...queries]];
+    return queries.map((query) => [query.length]);
+  }
+}
+
 class FakeSearchClient implements VectorSearchClient {
   public readonly searchedCollections: string[] = [];
   public lastFilters: SearchFilters | null = null;
@@ -253,5 +266,32 @@ describe("RetrievalEngine", () => {
   it("returns empty results for no hits or empty query", async () => {
     expect(await engine([]).search("query", options())).toEqual([]);
     expect(await engine([hit("chunk-1", 0.9, 0)]).search(" ", options())).toEqual([]);
+  });
+
+  it("retrieves query variants in one embedding batch and ranks all candidates globally", async () => {
+    const embedder = new BatchEmbedder();
+    const client = new CollectionSearchClient({
+      corpusA: [{ ...hit("target", 0.4, 0), payload: payload("target", 0, {
+        documentId: "target-doc",
+        title: "Collected Works / Twenty Third Chapter",
+        metadata: { title: "Collected Works / Twenty Third Chapter", section: "Twenty Third Chapter" }
+      }) }],
+      corpusB: [{ ...hit("semantic", 0.48, 0), payload: payload("semantic", 0, {
+        documentId: "semantic-doc",
+        title: "Different Topic"
+      }) }]
+    });
+    const retrieval = new RetrievalEngine(
+      [{ source: "source-a", collection: "corpusA" }, { source: "source-b", collection: "corpusB" }],
+      embedder,
+      client
+    );
+    const detailed = await retrieval.searchWithDetails("23. chapter", options());
+    expect(embedder.batches).toHaveLength(1);
+    expect(embedder.batches[0]).toEqual(expect.arrayContaining(["23. chapter", "twenty third chapter"]));
+    expect(client.searchedCollections).toEqual(expect.arrayContaining(["corpusA", "corpusB"]));
+    expect(detailed.results[0]?.chunkId).toBe("target");
+    expect(detailed.queryPlan?.originalQuery).toBe("23. chapter");
+    expect(detailed.hybridRanking?.[0]?.scoreBreakdown.matchedFields).toContain("section");
   });
 });

@@ -128,6 +128,22 @@ describe("CitationEngine", () => {
     expect(result.citations).toHaveLength(1);
   });
 
+  it("retains multiple model-reported sources when inline markers are omitted", () => {
+    const first = baseAnswer().usedChunks[0]!;
+    const result = new CitationEngine().build(
+      "Question",
+      baseAnswer({
+        answer: "Supported answer without model-formatted markers.",
+        usedChunks: [
+          first,
+          { ...first, chunkId: "chunk-2", url: "https://example.test/second", title: "Second" }
+        ]
+      })
+    );
+    expect(result.answer).toBe("Supported answer without model-formatted markers. [1][2]");
+    expect(result.citations.map(({ chunkId }) => chunkId)).toEqual(["chunk-1", "chunk-2"]);
+  });
+
   it("eliminates duplicate chunks", () => {
     const duplicate = baseAnswer().usedChunks[0]!;
     const result = new CitationEngine().build(

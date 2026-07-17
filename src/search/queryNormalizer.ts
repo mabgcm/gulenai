@@ -16,3 +16,13 @@ export const normalizeSearchQuery = (query: string): string =>
       return `${prefix}${TURKISH_QUERY_CORRECTIONS[token.toLocaleLowerCase("tr-TR")] ?? token}${suffix}`;
     })
     .join(" ");
+
+export const normalizeForMatching = (value: string): string =>
+  value
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .toLocaleLowerCase("tr-TR")
+    .replaceAll("ı", "i")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .replace(/\s+/g, " ");

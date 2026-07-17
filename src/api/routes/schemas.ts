@@ -18,6 +18,12 @@ export const searchRequestJsonSchema = {
   type: "object",
   properties: {
     question: { type: "string", minLength: 1 },
+    sources: {
+      type: "array",
+      minItems: 1,
+      uniqueItems: true,
+      items: { type: "string", minLength: 1 }
+    },
     topK: { type: "integer", minimum: 1, maximum: 50 },
     threshold: { type: "number", minimum: 0, maximum: 1 },
     language: { type: "string" },
@@ -34,13 +40,7 @@ export const answerRequestJsonSchema = {
   ...searchRequestJsonSchema,
   properties: {
     ...searchRequestJsonSchema.properties,
-    sources: {
-      type: "array",
-      minItems: 1,
-      uniqueItems: true,
-      items: { type: "string", enum: ["fgulen", "risale"] },
-      default: ["fgulen"]
-    }
+    sources: searchRequestJsonSchema.properties.sources
   }
 } as const;
 
@@ -48,7 +48,7 @@ export const citationSchema = {
   type: "object",
   properties: {
     title: { anyOf: [{ type: "string" }, { type: "null" }] },
-    source: { type: "string", enum: ["fgulen", "risale"] },
+    source: { type: "string" },
     heading: { anyOf: [{ type: "string" }, { type: "null" }] },
     excerpt: { type: "string" },
     url: { anyOf: [{ type: "string" }, { type: "null" }] },

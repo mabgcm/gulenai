@@ -16,6 +16,8 @@ interface IdParams {
 export const searchResultSchema = {
   type: "object",
   properties: {
+    source: { type: "string" },
+    collection: { type: "string" },
     chunkId: { type: "string" },
     documentId: { type: "string" },
     title: { anyOf: [{ type: "string" }, { type: "null" }] },

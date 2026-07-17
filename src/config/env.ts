@@ -128,6 +128,8 @@ const envSchema = z.object({
   API_BODY_LIMIT_BYTES: integerFromEnv(1048576),
   LOG_LEVEL: z.string().default("info"),
   RETRIEVAL_AUDIT_ENABLED: booleanFromEnv(false),
+  RETRIEVAL_CONFIG_PATH: z.string().optional(),
+  RETRIEVAL_SOURCE_COLLECTIONS: z.string().default(""),
   RISALE_QDRANT_COLLECTION: z.string().default("risale"),
   RISALE_CRAWL_DELAY_MS: integerFromEnv(1000),
   RISALE_CRAWL_RETRIES: integerFromEnv(3),

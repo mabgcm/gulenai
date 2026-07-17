@@ -5,6 +5,7 @@ import { ContextDiversityOptimizer } from "../prompt/contextDiversityOptimizer.j
 import { StructuredContextBuilder } from "../prompt/structuredContextBuilder.js";
 import type { SearchResult } from "../search/types.js";
 import type { RetrievalAuditReporter } from "../diagnostics/retrievalAudit.js";
+import type { RetrievalAuditInput } from "../diagnostics/retrievalAudit.js";
 import type {
   AnswerChunkReference,
   AnswerGenerationOptions,
@@ -207,6 +208,7 @@ export class StrictRagAnswerEngine {
               }
             ]
           };
+    let auditInput: RetrievalAuditInput | undefined;
     if (options.retrievalAudit !== undefined && this.auditReporter !== undefined) {
       const beforeOptimizationPrompt = this.assembler.assemble(question, retrievedChunks, {
         maxContextTokens: options.maxContextTokens,
@@ -219,7 +221,7 @@ export class StrictRagAnswerEngine {
         instructions: STRICT_INSTRUCTIONS,
         preserveInputOrder: true
       });
-      await this.auditReporter.write({
+      auditInput = {
         question,
         embeddingModel: options.retrievalAudit.embeddingModel,
         topKRequested: options.retrievalAudit.topKRequested,
@@ -228,6 +230,10 @@ export class StrictRagAnswerEngine {
           options.retrievalAudit.searchedCollections ??
           [{ source: "fgulen", collection: "fgulen" }],
         resultsByCollection: options.retrievalAudit.resultsByCollection ?? [],
+        queryPlan: options.retrievalAudit.queryPlan,
+        rawVectorRanking: options.retrievalAudit.rawVectorRanking,
+        hybridRanking: options.retrievalAudit.hybridRanking,
+        droppedCandidates: options.retrievalAudit.droppedCandidates,
         retrievedChunks,
         optimizedChunks,
         beforeOptimizationPrompt,
@@ -235,10 +241,17 @@ export class StrictRagAnswerEngine {
         structuredContext,
         assembledPrompt: prompt,
         finalPrompt
-      });
+      };
     }
 
     if (prompt.chunks.length === 0) {
+      if (auditInput !== undefined && this.auditReporter !== undefined) {
+        await this.auditReporter.write({
+          ...auditInput,
+          finalCitationChunkIds: [],
+          finalIgnoredChunkIds: prompt.trimmedChunks.map((chunk) => chunk.chunkId)
+        });
+      }
       return {
         answer: UNSUPPORTED_ANSWER,
         confidence: 0,
@@ -279,6 +292,14 @@ export class StrictRagAnswerEngine {
       prompt.estimatedTokens +
       this.tokenCounter.count(raw) +
       this.tokenCounter.count(outputMarkdown);
+
+    if (auditInput !== undefined && this.auditReporter !== undefined) {
+      await this.auditReporter.write({
+        ...auditInput,
+        finalCitationChunkIds: usedChunks.map((chunk) => chunk.chunkId),
+        finalIgnoredChunkIds: ignoredChunks.map((chunk) => chunk.chunkId)
+      });
+    }
 
     return {
       answer: outputMarkdown,

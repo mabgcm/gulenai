@@ -1,6 +1,9 @@
 import type {
   CollectionSearchResults,
+  DroppedCandidate,
   KnowledgeSource,
+  QueryPlan,
+  RankedSearchHit,
   RetrievalCollection,
   SearchResult
 } from "../search/types.js";
@@ -39,6 +42,10 @@ export interface AnswerGenerationOptions {
     readonly requestedSources?: readonly KnowledgeSource[];
     readonly searchedCollections?: readonly RetrievalCollection[];
     readonly resultsByCollection?: readonly CollectionSearchResults[];
+    readonly queryPlan?: QueryPlan | undefined;
+    readonly rawVectorRanking?: readonly RankedSearchHit[] | undefined;
+    readonly hybridRanking?: readonly RankedSearchHit[] | undefined;
+    readonly droppedCandidates?: readonly DroppedCandidate[] | undefined;
   };
 }
 

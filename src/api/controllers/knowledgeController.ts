@@ -4,7 +4,7 @@ import type { ApiSearchRequest, KnowledgeApiService } from "../types.js";
 import { createSearchSnippet } from "../../search/searchSnippet.js";
 
 const citationResponse = (citation: {
-  readonly source: "fgulen" | "risale";
+  readonly source: string;
   readonly title: string | null;
   readonly url: string | null;
   readonly headingPath: readonly string[];

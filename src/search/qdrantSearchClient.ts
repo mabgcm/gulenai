@@ -80,7 +80,10 @@ const parsePayload = (payload: unknown): SearchHitPayload | null => {
     tokenCount: payload.tokenCount,
     contentHash: payload.contentHash,
     sourceFile: payload.source,
-    content: payload.content
+    content: payload.content,
+    metadata: Object.fromEntries(
+      Object.entries(payload).filter(([key]) => !["content"].includes(key))
+    )
   };
 };
 

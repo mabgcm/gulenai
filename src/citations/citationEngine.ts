@@ -68,12 +68,26 @@ const numberCitations = (
     }
     return `[${id}]`;
   });
-  if (ordered.length === 0 && citations.length === 1) {
-    const citation = { ...citations[0]!, id: 1 };
+  if (ordered.length === 0 && citations.length > 0) {
+    const fallbackCitations: Citation[] = [];
+    const fallbackGroups: CitationGroup[] = [];
+    const fallbackIds = new Map<string, number>();
+    for (const citation of citations) {
+      const sourceKey = citation.url ?? (citation.sourceFile || citation.chunkId);
+      let id = fallbackIds.get(sourceKey);
+      if (id === undefined) {
+        id = fallbackIds.size + 1;
+        fallbackIds.set(sourceKey, id);
+        const numbered = { ...citation, id };
+        fallbackCitations.push(numbered);
+        fallbackGroups.push({ id, citations: [numbered] });
+      }
+    }
+    const markers = fallbackGroups.map(({ id }) => `[${id}]`).join("");
     return {
-      answer: `${answer} [1]`,
-      citations: [citation],
-      groups: [{ id: 1, citations: [citation] }]
+      answer: `${answer} ${markers}`,
+      citations: fallbackCitations,
+      groups: fallbackGroups
     };
   }
   return {

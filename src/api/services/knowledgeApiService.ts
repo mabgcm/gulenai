@@ -13,6 +13,7 @@ import { ChunkContentStore } from "../../search/chunkContentStore.js";
 import { OpenAiQueryEmbeddingClient } from "../../search/queryEmbeddingClient.js";
 import { QdrantVectorSearchClient } from "../../search/qdrantSearchClient.js";
 import { RetrievalEngine } from "../../search/retrievalEngine.js";
+import { loadRetrievalConfig } from "../../search/retrievalConfig.js";
 import { CrawlStore } from "../../storage/crawlStore.js";
 import type { AppConfig } from "../../config/env.js";
 import type {
@@ -63,17 +64,21 @@ const gitCommit = (): string => {
 
 export class DefaultKnowledgeApiService implements KnowledgeApiService {
   private readonly embeddingModel: string;
+  private readonly queryEmbedder: OpenAiQueryEmbeddingClient;
   private readonly chunks = new ChunkContentStore();
   private readonly index = new QdrantIndexStore();
   private readonly tokenCounter = new OpenAiTokenCounter();
   private readonly buildDate = new Date().toISOString();
   private readonly commit = gitCommit();
+  private readonly retrievalConfig;
 
   public constructor(
     private readonly config: AppConfig,
     private readonly packageVersion: string
   ) {
     this.embeddingModel = config.OPENAI_EMBEDDING_MODEL || config.EMBEDDING_MODEL;
+    this.queryEmbedder = new OpenAiQueryEmbeddingClient(config.OPENAI_API_KEY, this.embeddingModel);
+    this.retrievalConfig = loadRetrievalConfig(config.RETRIEVAL_CONFIG_PATH);
   }
 
   public async stats(): Promise<ApiStatsResponse> {
@@ -100,7 +105,10 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
   }
 
   public async search(request: ApiSearchRequest): Promise<readonly SearchResult[]> {
-    return this.retrieval().search(request.question, this.searchOptions(request));
+    return this.retrieval(request.sources ?? ["fgulen"]).search(
+      request.question,
+      this.searchOptions(request)
+    );
   }
 
   public async prompt(request: ApiSearchRequest): Promise<ApiPromptResponse> {
@@ -147,7 +155,11 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
               searchedCollections: retrieval.resultsByCollection.map(
                 ({ source, collection }) => ({ source, collection })
               ),
-              resultsByCollection: retrieval.resultsByCollection
+              resultsByCollection: retrieval.resultsByCollection,
+              queryPlan: retrieval.queryPlan,
+              rawVectorRanking: retrieval.rawVectorRanking,
+              hybridRanking: retrieval.hybridRanking,
+              droppedCandidates: retrieval.droppedCandidates
             }
           }
         : {})
@@ -215,18 +227,39 @@ export class DefaultKnowledgeApiService implements KnowledgeApiService {
   }
 
   private retrieval(sources: readonly KnowledgeSource[] = ["fgulen"]): RetrievalEngine {
+    const configuredCollections = this.sourceCollections();
     const collections: readonly RetrievalCollection[] = sources.map((source) => ({
       source,
-      collection:
-        source === "risale"
-          ? this.config.RISALE_QDRANT_COLLECTION
-          : this.config.QDRANT_COLLECTION
+      collection: configuredCollections[source] ?? source
     }));
     return new RetrievalEngine(
       collections,
-      new OpenAiQueryEmbeddingClient(this.config.OPENAI_API_KEY, this.embeddingModel),
-      new QdrantVectorSearchClient(this.config.QDRANT_URL, this.config.QDRANT_API_KEY)
+      this.queryEmbedder,
+      new QdrantVectorSearchClient(this.config.QDRANT_URL, this.config.QDRANT_API_KEY),
+      this.retrievalConfig
     );
+  }
+
+  private sourceCollections(): Readonly<Record<string, string>> {
+    const defaults: Record<string, string> = {
+      fgulen: this.config.QDRANT_COLLECTION,
+      risale: this.config.RISALE_QDRANT_COLLECTION
+    };
+    if (this.config.RETRIEVAL_SOURCE_COLLECTIONS.trim().length === 0) return defaults;
+    try {
+      const configured = JSON.parse(this.config.RETRIEVAL_SOURCE_COLLECTIONS) as unknown;
+      if (typeof configured !== "object" || configured === null) return defaults;
+      return {
+        ...defaults,
+        ...Object.fromEntries(
+          Object.entries(configured).filter(
+            (entry): entry is [string, string] => typeof entry[1] === "string"
+          )
+        )
+      };
+    } catch {
+      return defaults;
+    }
   }
 
   private searchOptions(request: ApiSearchRequest): SearchOptions {

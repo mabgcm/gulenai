@@ -1,4 +1,4 @@
-export type KnowledgeSource = "fgulen" | "risale";
+export type KnowledgeSource = string;
 
 export interface RetrievalCollection {
   readonly source: KnowledgeSource;
@@ -21,6 +21,32 @@ export interface SearchOptions {
 
 export interface QueryEmbeddingClient {
   embedQuery(query: string): Promise<readonly number[]>;
+  embedQueries?(queries: readonly string[]): Promise<readonly (readonly number[])[]>;
+}
+
+export interface DetectedEntity {
+  readonly type: "reference" | "ordinal" | "roman-numeral" | "named-entity";
+  readonly value: string;
+  readonly normalizedValue: string;
+  readonly start: number;
+  readonly end: number;
+}
+
+export interface AliasMatch {
+  readonly canonical: string;
+  readonly matched: string;
+}
+
+export interface QueryPlan {
+  readonly originalQuery: string;
+  readonly normalizedQuery: string;
+  readonly expandedQueries: readonly string[];
+  readonly detectedEntities: readonly DetectedEntity[];
+  readonly matchedAliases: readonly AliasMatch[];
+}
+
+export interface QueryUnderstandingClient {
+  understand(query: string): QueryPlan;
 }
 
 export interface SearchHitPayload {
@@ -38,12 +64,37 @@ export interface SearchHitPayload {
   readonly contentHash: string;
   readonly sourceFile: string;
   readonly content: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
 }
 
 export interface SearchHit {
   readonly id: string;
   readonly score: number;
   readonly payload: SearchHitPayload;
+}
+
+export interface HybridScoreBreakdown {
+  readonly vector: number;
+  readonly title: number;
+  readonly metadata: number;
+  readonly alias: number;
+  readonly entity: number;
+  readonly unified: number;
+  readonly matchedFields: readonly string[];
+}
+
+export interface RankedSearchHit extends SearchHit {
+  readonly rawVectorScore: number;
+  readonly matchedQuery: string;
+  readonly scoreBreakdown: HybridScoreBreakdown;
+}
+
+export interface DroppedCandidate {
+  readonly source: KnowledgeSource;
+  readonly collection: string;
+  readonly chunkId: string;
+  readonly score: number;
+  readonly reason: string;
 }
 
 export interface ChunkContent {
@@ -71,6 +122,7 @@ export interface SearchResult {
     readonly tokenCount: number;
     readonly contentHash: string;
     readonly merged: boolean;
+    readonly hybridScore?: number;
   };
 }
 
@@ -83,4 +135,8 @@ export interface CollectionSearchResults {
 export interface RetrievalSearchResult {
   readonly results: readonly SearchResult[];
   readonly resultsByCollection: readonly CollectionSearchResults[];
+  readonly queryPlan?: QueryPlan;
+  readonly rawVectorRanking?: readonly RankedSearchHit[];
+  readonly hybridRanking?: readonly RankedSearchHit[];
+  readonly droppedCandidates?: readonly DroppedCandidate[];
 }

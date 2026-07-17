@@ -1,0 +1,604 @@
+{
+  "generatedAt": "2026-07-17T03:31:03.428Z",
+  "userQuestion": "23. Söz ne anlatıyor?",
+  "embeddingModel": "text-embedding-3-small",
+  "topKRequested": 8,
+  "requestedSources": [
+    "risale"
+  ],
+  "searchedCollections": [
+    {
+      "source": "risale",
+      "collection": "risale"
+    }
+  ],
+  "resultsPerCollection": [
+    {
+      "source": "risale",
+      "collection": "risale",
+      "count": 8,
+      "results": [
+        {
+          "rank": 1,
+          "chunkId": "4c69df62fd448b27",
+          "documentId": "5cc3dd23c41499c5",
+          "similarityScore": 0.4878387,
+          "title": "Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta"
+        },
+        {
+          "rank": 2,
+          "chunkId": "d65452e6e1dc6103",
+          "documentId": "cfec501bdbbabfd5",
+          "similarityScore": 0.4787583,
+          "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz"
+        },
+        {
+          "rank": 3,
+          "chunkId": "029f0fd9198e70ca",
+          "documentId": "ce73320991357254",
+          "similarityScore": 0.47817987,
+          "title": "Sözler / Yedinci Söz"
+        },
+        {
+          "rank": 4,
+          "chunkId": "7d5446f44b0b420f",
+          "documentId": "306aa5e034590623",
+          "similarityScore": 0.47007236,
+          "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar"
+        },
+        {
+          "rank": 5,
+          "chunkId": "6872afe079b65e93",
+          "documentId": "7a09be75aafadc76",
+          "similarityScore": 0.46853697,
+          "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte"
+        },
+        {
+          "rank": 6,
+          "chunkId": "1a1a31e4a84c3e5c",
+          "documentId": "4f4c2b67f6e6ee46",
+          "similarityScore": 0.46247953,
+          "title": "İlk Dönem Eserleri / İşârât / Türkçesi"
+        },
+        {
+          "rank": 7,
+          "chunkId": "ddfca0e9cecc496a",
+          "documentId": "a0ad5d11f5f5d283",
+          "similarityScore": 0.4618525,
+          "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Dördüncü Nükte"
+        },
+        {
+          "rank": 8,
+          "chunkId": "dba4df00af86330d",
+          "documentId": "d2a80817f4d281c7",
+          "similarityScore": 0.46183538,
+          "title": "Sözler / Lemeât"
+        }
+      ]
+    }
+  ],
+  "mergedRanking": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4878387,
+      "title": "Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0516.md",
+      "chunkIndex": 1,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4787583,
+      "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-11/page-0044.md",
+      "chunkIndex": 0,
+      "tokenCount": 759
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47817987,
+      "title": "Sözler / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0058.md",
+      "chunkIndex": 0,
+      "tokenCount": 760
+    },
+    {
+      "rank": 4,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47007236,
+      "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0496.md",
+      "chunkIndex": 0,
+      "tokenCount": 991
+    },
+    {
+      "rank": 5,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46853697,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0465.md",
+      "chunkIndex": 0,
+      "tokenCount": 587
+    },
+    {
+      "rank": 6,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46247953,
+      "title": "İlk Dönem Eserleri / İşârât / Türkçesi",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0290.md",
+      "chunkIndex": 0,
+      "tokenCount": 478
+    },
+    {
+      "rank": 7,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4618525,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Dördüncü Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0463.md",
+      "chunkIndex": 0,
+      "tokenCount": 285
+    },
+    {
+      "rank": 8,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46183538,
+      "title": "Sözler / Lemeât",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0999.md",
+      "chunkIndex": 0,
+      "tokenCount": 658
+    }
+  ],
+  "topKReturned": 8,
+  "retrievedChunkCount": 8,
+  "uniqueDocumentCount": 8,
+  "uniqueBookCount": 0,
+  "uniqueHeadingPathCount": 1,
+  "totalContextTokens": 4968,
+  "totalPromptTokens": 6666,
+  "retrievalTable": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4878387,
+      "title": "Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0516.md",
+      "chunkIndex": 1,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4787583,
+      "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-11/page-0044.md",
+      "chunkIndex": 0,
+      "tokenCount": 759
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47817987,
+      "title": "Sözler / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0058.md",
+      "chunkIndex": 0,
+      "tokenCount": 760
+    },
+    {
+      "rank": 4,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47007236,
+      "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0496.md",
+      "chunkIndex": 0,
+      "tokenCount": 991
+    },
+    {
+      "rank": 5,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46853697,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0465.md",
+      "chunkIndex": 0,
+      "tokenCount": 587
+    },
+    {
+      "rank": 6,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46247953,
+      "title": "İlk Dönem Eserleri / İşârât / Türkçesi",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0290.md",
+      "chunkIndex": 0,
+      "tokenCount": 478
+    },
+    {
+      "rank": 7,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4618525,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Dördüncü Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0463.md",
+      "chunkIndex": 0,
+      "tokenCount": 285
+    },
+    {
+      "rank": 8,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46183538,
+      "title": "Sözler / Lemeât",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0999.md",
+      "chunkIndex": 0,
+      "tokenCount": 658
+    }
+  ],
+  "contextDiversity": {
+    "booksRepresented": 0,
+    "headingGroups": 1,
+    "averageSimilarity": 0.471194,
+    "duplicatePercentage": 0
+  },
+  "optimization": {
+    "before": {
+      "chunkCount": 8,
+      "documentsRepresented": 8,
+      "booksRepresented": 0,
+      "headingDiversity": 1,
+      "duplicateCount": 0,
+      "duplicatePercentage": 0,
+      "contextDiversityScore": 37.5
+    },
+    "after": {
+      "chunkCount": 8,
+      "documentsRepresented": 8,
+      "booksRepresented": 0,
+      "headingDiversity": 1,
+      "duplicateCount": 0,
+      "duplicatePercentage": 0,
+      "contextDiversityScore": 37.5
+    },
+    "duplicateReduction": 0,
+    "promptTokenSavings": 0,
+    "contextDiversityScore": 37.5
+  },
+  "beforeOptimizationTable": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4878387,
+      "title": "Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0516.md",
+      "chunkIndex": 1,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4787583,
+      "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-11/page-0044.md",
+      "chunkIndex": 0,
+      "tokenCount": 759
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47817987,
+      "title": "Sözler / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0058.md",
+      "chunkIndex": 0,
+      "tokenCount": 760
+    },
+    {
+      "rank": 4,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47007236,
+      "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0496.md",
+      "chunkIndex": 0,
+      "tokenCount": 991
+    },
+    {
+      "rank": 5,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46853697,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0465.md",
+      "chunkIndex": 0,
+      "tokenCount": 587
+    },
+    {
+      "rank": 6,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46247953,
+      "title": "İlk Dönem Eserleri / İşârât / Türkçesi",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0290.md",
+      "chunkIndex": 0,
+      "tokenCount": 478
+    },
+    {
+      "rank": 7,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4618525,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Dördüncü Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0463.md",
+      "chunkIndex": 0,
+      "tokenCount": 285
+    },
+    {
+      "rank": 8,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46183538,
+      "title": "Sözler / Lemeât",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0999.md",
+      "chunkIndex": 0,
+      "tokenCount": 658
+    }
+  ],
+  "afterOptimizationTable": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4878387,
+      "title": "Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0516.md",
+      "chunkIndex": 1,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4787583,
+      "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-11/page-0044.md",
+      "chunkIndex": 0,
+      "tokenCount": 759
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47817987,
+      "title": "Sözler / Yedinci Söz",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0058.md",
+      "chunkIndex": 0,
+      "tokenCount": 760
+    },
+    {
+      "rank": 4,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.47007236,
+      "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0496.md",
+      "chunkIndex": 0,
+      "tokenCount": 991
+    },
+    {
+      "rank": 5,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46853697,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0465.md",
+      "chunkIndex": 0,
+      "tokenCount": 587
+    },
+    {
+      "rank": 6,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46247953,
+      "title": "İlk Dönem Eserleri / İşârât / Türkçesi",
+      "headingPath": [],
+      "sourceFile": "book-15/page-0290.md",
+      "chunkIndex": 0,
+      "tokenCount": 478
+    },
+    {
+      "rank": 7,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.4618525,
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Dördüncü Nükte",
+      "headingPath": [],
+      "sourceFile": "book-03/page-0463.md",
+      "chunkIndex": 0,
+      "tokenCount": 285
+    },
+    {
+      "rank": 8,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.46183538,
+      "title": "Sözler / Lemeât",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0999.md",
+      "chunkIndex": 0,
+      "tokenCount": 658
+    }
+  ],
+  "contextStructure": {
+    "rawContextLayout": [
+      {
+        "position": 1,
+        "chunkId": "4c69df62fd448b27"
+      },
+      {
+        "position": 2,
+        "chunkId": "d65452e6e1dc6103"
+      },
+      {
+        "position": 3,
+        "chunkId": "029f0fd9198e70ca"
+      },
+      {
+        "position": 4,
+        "chunkId": "7d5446f44b0b420f"
+      },
+      {
+        "position": 5,
+        "chunkId": "6872afe079b65e93"
+      },
+      {
+        "position": 6,
+        "chunkId": "1a1a31e4a84c3e5c"
+      },
+      {
+        "position": 7,
+        "chunkId": "ddfca0e9cecc496a"
+      },
+      {
+        "position": 8,
+        "chunkId": "dba4df00af86330d"
+      }
+    ],
+    "structuredContextLayout": [
+      {
+        "section": "Definition",
+        "chunkIds": [
+          "d65452e6e1dc6103",
+          "029f0fd9198e70ca",
+          "6872afe079b65e93",
+          "1a1a31e4a84c3e5c",
+          "dba4df00af86330d"
+        ]
+      },
+      {
+        "section": "Supporting Evidence",
+        "chunkIds": [
+          "4c69df62fd448b27",
+          "7d5446f44b0b420f",
+          "ddfca0e9cecc496a"
+        ]
+      }
+    ],
+    "tokenDifference": 361,
+    "sectionCount": 2,
+    "chunkDistribution": {
+      "Definition": 5,
+      "Supporting Evidence": 3
+    }
+  },
+  "finalContextComposition": [
+    {
+      "position": 1,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "d65452e6e1dc6103",
+      "section": "Definition"
+    },
+    {
+      "position": 2,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "029f0fd9198e70ca",
+      "section": "Definition"
+    },
+    {
+      "position": 3,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "6872afe079b65e93",
+      "section": "Definition"
+    },
+    {
+      "position": 4,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "1a1a31e4a84c3e5c",
+      "section": "Definition"
+    },
+    {
+      "position": 5,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "dba4df00af86330d",
+      "section": "Definition"
+    },
+    {
+      "position": 6,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "4c69df62fd448b27",
+      "section": "Supporting Evidence"
+    },
+    {
+      "position": 7,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "7d5446f44b0b420f",
+      "section": "Supporting Evidence"
+    }
+  ],
+  "finalPrompt": {
+    "model": "gpt-4o-mini",
+    "temperature": 0,
+    "maxOutputTokens": 800,
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a rigorous research assistant working exclusively from retrieved HürKul archive context. Your task is to produce a complete, coherent, evidence-synthesized answer in natural Turkish. Begin by defining the concept asked about, then explain it clearly and develop the answer in complete, connected paragraphs. Use all context that is relevant to the question, regardless of how many retrieved chunks it spans. When several sources or books discuss the concept, synthesize their compatible evidence into one unified explanation instead of summarizing each source separately. When sources offer complementary viewpoints, compare and connect those viewpoints explicitly. Avoid repeating the same idea or wording. Prefer developed paragraphs over short summaries, fragments, or lists. Use headings only when they materially improve readability. Do not intentionally shorten an answer when additional relevant retrieved evidence can deepen or clarify it. Preserve strict retrieval grounding: use only the supplied context, never outside knowledge, never guess, and never invent information or references. After every supported claim, cite the exact supporting Context Chunk ID in square brackets. When a claim combines evidence, cite every Context Chunk ID that directly supports it. For example, if the supplied Context Chunk ID is abc123, write [abc123], never [chunk-id] or [chunk-id: abc123]. If the answer is not supported by the retrieved context, answer exactly: \"Bu soru mevcut HürKul arşivindeki kaynaklarla cevaplanamıyor.\" Return JSON only."
+      },
+      {
+        "role": "user",
+        "content": "# SYSTEM\n\nYou are a rigorous research assistant working exclusively from retrieved HürKul archive context. Your task is to produce a complete, coherent, evidence-synthesized answer in natural Turkish. Begin by defining the concept asked about, then explain it clearly and develop the answer in complete, connected paragraphs. Use all context that is relevant to the question, regardless of how many retrieved chunks it spans. When several sources or books discuss the concept, synthesize their compatible evidence into one unified explanation instead of summarizing each source separately. When sources offer complementary viewpoints, compare and connect those viewpoints explicitly. Avoid repeating the same idea or wording. Prefer developed paragraphs over short summaries, fragments, or lists. Use headings only when they materially improve readability. Do not intentionally shorten an answer when additional relevant retrieved evidence can deepen or clarify it. Preserve strict retrieval grounding: use only the supplied context, never outside knowledge, never guess, and never invent information or references. After every supported claim, cite the exact supporting Context Chunk ID in square brackets. When a claim combines evidence, cite every Context Chunk ID that directly supports it. For example, if the supplied Context Chunk ID is abc123, write [abc123], never [chunk-id] or [chunk-id: abc123]. If the answer is not supported by the retrieved context, answer exactly: \"Bu soru mevcut HürKul arşivindeki kaynaklarla cevaplanamıyor.\" Return JSON only.\n\n# QUESTION\n\n23. Söz ne anlatıyor?\n\n# RETRIEVED CONTEXT\n\n## Definition\n\n### Context 1\n\nTitle: İman Ve Küfür Muvazeneleri / Yedinci Söz\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=11&locale=tr&pageNo=44\nHeading: (none)\nChunk ID: d65452e6e1dc6103\nChunk IDs: d65452e6e1dc6103\nScore: 0.4788\nMerged: no\n\nbir yolu bir günde kesersin. İşte, eğer inanmıyorsan, bir parça tecrübe et; ta doğru olduğunu anlayasın.\"\n\nHakikaten bir parça tecrübe etti, doğru olduğunu tasdik etti.\n\nEvet, ben, yani şu biçare Said dahi bunu tasdik ederim. Çünkü biraz tecrübe ettim, pek doğru gördüm.\n\nBundan sonra birden gördü ki, sol cihetinden şeytan gibi dessas, ayyaş, aldatıcı bir adam, çok ziynetler, süslü suretler, fantaziyeler, müskirler beraber olduğu halde geldi, karşısında durdu. Ona dedi: \"Hey, arkadaş! Gel, gel, beraber işret edip keyfedelim. Şu güzel kız suretlerine bakalım. Şu hoş şarkıları dinleyelim. Şu tatlı yemekleri yiyelim.\"\n\nSual: \"Ha, ha, nedir ağzında gizli okuyorsun?\"\n\nCevap: \"Bir tılsım.\"\n\n\"Bırak şu anlaşılmaz işi. Hazır keyfimizi bozmayalım.\"\n\nS: \"Ha, şu ellerindeki nedir?\"\n\nC: \"Bir ilâç.\"\n\n\"At şunu. Sağlamsın. Neyin var? Alkış zamanıdır.\"\n\nS: \"Ha, şu beş nişanlı kâğıt nedir?\"\n\nC: \"Bir bilet. Bir tayınat senedi.\"\n\n\"Yırt bunları. Şu güzel bahar mevsiminde yolculuk bizim nemize lâzım?\" der. Herbir desise ile onu iknaa çalışır. Hattâ o biçare, ona biraz meyleder.\n\nEvet, insan aldanır. Ben de öyle bir dessasa aldandım.\n\nBirden, sağ cihetinden ra'd gibi bir ses gelir. Der: \"Sakın aldanma. Ve o dessasa de ki: Eğer arkamdaki arslanı öldürüp, önümdeki darağacını kaldırıp, sağ ve solumdaki yaraları def edip, peşimdeki yolculuğu men edecek bir çare sende varsa, bulursan, haydi yap, göster, görelim. Sonra de, 'Gel, keyfedelim.' Yoksa sus, hey sersem! Ta Hızır gibi bu zât-ı semâvî dediğini desin.\"\n\nİşte, ey gençliğinde gülmüş, şimdi güldüğüne ağlayan nefsim! Bil: O bîçâre asker ise, sensin ve insandır. Ve o arslan ise eceldir. Ve o darağacı ise ölüm ve zevâl ve firaktır ki, gece-gündüzün dönmesinde her dost veda eder, kaybolur. Ve o iki yara ise, birisi müz'iç ve hadsiz bir acz-i beşerî, diğeri elîm, nihayetsiz\n\n### Context 2\n\nTitle: Sözler / Yedinci Söz\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=58\nHeading: (none)\nChunk ID: 029f0fd9198e70ca\nChunk IDs: 029f0fd9198e70ca\nScore: 0.4782\nMerged: no\n\nbir yolu bir günde kesersin. İşte, eğer inanmıyorsan, bir parça tecrübe et; ta doğru olduğunu anlayasın.\"\n\nHakikaten bir parça tecrübe etti, doğru olduğunu tasdik etti.\n\nEvet, ben, yani şu biçare Said dahi bunu tasdik ederim. Çünkü biraz tecrübe ettim, pek doğru gördüm.\n\nBundan sonra birden gördü ki, sol cihetinden şeytan gibi dessas, ayyaş, aldatıcı bir adam, çok ziynetler, süslü suretler, fantaziyeler, müskirler beraber olduğu halde geldi, karşısında durdu. Ona dedi: \"Hey, arkadaş! Gel, gel, beraber işret edip keyfedelim. Şu güzel kız suretlerine bakalım. Şu hoş şarkıları dinleyelim. Şu tatlı yemekleri yiyelim.\"\n\nSual: \"Ha, ha, nedir ağzında gizli okuyorsun?\"\n\nCevap: \"Bir tılsım.\"\n\n\"Bırak şu anlaşılmaz işi. Hazır keyfimizi bozmayalım.\"\n\nS: \"Ha, şu ellerindeki nedir?\"\n\nC: \"Bir ilâç.\"\n\n\"At şunu. Sağlamsın. Neyin var? Alkış zamanıdır.\"\n\nS: \"Ha, şu beş nişanlı kâğıt nedir?\"\n\nC: \"Bir bilet. Bir tayınat senedi.\"\n\n\"Yırt bunları. Şu güzel bahar mevsiminde yolculuk bizim nemize lâzım?\" der. Herbir desise ile onu iknaa çalışır. Hattâ o biçare, ona biraz meyl eder.\n\nEvet, insan aldanır. Ben de öyle bir dessasa aldandım.\n\nBirden, sağ cihetinden ra'd gibi bir ses gelir. Der: \"Sakın aldanma. Ve o dessasa de ki: Eğer arkamdaki arslanı öldürüp, önümdeki darağacını kaldırıp, sağ ve solumdaki yaraları def edip, peşimdeki yolculuğu men edecek bir çare sende varsa, bulursan, haydi yap, göster, görelim. Sonra de, 'Gel, keyfedelim.' Yoksa sus, hey sersem! Ta Hızır gibi bu zât-ı semâvî dediğini desin.\"\n\nİşte, ey gençliğinde gülmüş, şimdi güldüğüne ağlayan nefsim! Bil: O bîçâre asker ise, sensin ve insandır. Ve o arslan ise eceldir. Ve o darağacı ise ölüm ve zevâl ve firaktır ki, gece-gündüzün dönmesinde her dost veda eder, kaybolur. Ve o iki yara ise, birisi müz'iç ve hadsiz bir acz-i beşerî, diğeri elîm, nihayetsiz\n\n### Context 3\n\nTitle: Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=3&locale=tr&pageNo=465\nHeading: (none)\nChunk ID: 6872afe079b65e93\nChunk IDs: 6872afe079b65e93\nScore: 0.4685\nMerged: no\n\nİşte bu Elmas, Cevher, Nurun ikinci kerametini ispat ile, üç yaşından sekiz yaşına kadar akrabalarım ve evlâdım, bu Elmas, Cevher, Nurlar için fedakârâne ve bu yolda hayatlarını hiç düşünmeden feda edeceklerini ispat ederim. Çünkü bu Elmas, Cevher, Nuru okurken hepsi başıma toplandı. Onları sevdim ve birer çay verdim, bu Elmas, Cevher, Nuru okumaya devam ettim. Hepsi birden \"Bu nedir, bu yazı nasıl yazıdır?\" sordular. Ben de dedim: \"Bu Elmas, Cevher, Nurdur\" diye bunlara okumaya başladım.\n\nOnuncu Sözü okurken saatler geçmiş. Çocuklar, merakından, anlayamadıkları zaman hemen bendenize soruyorlardı. Ben de bu Elmas, Cevher, Nuru onların anlayabileceği şekilde izah ederken, çocukların renkleri, renk renk oluyordu ve güzelleşiyordu. Bendeniz de çocukların yüzüne baktıkça, hepsinde ayrı ayrı nurlu Said görüyordum.\n\nSuallerinde \"Nur hangisi, Cevher hangisi ve Elmas hangisi?\" diye sorduklarında, \"Evet, Nur bunu okumaktır. Bak, sizde bir güzellik meydana geldi.\" Onlar da birbirinin yüzüne baktılar ve tasdik ettiler.\n\n\"Ya Elmas nedir?\"\n\n\"Bu Sözleri yazmaktır. O zaman, yani yazdığınız zaman sizin yazılarınız elmas gibi kıymetli olur.\" Tasdik ettiler.\n\n\"Ya Cevher nedir?\"\n\n\"İşte o da bu kitaptan aldığınız imandır.\" Hepsi birden şehadet getirdiler.\n\nBu sohbette üç dört saat geçmiş; bendeniz farkına varmadım. \"İşte Elmas, Cevher, Nur budur\" dedim. Tasdik ettiler. Hepsi birden bana bakıyorlardı ve \"Bunu kim yazdı?\" diyorlardı.\n\nÂciz talebeniz Şefik\n\nba\n\n### Context 4\n\nTitle: İlk Dönem Eserleri / İşârât / Türkçesi\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=15&locale=tr&pageNo=290\nHeading: (none)\nChunk ID: 1a1a31e4a84c3e5c\nChunk IDs: 1a1a31e4a84c3e5c\nScore: 0.4625\nMerged: no\n\nTürkçesi\n\nS - Kimsin? Ölsen yine sen misin? Bedenin inhilâli ruhun şahsiyetine tesir etmez mi?\n\nC - Ben bu anda, seksen Said'den telhis ile tezahür etmişim. Onlar müselsel şahsî kıyametler ve müteselsil Haşiye 1 istinsahlar ile çalkalanıp şu zamana beni fırlatmışlar.\n\nŞu \"Said\" yetmiş dokuz meyyit, bir hayy-ı nâtıkın fihristesidir. Eğer zamanın suyu donup dursa, mütemessil olan o Said'ler birbirlerini görseler, şiddet-i tehalüften birbirlerini tanımayacaklardır. Ben onların üstünde yuvarlandım; hasenat, lezzat dağıldı kaldı. Seyyiat, âlâm toplandı, yüklendi. Nasıl ki şimdi o merhalelerde daima ben benim. Öyle de, mevtimle gelecek menzillerde de yine ben benim. Lâkin her senede şu menzilhanelerdeki zerrat, iki muhaceret-i umumî yaptığından, ene dahi libasını değiştirir, yırtılmış Said'i atar, Yeni Said'i giyer.\n\nba\n\nİn'ikâs Haşiye 2 ya hüviyeti veya hüviyetle hâsiyeti, veya hüviyetle mahiyeti tutar.\n\nBirbirinden eltaf ve eşeff, kudretin çok âyineleri vardır. Camdan suya, sudan havaya, havadan esire, esirden âlem-i misâle, hatta zamana, hatta fikre, ilâ âhir,\n\nMüstensih kalem-i kudrettir.\n\nTuluât'ın âhirine dikkat.\n\n### Context 5\n\nTitle: Sözler / Lemeât\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=999\nHeading: (none)\nChunk ID: dba4df00af86330d\nChunk IDs: dba4df00af86330d\nScore: 0.4618\nMerged: no\n\nBir sıbga-i Rahmânî suretinde göremez. Belki tabiat noktasında tutar, tasvir ediyor; hem ondan da çıkamaz.\n\nOnun için telkini aşk-ı tabiat olur. Maddeperestlik hissi, kalbe de yerleştirir; ondan ucuzca kendini kurtaramaz.\n\nYine ondan gelen, dalâletten neş'et eden ruhun ıztırâbâtına, o edepsizlenmiş edeb müsekkin, hem münevvim, hakikî faide vermez.\n\nTek bir ilâcı bulmuş, o da romanlarıymış. Kitap gibi bir hayy-ı meyyit, sinema gibi bir müteharrik emvat. Meyyit hayat veremez.\n\nHem tiyatro gibi tenasuhvâri, mazi denilen geniş kabrin hortlakları gibi şu üç nevi romanlarıyla hiç de utanmaz.\n\nBeşerin ağzına yalancı bir dil koymuş, hem insanın yüzüne fâsık bir göz takmış, dünyaya bir âlüfte fistanını giydirmiş, hüsn-ü mücerred tanımaz.\n\nGüneşi gösterirse, sarı saçlı güzel bir aktrisi kàrie ihtar eder. Zahiren der: \"Sefahet fenadır, insanlara yakışmaz.\"\n\nNetice-i muzırrayı gösterir. Halbuki sefahete öyle müşevvikane bir tasviri yapar ki, ağız suyu akıtır, akıl hâkim kalamaz.\n\nİştihayı kabartır, hevesi tehyiç eder, his daha söz dinlemez. Kur'ân'daki edepse hevâyı karıştırmaz.\n\nHakperestlik hissi, hüsn-ü mücerred aşkı, cemâlperestlik zevki, hakikatperestlik şevki verir. Hem de aldatmaz.\n\nKâinata tabiat cihetinde bakmıyor. Belki bir san'at-ı İlâhî, bir sıbga-i Rahmânî noktasında bahseder; akılları şaşırtmaz.\n\nMârifet-i Sâniin nurunu telkin eder. Herşeyde âyetini gösterir. Her ikisi rikkatli birer hüzün de veriyor; fakat birbirine benzemez.\n\nAvrupazâde edepse, fakdü'l-ahbaptan, sahipsizlikten neş'et eden gamlı bir hüznü veriyor; ulvî hüznü veremez.\n\n---\n\n## Supporting Evidence\n\n### Context 6\n\nTitle: Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=516\nHeading: (none)\nChunk ID: 4c69df62fd448b27\nChunk IDs: 4c69df62fd448b27\nScore: 0.4878\nMerged: no\n\nBaşta diyor: Ahkâm-ı İlâhiyeyi tebliğ et. Sen kâhin değilsin. Zira kâhinin sözleri karışık ve tahminîdir; seninki hak ve yakinîdir. Mecnun olamazsın; düşmanın dahi senin kemâl-i aklına şehadet eder.\n\n\"Sen öğüt vermeye devam et. Rabbinin sana verdiği peygamberlik nimeti hakkı için, sen ne bir kâhinsin, ne de bir mecnun. • Yoksa onlar \"O bir şâirdir, biz onun başına gelecek felâketi bekliyoruz\" mu diyorlar? • Sen \"Bekleyedurun,\" de. \"Ben de sizinle beraber bekliyorum.\" • Onlar akıllarını kullanarak mı bunu söylüyorlar, yoksa onlar sırf bir azgınlar gürûhu mudur? • Yahut Kur'ân'ı kendisi mi uydurdu diyorlar? Doğrusu onların îmân etmeye niyetleri yoktur. • Eğer doğru söylüyorlarsa, Kur'ân'ın benzeri bir söz getirsinler. • Yoksa onlar bir yaratıcı olmaksızın mı yaratıldılar? Veya kendi kendilerini mi yaratıyorlar? • Yoksa gökleri ve yeri onlar mı yarattı? Doğru onların düşünüp îmân etmeye niyetleri yoktur. • Yoksa Rabbinin hazineleri onların yanında mı? Veya kâinatın tedbir ve idaresini onlar mı ele geçirdi? • Yoksa göklere çıkıp da gök ehlinin haberlerini dinlemek için bir merdivenleri mi var? Öyle ise dinleyicileri, işittiklerine dair açık bir delil getirsin. • Yoksa kız çocukları Onun, erkek çocuklar da sizin mi? • Yoksa sen onlardan bir ücret istedin de onlar ağır bir borç altına mı girdiler? • Yoksa gaybın ilmi onların yanında da oradan mı alıp yazıyorlar? • Yoksa sana bir tuzak mı kurmak istiyorlar? Fakat o kâfirler tuzağa düşecek olanların tâ kendileridir. • Yoksa onların Allah'tan başka bir ilâhı mı var? Allah onların ortak koştukları şeylerden münezzehtir.\" Tûr Sûresi, 52:29-43.\n\nYoksa, yoksa…\n\n\"Biz ona şiir öğretmedik. Bu ona yakışmaz da.\" Yâsin Sûresi, 36:69.\n\n\"Eğer göklerde ve yerde Allah'tan başka ilâhlar olsaydı, ikisi de harap olup giderdi.\" Enbiyâ Sûresi, 21:22.\n\n### Context 7\n\nTitle: İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=15&locale=tr&pageNo=496\nHeading: (none)\nChunk ID: 7d5446f44b0b420f\nChunk IDs: 7d5446f44b0b420f\nScore: 0.4701\nMerged: no\n\nCevap: Haşiye\n\nفِيه مَا فِيهِ... مَعَ اَنَّهَا بِالنِّهَايَةِ قَدِ انْجَرَّتْ اِلَى النَّوْعِ وَالْمِلَّةِ ِلاَنَّ اللِّسَانَ الَّذِى خَدَمَهُ الشِّعْرُ خَيْطُ الْمِلِّيَّةِ مَعَ اَنَّ هٰذَا الزَّمَانَ هُوَ الَّذِى كَشَفَ عَنْ اِحْتِيَاجِ الْمِلِّيَّةِ وَفَتَحَ الْبَابَ لِهٰذَا الْمَقْصَدِ الْعَالِى \\* \\[1\\]\n\nSual: Mütegallip başlar, kendi kendilerine düştüler. Zulmün kapısı, onların yüzlerine yüzüne karşı kapatıldı. Düşenlere ayak vurulmaz. Sekeratta olanları bırak kendi haline; sekeratını tamam etsin.\n\nCevap: İsterim ki, meşrutiyet ve hürriyet-i şer'iyenin sünnetini onlara ezber ettireyim. Eğer ölmedilerse temessül etsinler. Evet, yalnız istibdadın kuvvetiyle terbiye olan başlar, bil'istihkak düştüler. Lâkin, içlerinde gayet hamiyetli adamlar var; onlara teşekkür ederiz. Bazı mütekâsil var; onlardan şikâyet ederiz. Bazı mütehayyir, mütereddit var; onları irşad etmek isteriz. Bazı ölmüşler var; miraslarını muhafaza etmek isteriz. Ta yeni çıkmalar almasınlar.\n\nنَعَمْ اَنَّ بَيْنَهُمْ حُمَاةً لِلْمِلِّيَّةِ فَنَشْكُرُهُمْ، وَمُتَكَاسِلِينَ فَنَشْكُوهُمْ، وَمُتَحَيِّرِينَ فَنُرْشِدُهُمْ، وَاَمْوَاتًا فَنُحَافِظُ عَلٰى مِيرَاثِهِمْ لِئَلاَّ يَاْخُذَهُ مَنْ... \\* \\[2\\]\n\nSual: Ne demek?\n\nCevap: Korkuyorum; ehliyetsizlikle beraber, teşeyyuh veya necâbeti dâvâ edenler, aşâir içinde o rüesâlara kardeşlik dâvâ ederek miraslarını alsınlar, iki başlı bir belâ kesilsinler. Zira sizdeki cehâlet-i avrâ ve itaat-i amyâ, ağaiyet ve\n\nŞu ibare, kendine hediye olunan ve mevzuun fabrikasından çıkan yerli bir üslûbu giymiştir.\n\nBuna bakmak lâzım... Bununla beraber bu bağışlar, nev'e ve millete döner; çünkü şiirin hizmet ettiği lisân, milliyetin ipidir. Nitekim bu zaman, milliyet ihtiyacını ortaya çıkarmış ve bu maksad-ı âlinin kapısını açmıştır.\n\nBu Arapça ibarenin tercümesi üst paragraftaki \"Lâkin…\" kelimesinden itibaren sonuna kadardır.\n\n# INSTRUCTIONS\n\n- Start the answer with a clear definition of the concept, when the question asks about a concept.\n- Explain the concept fully in natural, flowing Turkish and prefer complete paragraphs.\n- Synthesize all relevant evidence into a coherent explanation; do not produce repetitive source-by-source summaries.\n- Compare and connect complementary viewpoints when the retrieved context provides them.\n- Use headings only when they improve readability.\n- Use as much relevant retrieved context as necessary and do not intentionally abbreviate the answer.\n- Use only retrieved context; do not add outside knowledge, guesses, or invented information.\n- If context does not support an answer, return the required insufficient-information sentence exactly.\n- After each supported claim, add its exact supporting Context Chunk ID in square brackets, for example [abc123].\n- For claims supported by multiple context chunks, include every directly supporting Context Chunk ID.\n- Report exactly which Context Chunk IDs directly support the answer.\n- Report ignored chunk IDs for context chunks that were not used.\n- Set answerSupported to false when the answer is not directly supported.\n- Set conflictingEvidence to true if supplied chunks disagree.\n- Set evidenceComplete to true only when the retrieved context fully answers the question.\n\nReturn a JSON object with this exact shape:\n{\n  \"answer\": \"string\",\n  \"usedChunkIds\": [\"chunk-id\"],\n  \"ignoredChunkIds\": [\"chunk-id\"],\n  \"answerSupported\": true,\n  \"conflictingEvidence\": false,\n  \"evidenceComplete\": true\n}"
+      }
+    ]
+  }
+}

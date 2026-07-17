@@ -5,7 +5,10 @@ import type { AssembledPrompt } from "../prompt/types.js";
 import type { StructuredContext } from "../prompt/structuredContextBuilder.js";
 import type {
   CollectionSearchResults,
+  DroppedCandidate,
   KnowledgeSource,
+  QueryPlan,
+  RankedSearchHit,
   RetrievalCollection,
   SearchResult
 } from "../search/types.js";
@@ -26,6 +29,12 @@ export interface RetrievalAuditInput {
   readonly structuredContext: StructuredContext;
   readonly assembledPrompt: AssembledPrompt;
   readonly finalPrompt: ChatCompletionRequest | null;
+  readonly queryPlan?: QueryPlan | undefined;
+  readonly rawVectorRanking?: readonly RankedSearchHit[] | undefined;
+  readonly hybridRanking?: readonly RankedSearchHit[] | undefined;
+  readonly droppedCandidates?: readonly DroppedCandidate[] | undefined;
+  readonly finalCitationChunkIds?: readonly string[] | undefined;
+  readonly finalIgnoredChunkIds?: readonly string[] | undefined;
 }
 
 interface RetrievalAuditRow {
@@ -125,6 +134,11 @@ export class RetrievalAuditReporter {
       const report = {
         generatedAt: new Date().toISOString(),
         userQuestion: input.question,
+        originalQuery: input.queryPlan?.originalQuery ?? input.question,
+        normalizedQuery: input.queryPlan?.normalizedQuery ?? input.question,
+        expandedQueries: input.queryPlan?.expandedQueries ?? [input.question],
+        detectedEntities: input.queryPlan?.detectedEntities ?? [],
+        matchedAliases: input.queryPlan?.matchedAliases ?? [],
         embeddingModel: input.embeddingModel,
         topKRequested: input.topKRequested,
         requestedSources: input.requestedSources,
@@ -143,6 +157,28 @@ export class RetrievalAuditReporter {
             }))
           })
         ),
+        rawVectorRanking: (input.rawVectorRanking ?? []).map((hit, index) => ({
+          rank: index + 1,
+          source: hit.payload.source,
+          collection: hit.payload.collection,
+          chunkId: hit.payload.chunkId,
+          title: hit.payload.title,
+          matchedQuery: hit.matchedQuery,
+          vectorScore: hit.rawVectorScore
+        })),
+        hybridRanking: (input.hybridRanking ?? []).map((hit, index) => ({
+          rank: index + 1,
+          source: hit.payload.source,
+          collection: hit.payload.collection,
+          chunkId: hit.payload.chunkId,
+          title: hit.payload.title,
+          matchedQuery: hit.matchedQuery,
+          score: hit.score,
+          metadataBoosts: hit.scoreBreakdown
+        })),
+        droppedCandidates: input.droppedCandidates ?? [],
+        finalCitationChunkIds: input.finalCitationChunkIds ?? [],
+        finalIgnoredChunkIds: input.finalIgnoredChunkIds ?? [],
         mergedRanking: beforeRows,
         topKReturned: beforeRows.length,
         retrievedChunkCount: beforeRows.length,
@@ -207,6 +243,11 @@ export class RetrievalAuditReporter {
         "",
         `- Generated: ${report.generatedAt}`,
         `- User question: ${report.userQuestion}`,
+        `- Original query: ${report.originalQuery}`,
+        `- Normalized query: ${report.normalizedQuery}`,
+        `- Expanded queries: ${report.expandedQueries.join(" | ")}`,
+        `- Detected entities: ${JSON.stringify(report.detectedEntities)}`,
+        `- Matched aliases: ${JSON.stringify(report.matchedAliases)}`,
         `- Embedding model: ${report.embeddingModel}`,
         `- topK requested: ${report.topKRequested}`,
         `- Requested sources: ${report.requestedSources.join(", ")}`,
@@ -238,6 +279,29 @@ export class RetrievalAuditReporter {
         "## Merged ranking",
         "",
         markdownTable(report.mergedRanking),
+        "",
+        "## Raw vector ranking",
+        "",
+        "```json",
+        JSON.stringify(report.rawVectorRanking, null, 2),
+        "```",
+        "",
+        "## Hybrid ranking and metadata boosts",
+        "",
+        "```json",
+        JSON.stringify(report.hybridRanking, null, 2),
+        "```",
+        "",
+        "## Dropped candidates",
+        "",
+        "```json",
+        JSON.stringify(report.droppedCandidates, null, 2),
+        "```",
+        "",
+        "## Final citations",
+        "",
+        `- Citation chunk IDs: ${report.finalCitationChunkIds.join(", ") || "(none)"}`,
+        `- Ignored chunk IDs: ${report.finalIgnoredChunkIds.join(", ") || "(none)"}`,
         "",
         `- Documents represented: ${beforeOptimization.documentsRepresented}`,
         `- Books represented: ${beforeOptimization.booksRepresented}`,

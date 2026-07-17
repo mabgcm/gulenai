@@ -1,0 +1,37 @@
+{
+  "languages": ["tr", "en"],
+  "maxExpandedQueries": 8,
+  "aliases": [
+    { "canonical": "Söz", "aliases": ["Word"] },
+    { "canonical": "Mektup", "aliases": ["Letter"] },
+    { "canonical": "Şua", "aliases": ["Ray"] },
+    { "canonical": "Hazreti", "aliases": ["Hz", "Hz."] },
+    { "canonical": "Ayet-el Kürsi", "aliases": ["Ayetel Kürsi", "Ayetelkursi"] },
+    { "canonical": "Muhammed", "aliases": ["Hz Muhammed", "Peygamber Efendimiz", "Resulullah"] },
+    { "canonical": "Allah", "aliases": ["Cenab-ı Hak", "Hak Teala", "Rabbimiz"] }
+  ],
+  "ranking": {
+    "vectorWeight": 1,
+    "titleWeight": 0.25,
+    "metadataWeight": 0.15,
+    "aliasWeight": 0.1,
+    "entityWeight": 0.1
+  },
+  "candidateSelection": {
+    "structuredReferenceFloor": 0.55,
+    "structuredReferenceTolerance": 0.05
+  },
+  "metadataFields": [
+    "title",
+    "book",
+    "section",
+    "subsection",
+    "chapter",
+    "surah",
+    "verse",
+    "verseNumber",
+    "hadithNumber",
+    "author",
+    "headingPath"
+  ]
+}

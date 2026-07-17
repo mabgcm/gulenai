@@ -1,0 +1,1390 @@
+{
+  "generatedAt": "2026-07-17T12:54:02.310Z",
+  "userQuestion": "23. Söz ne anlatıyor?",
+  "originalQuery": "23. Söz ne anlatıyor?",
+  "normalizedQuery": "23. Söz ne anlatıyor?",
+  "expandedQueries": [
+    "23. Söz ne anlatıyor?",
+    "yirmi üçüncü Söz ne anlatıyor?",
+    "twenty third Söz ne anlatıyor?",
+    "23. Word ne anlatıyor?",
+    "yirmi üçüncü Word ne anlatıyor?",
+    "twenty third Word ne anlatıyor?"
+  ],
+  "detectedEntities": [
+    {
+      "type": "ordinal",
+      "value": "23.",
+      "normalizedValue": "23",
+      "start": 0,
+      "end": 3
+    },
+    {
+      "type": "reference",
+      "value": "23",
+      "normalizedValue": "23",
+      "start": 0,
+      "end": 2
+    },
+    {
+      "type": "named-entity",
+      "value": "Söz",
+      "normalizedValue": "soz",
+      "start": 4,
+      "end": 7
+    }
+  ],
+  "matchedAliases": [
+    {
+      "canonical": "Söz",
+      "matched": "Söz"
+    }
+  ],
+  "embeddingModel": "text-embedding-3-small",
+  "topKRequested": 8,
+  "requestedSources": [
+    "risale"
+  ],
+  "searchedCollections": [
+    {
+      "source": "risale",
+      "collection": "risale"
+    }
+  ],
+  "resultsPerCollection": [
+    {
+      "source": "risale",
+      "collection": "risale",
+      "count": 42,
+      "results": [
+        {
+          "rank": 1,
+          "chunkId": "6a5b370d5f311128",
+          "documentId": "2222d17078b5e314",
+          "similarityScore": 0.6175896,
+          "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Üçüncü Nükte"
+        },
+        {
+          "rank": 2,
+          "chunkId": "ae4b437617a432f9",
+          "documentId": "9e67b172621e42a8",
+          "similarityScore": 0.5990749,
+          "title": "Sözler / Yirmi İkinci Söz"
+        },
+        {
+          "rank": 3,
+          "chunkId": "f0d9d53ef54b1cc3",
+          "documentId": "67c27b640d276051",
+          "similarityScore": 0.5917125,
+          "title": "Sözler / Yirmi Dördüncü Söz"
+        },
+        {
+          "rank": 4,
+          "chunkId": "ddfca0e9cecc496a",
+          "documentId": "a0ad5d11f5f5d283",
+          "similarityScore": 0.5844727,
+          "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Dördüncü Nükte"
+        },
+        {
+          "rank": 5,
+          "chunkId": "f5ab02899907077a",
+          "documentId": "dfe18d90c40b23c8",
+          "similarityScore": 0.5841735,
+          "title": "Sözler / Yirmi Üçüncü Söz"
+        },
+        {
+          "rank": 6,
+          "chunkId": "3d97472f4009451d",
+          "documentId": "cb10ef48b5f1c746",
+          "similarityScore": 0.5841735,
+          "title": "İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz"
+        },
+        {
+          "rank": 7,
+          "chunkId": "f50c85b2d5ffc67f",
+          "documentId": "972d45db52483228",
+          "similarityScore": 0.5676815,
+          "title": "Şuâlar / Birinci Şuâ / İkinci Sual / Yirmi Üçüncü Âyet"
+        },
+        {
+          "rank": 8,
+          "chunkId": "351b6dc0f9bcffcb",
+          "documentId": "52e2c1c4d14185ce",
+          "similarityScore": 0.561401,
+          "title": "İman Ve Küfür Muvazeneleri / On Üçüncü Sözün İkinci Makamı"
+        },
+        {
+          "rank": 9,
+          "chunkId": "a4fd10a204a686b9",
+          "documentId": "e582425b62a54306",
+          "similarityScore": 0.55043286,
+          "title": "Tarihçe-i Hayat / Eskişehir Hayatı"
+        },
+        {
+          "rank": 10,
+          "chunkId": "5990533b2973bb48",
+          "documentId": "c36a5f9944d428d1",
+          "similarityScore": 0.50690424,
+          "title": "Mektubat / Yirmi Altıncı Mektup / Dördüncü Mebhas"
+        },
+        {
+          "rank": 11,
+          "chunkId": "c101de28169fae8f",
+          "documentId": "3d140b61b15e4700",
+          "similarityScore": 0.4919451,
+          "title": "Sikke-i Tasdik-i Gaybî / Birinci Şuâ / İkinci Sual / Yirmi Üçüncü Âyet"
+        },
+        {
+          "rank": 12,
+          "chunkId": "4e4a87eab7af6a49",
+          "documentId": "d8f54ac4872b9075",
+          "similarityScore": 0.48887834,
+          "title": "Mektubat / Yirmi Birinci Mektup"
+        },
+        {
+          "rank": 13,
+          "chunkId": "4c69df62fd448b27",
+          "documentId": "5cc3dd23c41499c5",
+          "similarityScore": 0.4878459,
+          "title": "Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta"
+        },
+        {
+          "rank": 14,
+          "chunkId": "d65452e6e1dc6103",
+          "documentId": "cfec501bdbbabfd5",
+          "similarityScore": 0.47881362,
+          "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz"
+        },
+        {
+          "rank": 15,
+          "chunkId": "029f0fd9198e70ca",
+          "documentId": "ce73320991357254",
+          "similarityScore": 0.47823548,
+          "title": "Sözler / Yedinci Söz"
+        },
+        {
+          "rank": 16,
+          "chunkId": "85cd660a7dce9ce4",
+          "documentId": "27b3f1e84f5b6e41",
+          "similarityScore": 0.4732908,
+          "title": "Kastamonu Lahikası / 140.~159. Mektuplar / Mektup: 144"
+        },
+        {
+          "rank": 17,
+          "chunkId": "7d5446f44b0b420f",
+          "documentId": "306aa5e034590623",
+          "similarityScore": 0.47013724,
+          "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar"
+        },
+        {
+          "rank": 18,
+          "chunkId": "6872afe079b65e93",
+          "documentId": "7a09be75aafadc76",
+          "similarityScore": 0.468567,
+          "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte"
+        },
+        {
+          "rank": 19,
+          "chunkId": "add791414e6c4576",
+          "documentId": "9f4f3c26e67aad8d",
+          "similarityScore": 0.46732473,
+          "title": "İman Ve Küfür Muvazeneleri / Üçüncü Söz"
+        },
+        {
+          "rank": 20,
+          "chunkId": "be6a9c06944bf7ba",
+          "documentId": "902427d66d7d3e9b",
+          "similarityScore": 0.46732473,
+          "title": "Sözler / Üçüncü Söz"
+        },
+        {
+          "rank": 21,
+          "chunkId": "1a1a31e4a84c3e5c",
+          "documentId": "4f4c2b67f6e6ee46",
+          "similarityScore": 0.4625305,
+          "title": "İlk Dönem Eserleri / İşârât / Türkçesi"
+        },
+        {
+          "rank": 22,
+          "chunkId": "dba4df00af86330d",
+          "documentId": "d2a80817f4d281c7",
+          "similarityScore": 0.46187705,
+          "title": "Sözler / Lemeât"
+        },
+        {
+          "rank": 23,
+          "chunkId": "ad8430188ae0a5fb",
+          "documentId": "48b82b25418a67d4",
+          "similarityScore": 0.46187705,
+          "title": "Kastamonu Lahikası / Lemeât"
+        },
+        {
+          "rank": 24,
+          "chunkId": "536cd8ed572b18c8",
+          "documentId": "192936e4f0f23397",
+          "similarityScore": 0.45649803,
+          "title": "Şuâlar / On Üçüncü Şuâ"
+        },
+        {
+          "rank": 25,
+          "chunkId": "c5cb4d3dc0f025d8",
+          "documentId": "421d587de3b1ce3e",
+          "similarityScore": 0.45050701,
+          "title": "Sözler / Yirmi Dokuzuncu Söz / Birinci Maksat / Dördüncü Esas"
+        },
+        {
+          "rank": 26,
+          "chunkId": "258af77f9efc3d1d",
+          "documentId": "ec43ce3d2d9c1d4e",
+          "similarityScore": 0.45009717,
+          "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz"
+        },
+        {
+          "rank": 27,
+          "chunkId": "8b26e9862423e587",
+          "documentId": "0402188dd613bfd9",
+          "similarityScore": 0.45009717,
+          "title": "Sözler / Yedinci Söz"
+        },
+        {
+          "rank": 28,
+          "chunkId": "b1a26c5bc044177c",
+          "documentId": "ee6736b3dac432b0",
+          "similarityScore": 0.44283193,
+          "title": "Mesnevî-i Nuriye / Katre / Hâtime / İkinci Hakikat"
+        },
+        {
+          "rank": 29,
+          "chunkId": "3d3652a2302ec086",
+          "documentId": "b973a604fb3c9f0f",
+          "similarityScore": 0.44130564,
+          "title": "Mektubat / Fihrist"
+        },
+        {
+          "rank": 30,
+          "chunkId": "48278501531cbf7d",
+          "documentId": "bc42b0c4cc3e2e9a",
+          "similarityScore": 0.4348265,
+          "title": "Sözler / Yirmi Yedinci Söz"
+        },
+        {
+          "rank": 31,
+          "chunkId": "1ea6530b0c11ab25",
+          "documentId": "0382defd5d06f833",
+          "similarityScore": 0.43279585,
+          "title": "Lem'alar / Üçüncü Lem'a"
+        },
+        {
+          "rank": 32,
+          "chunkId": "52125e14e19a6e91",
+          "documentId": "d1737aa8115c537a",
+          "similarityScore": 0.43261293,
+          "title": "İşârâtü'l-İ'câz / Bakara Sûresi / 30. âyetin tefsiri"
+        },
+        {
+          "rank": 33,
+          "chunkId": "0f452576b003384d",
+          "documentId": "246147b81912ad22",
+          "similarityScore": 0.42965928,
+          "title": "Mektubat / Yirmi Dokuzuncu Mektup / Birinci Risale Olan Birinci Kısım / Üçüncü Nükte"
+        },
+        {
+          "rank": 34,
+          "chunkId": "cb92264fa558a145",
+          "documentId": "07e1e112f971ad7a",
+          "similarityScore": 0.42875254,
+          "title": "Sözler / Otuzuncu Söz / Birinci Maksat"
+        },
+        {
+          "rank": 35,
+          "chunkId": "c6ff38767e7d2bbd",
+          "documentId": "966ba8ddd1bea8e1",
+          "similarityScore": 0.42688912,
+          "title": "İlk Dönem Eserleri / Nokta Risalesi / Dördüncü Burhan"
+        },
+        {
+          "rank": 36,
+          "chunkId": "d0cc358458708d49",
+          "documentId": "fcf3083a7a28f7f5",
+          "similarityScore": 0.42295378,
+          "title": "İşârâtü'l-İ'câz / Bakara Sûresi / 21-22. âyetlerin tefsiri / Tevhide geçiyoruz:"
+        },
+        {
+          "rank": 37,
+          "chunkId": "8cce110e0a464c9f",
+          "documentId": "644aea2b9d932939",
+          "similarityScore": 0.41841018,
+          "title": "İlk Dönem Eserleri / Nur'un İlk Kapısı / Üçüncü Ders"
+        },
+        {
+          "rank": 38,
+          "chunkId": "7087c040fbee2495",
+          "documentId": "5084687e2f98faad",
+          "similarityScore": 0.41832072,
+          "title": "Lem'alar / On Üçüncü Lem'a / İkinci İşaret"
+        },
+        {
+          "rank": 39,
+          "chunkId": "63cc608300adf130",
+          "documentId": "14e9cdb4d4a4b065",
+          "similarityScore": 0.41275012,
+          "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar"
+        },
+        {
+          "rank": 40,
+          "chunkId": "d3a758f9cc2f25f8",
+          "documentId": "cda9ec0355fc1235",
+          "similarityScore": 0.41233185,
+          "title": "Tarihçe-i Hayat / Denizli Hayatı / Denizli Mahkeme Müdafaası"
+        },
+        {
+          "rank": 41,
+          "chunkId": "e789183141b212dd",
+          "documentId": "f4b86f1811d39983",
+          "similarityScore": 0.41084015,
+          "title": "Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere"
+        },
+        {
+          "rank": 42,
+          "chunkId": "03dbae88a7e5739e",
+          "documentId": "66c77a3fb2feeb40",
+          "similarityScore": 0.40984547,
+          "title": "Şuâlar / On Üçüncü Şuâ / Ed-Daî"
+        }
+      ]
+    }
+  ],
+  "rawVectorRanking": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "6a5b370d5f311128",
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Üçüncü Nükte",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.6175896
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "ae4b437617a432f9",
+      "title": "Sözler / Yirmi İkinci Söz",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.5990749
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f0d9d53ef54b1cc3",
+      "title": "Sözler / Yirmi Dördüncü Söz",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.5917125
+    },
+    {
+      "rank": 4,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "ddfca0e9cecc496a",
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Dördüncü Nükte",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.5844727
+    },
+    {
+      "rank": 5,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "3d97472f4009451d",
+      "title": "İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.5841735
+    },
+    {
+      "rank": 6,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f5ab02899907077a",
+      "title": "Sözler / Yirmi Üçüncü Söz",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.5841735
+    },
+    {
+      "rank": 7,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f50c85b2d5ffc67f",
+      "title": "Şuâlar / Birinci Şuâ / İkinci Sual / Yirmi Üçüncü Âyet",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.5676815
+    },
+    {
+      "rank": 8,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "351b6dc0f9bcffcb",
+      "title": "İman Ve Küfür Muvazeneleri / On Üçüncü Sözün İkinci Makamı",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "vectorScore": 0.561401
+    },
+    {
+      "rank": 9,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "a4fd10a204a686b9",
+      "title": "Tarihçe-i Hayat / Eskişehir Hayatı",
+      "matchedQuery": "yirmi üçüncü Word ne anlatıyor?",
+      "vectorScore": 0.55043286
+    },
+    {
+      "rank": 10,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "5990533b2973bb48",
+      "title": "Mektubat / Yirmi Altıncı Mektup / Dördüncü Mebhas",
+      "matchedQuery": "yirmi üçüncü Word ne anlatıyor?",
+      "vectorScore": 0.50690424
+    },
+    {
+      "rank": 11,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "c101de28169fae8f",
+      "title": "Sikke-i Tasdik-i Gaybî / Birinci Şuâ / İkinci Sual / Yirmi Üçüncü Âyet",
+      "matchedQuery": "yirmi üçüncü Word ne anlatıyor?",
+      "vectorScore": 0.4919451
+    },
+    {
+      "rank": 12,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "4e4a87eab7af6a49",
+      "title": "Mektubat / Yirmi Birinci Mektup",
+      "matchedQuery": "yirmi üçüncü Word ne anlatıyor?",
+      "vectorScore": 0.48887834
+    },
+    {
+      "rank": 13,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "4c69df62fd448b27",
+      "title": "Sözler / Yirmi Beşinci Söz / Birinci Şule / Birinci Şua / İkinci Suret / Beşinci Nokta",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.4878459
+    },
+    {
+      "rank": 14,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "d65452e6e1dc6103",
+      "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.47881362
+    },
+    {
+      "rank": 15,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "029f0fd9198e70ca",
+      "title": "Sözler / Yedinci Söz",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.47823548
+    },
+    {
+      "rank": 16,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "85cd660a7dce9ce4",
+      "title": "Kastamonu Lahikası / 140.~159. Mektuplar / Mektup: 144",
+      "matchedQuery": "yirmi üçüncü Word ne anlatıyor?",
+      "vectorScore": 0.4732908
+    },
+    {
+      "rank": 17,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "7d5446f44b0b420f",
+      "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.47013724
+    },
+    {
+      "rank": 18,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "6872afe079b65e93",
+      "title": "Lem'alar / Yirmi Sekizinci Lem'a / Yirmi Beşinci Nükte",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.468567
+    },
+    {
+      "rank": 19,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "add791414e6c4576",
+      "title": "İman Ve Küfür Muvazeneleri / Üçüncü Söz",
+      "matchedQuery": "twenty third Söz ne anlatıyor?",
+      "vectorScore": 0.46732473
+    },
+    {
+      "rank": 20,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "be6a9c06944bf7ba",
+      "title": "Sözler / Üçüncü Söz",
+      "matchedQuery": "twenty third Söz ne anlatıyor?",
+      "vectorScore": 0.46732473
+    },
+    {
+      "rank": 21,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "1a1a31e4a84c3e5c",
+      "title": "İlk Dönem Eserleri / İşârât / Türkçesi",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.4625305
+    },
+    {
+      "rank": 22,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "ad8430188ae0a5fb",
+      "title": "Kastamonu Lahikası / Lemeât",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.46187705
+    },
+    {
+      "rank": 23,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "dba4df00af86330d",
+      "title": "Sözler / Lemeât",
+      "matchedQuery": "23. Söz ne anlatıyor?",
+      "vectorScore": 0.46187705
+    },
+    {
+      "rank": 24,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "536cd8ed572b18c8",
+      "title": "Şuâlar / On Üçüncü Şuâ",
+      "matchedQuery": "twenty third Söz ne anlatıyor?",
+      "vectorScore": 0.45649803
+    },
+    {
+      "rank": 25,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "c5cb4d3dc0f025d8",
+      "title": "Sözler / Yirmi Dokuzuncu Söz / Birinci Maksat / Dördüncü Esas",
+      "matchedQuery": "twenty third Söz ne anlatıyor?",
+      "vectorScore": 0.45050701
+    },
+    {
+      "rank": 26,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "258af77f9efc3d1d",
+      "title": "İman Ve Küfür Muvazeneleri / Yedinci Söz",
+      "matchedQuery": "twenty third Söz ne anlatıyor?",
+      "vectorScore": 0.45009717
+    },
+    {
+      "rank": 27,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "8b26e9862423e587",
+      "title": "Sözler / Yedinci Söz",
+      "matchedQuery": "twenty third Söz ne anlatıyor?",
+      "vectorScore": 0.45009717
+    },
+    {
+      "rank": 28,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "b1a26c5bc044177c",
+      "title": "Mesnevî-i Nuriye / Katre / Hâtime / İkinci Hakikat",
+      "matchedQuery": "twenty third Word ne anlatıyor?",
+      "vectorScore": 0.44283193
+    },
+    {
+      "rank": 29,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "3d3652a2302ec086",
+      "title": "Mektubat / Fihrist",
+      "matchedQuery": "twenty third Word ne anlatıyor?",
+      "vectorScore": 0.44130564
+    },
+    {
+      "rank": 30,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "48278501531cbf7d",
+      "title": "Sözler / Yirmi Yedinci Söz",
+      "matchedQuery": "twenty third Word ne anlatıyor?",
+      "vectorScore": 0.4348265
+    },
+    {
+      "rank": 31,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "1ea6530b0c11ab25",
+      "title": "Lem'alar / Üçüncü Lem'a",
+      "matchedQuery": "twenty third Word ne anlatıyor?",
+      "vectorScore": 0.43279585
+    },
+    {
+      "rank": 32,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "52125e14e19a6e91",
+      "title": "İşârâtü'l-İ'câz / Bakara Sûresi / 30. âyetin tefsiri",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.43261293
+    },
+    {
+      "rank": 33,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "0f452576b003384d",
+      "title": "Mektubat / Yirmi Dokuzuncu Mektup / Birinci Risale Olan Birinci Kısım / Üçüncü Nükte",
+      "matchedQuery": "twenty third Word ne anlatıyor?",
+      "vectorScore": 0.42965928
+    },
+    {
+      "rank": 34,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "cb92264fa558a145",
+      "title": "Sözler / Otuzuncu Söz / Birinci Maksat",
+      "matchedQuery": "twenty third Word ne anlatıyor?",
+      "vectorScore": 0.42875254
+    },
+    {
+      "rank": 35,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "c6ff38767e7d2bbd",
+      "title": "İlk Dönem Eserleri / Nokta Risalesi / Dördüncü Burhan",
+      "matchedQuery": "twenty third Word ne anlatıyor?",
+      "vectorScore": 0.42688912
+    },
+    {
+      "rank": 36,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "d0cc358458708d49",
+      "title": "İşârâtü'l-İ'câz / Bakara Sûresi / 21-22. âyetlerin tefsiri / Tevhide geçiyoruz:",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.42295378
+    },
+    {
+      "rank": 37,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "8cce110e0a464c9f",
+      "title": "İlk Dönem Eserleri / Nur'un İlk Kapısı / Üçüncü Ders",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.41841018
+    },
+    {
+      "rank": 38,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "7087c040fbee2495",
+      "title": "Lem'alar / On Üçüncü Lem'a / İkinci İşaret",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.41832072
+    },
+    {
+      "rank": 39,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "63cc608300adf130",
+      "title": "İlk Dönem Eserleri / Münâzarat / Sualler ve Cevaplar",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.41275012
+    },
+    {
+      "rank": 40,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "d3a758f9cc2f25f8",
+      "title": "Tarihçe-i Hayat / Denizli Hayatı / Denizli Mahkeme Müdafaası",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.41233185
+    },
+    {
+      "rank": 41,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "e789183141b212dd",
+      "title": "Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.41084015
+    },
+    {
+      "rank": 42,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "03dbae88a7e5739e",
+      "title": "Şuâlar / On Üçüncü Şuâ / Ed-Daî",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "vectorScore": 0.40984547
+    }
+  ],
+  "hybridRanking": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "3d97472f4009451d",
+      "title": "İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "score": 0.9441735,
+      "metadataBoosts": {
+        "vector": 0.5841735,
+        "title": 0.6,
+        "metadata": 0.6,
+        "alias": 0.9,
+        "entity": 0.3,
+        "unified": 0.9441735,
+        "matchedFields": [
+          "title",
+          "section",
+          "headingPath"
+        ]
+      }
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f5ab02899907077a",
+      "title": "Sözler / Yirmi Üçüncü Söz",
+      "matchedQuery": "yirmi üçüncü Söz ne anlatıyor?",
+      "score": 0.9441735,
+      "metadataBoosts": {
+        "vector": 0.5841735,
+        "title": 0.6,
+        "metadata": 0.6,
+        "alias": 0.9,
+        "entity": 0.3,
+        "unified": 0.9441735,
+        "matchedFields": [
+          "title",
+          "section",
+          "headingPath"
+        ]
+      }
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "e789183141b212dd",
+      "title": "Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere",
+      "matchedQuery": "23. Word ne anlatıyor?",
+      "score": 0.74084015,
+      "metadataBoosts": {
+        "vector": 0.41084015,
+        "title": 0.6,
+        "metadata": 0.4,
+        "alias": 0.9,
+        "entity": 0.3,
+        "unified": 0.74084015,
+        "matchedFields": [
+          "title",
+          "section",
+          "subsection"
+        ]
+      }
+    }
+  ],
+  "droppedCandidates": [
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "6a5b370d5f311128",
+      "score": 0.4598178,
+      "reason": "duplicate candidate from query variant: twenty third Söz ne anlatıyor?"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f0d9d53ef54b1cc3",
+      "score": 0.4522749,
+      "reason": "duplicate candidate from query variant: twenty third Söz ne anlatıyor?"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f50c85b2d5ffc67f",
+      "score": 0.4965407,
+      "reason": "duplicate candidate from query variant: yirmi üçüncü Word ne anlatıyor?"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f0d9d53ef54b1cc3",
+      "score": 0.48410612,
+      "reason": "duplicate candidate from query variant: yirmi üçüncü Word ne anlatıyor?"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "ae4b437617a432f9",
+      "score": 0.47567874,
+      "reason": "duplicate candidate from query variant: yirmi üçüncü Word ne anlatıyor?"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "85cd660a7dce9ce4",
+      "score": 0.44298816,
+      "reason": "duplicate candidate from query variant: twenty third Word ne anlatıyor?"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "ae4b437617a432f9",
+      "score": 0.8790748999999999,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f0d9d53ef54b1cc3",
+      "score": 0.8717125,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "6a5b370d5f311128",
+      "score": 0.7775896,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "4c69df62fd448b27",
+      "score": 0.7678459000000001,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "351b6dc0f9bcffcb",
+      "score": 0.7614010000000001,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "add791414e6c4576",
+      "score": 0.74732473,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "be6a9c06944bf7ba",
+      "score": 0.74732473,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "c5cb4d3dc0f025d8",
+      "score": 0.7305070100000001,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f50c85b2d5ffc67f",
+      "score": 0.7276814999999999,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "48278501531cbf7d",
+      "score": 0.7148264999999999,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "d65452e6e1dc6103",
+      "score": 0.6988136199999999,
+      "reason": "structured metadata signal 0.250 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "029f0fd9198e70ca",
+      "score": 0.6982354799999999,
+      "reason": "structured metadata signal 0.250 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "258af77f9efc3d1d",
+      "score": 0.67009717,
+      "reason": "structured metadata signal 0.250 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "8b26e9862423e587",
+      "score": 0.67009717,
+      "reason": "structured metadata signal 0.250 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "ddfca0e9cecc496a",
+      "score": 0.6644727,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "c101de28169fae8f",
+      "score": 0.6519451,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "cb92264fa558a145",
+      "score": 0.64875254,
+      "reason": "structured metadata signal 0.250 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "5990533b2973bb48",
+      "score": 0.5869042400000001,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "dba4df00af86330d",
+      "score": 0.58187705,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "a4fd10a204a686b9",
+      "score": 0.58043286,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "4e4a87eab7af6a49",
+      "score": 0.56887834,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "0f452576b003384d",
+      "score": 0.55965928,
+      "reason": "structured metadata signal 0.400 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "6872afe079b65e93",
+      "score": 0.548567,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "536cd8ed572b18c8",
+      "score": 0.5364980300000001,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "1ea6530b0c11ab25",
+      "score": 0.5127958499999999,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "8cce110e0a464c9f",
+      "score": 0.49841018000000004,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "7087c040fbee2495",
+      "score": 0.49832071999999994,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "03dbae88a7e5739e",
+      "score": 0.48984547,
+      "reason": "structured metadata signal 0.200 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "85cd660a7dce9ce4",
+      "score": 0.4732908,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "7d5446f44b0b420f",
+      "score": 0.47013724,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "1a1a31e4a84c3e5c",
+      "score": 0.4625305,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "ad8430188ae0a5fb",
+      "score": 0.46187705,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "b1a26c5bc044177c",
+      "score": 0.44283193,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "3d3652a2302ec086",
+      "score": 0.44130564,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "52125e14e19a6e91",
+      "score": 0.43261293,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "c6ff38767e7d2bbd",
+      "score": 0.42688912,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "d0cc358458708d49",
+      "score": 0.42295378,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "63cc608300adf130",
+      "score": 0.41275012,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    },
+    {
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "d3a758f9cc2f25f8",
+      "score": 0.41233185,
+      "reason": "structured metadata signal 0.000 below best-match tolerance"
+    }
+  ],
+  "finalCitationChunkIds": [
+    "3d97472f4009451d",
+    "f5ab02899907077a"
+  ],
+  "finalIgnoredChunkIds": [
+    "e789183141b212dd"
+  ],
+  "mergedRanking": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-11/page-0092.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "Sözler / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-01/page-0417.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.56084015,
+      "title": "Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0398.md",
+      "chunkIndex": 1,
+      "tokenCount": 2051
+    }
+  ],
+  "topKReturned": 3,
+  "retrievedChunkCount": 3,
+  "uniqueDocumentCount": 3,
+  "uniqueBookCount": 1,
+  "uniqueHeadingPathCount": 2,
+  "totalContextTokens": 3521,
+  "totalPromptTokens": 4795,
+  "retrievalTable": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-11/page-0092.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "Sözler / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-01/page-0417.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.56084015,
+      "title": "Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0398.md",
+      "chunkIndex": 1,
+      "tokenCount": 2051
+    }
+  ],
+  "contextDiversity": {
+    "booksRepresented": 1,
+    "headingGroups": 2,
+    "averageSimilarity": 0.676396,
+    "duplicatePercentage": 0
+  },
+  "optimization": {
+    "before": {
+      "chunkCount": 3,
+      "documentsRepresented": 3,
+      "booksRepresented": 1,
+      "headingDiversity": 2,
+      "duplicateCount": 0,
+      "duplicatePercentage": 0,
+      "contextDiversityScore": 66.67
+    },
+    "after": {
+      "chunkCount": 3,
+      "documentsRepresented": 3,
+      "booksRepresented": 1,
+      "headingDiversity": 2,
+      "duplicateCount": 0,
+      "duplicatePercentage": 0,
+      "contextDiversityScore": 66.67
+    },
+    "duplicateReduction": 0,
+    "promptTokenSavings": 0,
+    "contextDiversityScore": 66.67
+  },
+  "beforeOptimizationTable": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-11/page-0092.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "Sözler / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-01/page-0417.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.56084015,
+      "title": "Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0398.md",
+      "chunkIndex": 1,
+      "tokenCount": 2051
+    }
+  ],
+  "afterOptimizationTable": [
+    {
+      "rank": 1,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-11/page-0092.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 2,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.7341735,
+      "title": "Sözler / Yirmi Üçüncü Söz",
+      "headingPath": [
+        "Yirmi Üçüncü Söz"
+      ],
+      "sourceFile": "book-01/page-0417.md",
+      "chunkIndex": 0,
+      "tokenCount": 735
+    },
+    {
+      "rank": 3,
+      "source": "risale",
+      "collection": "risale",
+      "similarityScore": 0.56084015,
+      "title": "Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere",
+      "headingPath": [],
+      "sourceFile": "book-01/page-0398.md",
+      "chunkIndex": 1,
+      "tokenCount": 2051
+    }
+  ],
+  "contextStructure": {
+    "rawContextLayout": [
+      {
+        "position": 1,
+        "chunkId": "3d97472f4009451d"
+      },
+      {
+        "position": 2,
+        "chunkId": "f5ab02899907077a"
+      },
+      {
+        "position": 3,
+        "chunkId": "e789183141b212dd"
+      }
+    ],
+    "structuredContextLayout": [
+      {
+        "section": "Supporting Evidence",
+        "chunkIds": [
+          "3d97472f4009451d",
+          "f5ab02899907077a",
+          "e789183141b212dd"
+        ]
+      }
+    ],
+    "tokenDifference": 4,
+    "sectionCount": 1,
+    "chunkDistribution": {
+      "Supporting Evidence": 3
+    }
+  },
+  "finalContextComposition": [
+    {
+      "position": 1,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "3d97472f4009451d",
+      "section": "Supporting Evidence"
+    },
+    {
+      "position": 2,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "f5ab02899907077a",
+      "section": "Supporting Evidence"
+    },
+    {
+      "position": 3,
+      "source": "risale",
+      "collection": "risale",
+      "chunkId": "e789183141b212dd",
+      "section": "Supporting Evidence"
+    }
+  ],
+  "finalPrompt": {
+    "model": "gpt-4o-mini",
+    "temperature": 0,
+    "maxOutputTokens": 800,
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a rigorous research assistant working exclusively from retrieved HürKul archive context. Your task is to produce a complete, coherent, evidence-synthesized answer in natural Turkish. Begin by defining the concept asked about, then explain it clearly and develop the answer in complete, connected paragraphs. Use all context that is relevant to the question, regardless of how many retrieved chunks it spans. When several sources or books discuss the concept, synthesize their compatible evidence into one unified explanation instead of summarizing each source separately. When sources offer complementary viewpoints, compare and connect those viewpoints explicitly. Avoid repeating the same idea or wording. Prefer developed paragraphs over short summaries, fragments, or lists. Use headings only when they materially improve readability. Do not intentionally shorten an answer when additional relevant retrieved evidence can deepen or clarify it. Preserve strict retrieval grounding: use only the supplied context, never outside knowledge, never guess, and never invent information or references. After every supported claim, cite the exact supporting Context Chunk ID in square brackets. When a claim combines evidence, cite every Context Chunk ID that directly supports it. For example, if the supplied Context Chunk ID is abc123, write [abc123], never [chunk-id] or [chunk-id: abc123]. If the answer is not supported by the retrieved context, answer exactly: \"Bu soru mevcut HürKul arşivindeki kaynaklarla cevaplanamıyor.\" Return JSON only."
+      },
+      {
+        "role": "user",
+        "content": "# SYSTEM\n\nYou are a rigorous research assistant working exclusively from retrieved HürKul archive context. Your task is to produce a complete, coherent, evidence-synthesized answer in natural Turkish. Begin by defining the concept asked about, then explain it clearly and develop the answer in complete, connected paragraphs. Use all context that is relevant to the question, regardless of how many retrieved chunks it spans. When several sources or books discuss the concept, synthesize their compatible evidence into one unified explanation instead of summarizing each source separately. When sources offer complementary viewpoints, compare and connect those viewpoints explicitly. Avoid repeating the same idea or wording. Prefer developed paragraphs over short summaries, fragments, or lists. Use headings only when they materially improve readability. Do not intentionally shorten an answer when additional relevant retrieved evidence can deepen or clarify it. Preserve strict retrieval grounding: use only the supplied context, never outside knowledge, never guess, and never invent information or references. After every supported claim, cite the exact supporting Context Chunk ID in square brackets. When a claim combines evidence, cite every Context Chunk ID that directly supports it. For example, if the supplied Context Chunk ID is abc123, write [abc123], never [chunk-id] or [chunk-id: abc123]. If the answer is not supported by the retrieved context, answer exactly: \"Bu soru mevcut HürKul arşivindeki kaynaklarla cevaplanamıyor.\" Return JSON only.\n\n# QUESTION\n\n23. Söz ne anlatıyor?\n\n# RETRIEVED CONTEXT\n\n## Supporting Evidence\n\n### Context 1\n\nTitle: İman Ve Küfür Muvazeneleri / Yirmi Üçüncü Söz\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=11&locale=tr&pageNo=92\nHeading: Yirmi Üçüncü Söz\nChunk ID: 3d97472f4009451d\nChunk IDs: 3d97472f4009451d\nScore: 0.7342\nMerged: no\n\n# Yirmi Üçüncü Söz\n\nŞu Sözün iki Mebhası vardır.\n\nبِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ\n\nلَقَدْ خَلَقْنَا اْلاِنْسَانَ فِۤى اَحْسَنِ تَقْوِيمٍ \\* ثُمَّ رَدَدْنَاهُ اَسْفَلَ سَافِلِينَ \\* اِلاَّ الَّذِينَ اٰمَنُوا وَعَمِلُوا الصَّالِحَاتِ \\* \\[1\\]\n\nBirinci Mebhas\n\nİMANIN binler mehâsininden yalnız beşini, Beş Nokta içinde beyan ederiz.\n\nBİRİNCİ NOKTA\n\nİnsan, nur-u iman ile âlâ-yı illiyyîne çıkar, Cennete lâyık bir kıymet alır. Ve zulmet-i küfür ile esfel-i sâfilîne düşer, Cehenneme ehil olacak bir vaziyete girer. Çünkü, iman, insanı Sâni-i Zülcelâline nisbet ediyor. İman bir intisaptır. Öyle ise, insan, iman ile insanda tezahür eden san'at-ı İlâhiye ve nukuş-u esmâ-i Rabbâniye itibarıyla bir kıymet alır. Küfür o nisbeti kat' eder. O kat'dan, san'at-ı Rabbâniye gizlenir. Kıymeti dahi yalnız madde itibarıyla olur. Madde ise, hem fâniye, hem zâile, hem muvakkat bir hayat-ı hayvanî olduğundan, kıymeti hiç hükmündedir.\n\nBu sırrı bir temsille beyan edeceğiz. Meselâ, insanların san'atları içinde, nasıl ki maddenin kıymetiyle san'atın kıymeti ayrı ayrıdır. Bazan müsavi, bazan madde daha kıymettar; bazan oluyor ki, beş kuruşluk demir gibi bir maddede beş liralık bir san'at bulunuyor. Belki, bazan, antika olan bir san'at bir milyon kıymeti aldığı halde, maddesi beş kuruşa da değmiyor. İşte, öyle antika bir san'at,\n\n\"And olsun ki, Biz insanı en güzel bir şekilde yarattık. Sonra da onu en aşağı seviyeye indirdik-ancak iman eden ve güzel işler yapanlar müstesna.\" Tîn Sûresi, 95:4-6.\n\n### Context 2\n\nTitle: Sözler / Yirmi Üçüncü Söz\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=417\nHeading: Yirmi Üçüncü Söz\nChunk ID: f5ab02899907077a\nChunk IDs: f5ab02899907077a\nScore: 0.7342\nMerged: no\n\n# Yirmi Üçüncü Söz\n\nŞu Sözün iki Mebhası vardır.\n\nبِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيمِ\n\nلَقَدْ خَلَقْنَا اْلاِنْسَانَ فِۤى اَحْسَنِ تَقْوِيمٍ \\* ثُمَّ رَدَدْنَاهُ اَسْفَلَ سَافِلِينَ \\* اِلاَّ الَّذِينَ اٰمَنُوا وَعَمِلُوا الصَّالِحَاتِ \\* \\[1\\]\n\nBirinci Mebhas\n\nİMANIN binler mehâsininden yalnız beşini, Beş Nokta içinde beyan ederiz.\n\nBİRİNCİ NOKTA\n\nİnsan, nur-u iman ile âlâ-yı illiyyîne çıkar, Cennete lâyık bir kıymet alır. Ve zulmet-i küfür ile esfel-i sâfilîne düşer, Cehenneme ehil olacak bir vaziyete girer. Çünkü, iman, insanı Sâni-i Zülcelâline nisbet ediyor. İman bir intisaptır. Öyle ise, insan, iman ile insanda tezahür eden san'at-ı İlâhiye ve nukuş-u esmâ-i Rabbâniye itibarıyla bir kıymet alır. Küfür o nisbeti kat' eder. O kat'dan, san'at-ı Rabbâniye gizlenir. Kıymeti dahi yalnız madde itibarıyla olur. Madde ise, hem fâniye, hem zâile, hem muvakkat bir hayat-ı hayvanî olduğundan, kıymeti hiç hükmündedir.\n\nBu sırrı bir temsille beyan edeceğiz. Meselâ, insanların san'atları içinde, nasıl ki maddenin kıymetiyle san'atın kıymeti ayrı ayrıdır. Bazan müsavi, bazan madde daha kıymettar; bazan oluyor ki, beş kuruşluk demir gibi bir maddede beş liralık bir san'at bulunuyor. Belki, bazan, antika olan bir san'at bir milyon kıymeti aldığı halde, maddesi beş kuruşa da değmiyor. İşte, öyle antika bir san'at,\n\n\"And olsun ki, Biz insanı en güzel bir şekilde yarattık. Sonra da onu en aşağı seviyeye indirdik-ancak iman eden ve güzel işler yapanlar müstesna.\" Tîn Sûresi, 95:4-6.\n\n### Context 3\n\nTitle: Sözler / Yirmi İkinci Söz / İkinci Makam / Dördüncü Lem'a / Üçüncü Pencere\nSource: risale\nCollection: risale\nURL: https://www.erisale.com/index.jsp?bookId=1&locale=tr&pageNo=398\nHeading: (none)\nChunk ID: e789183141b212dd\nChunk IDs: e789183141b212dd\nScore: 0.5608\nMerged: no\n\nHerbir zerrede, Onun Vâcibü'l-Vücud ve Vâhid olduğuna iki şahit bulunduğu gibi; herbir zîhayatta da, Onun Ehad ve Samed olduğuna dair iki âyet vardır.\n\nÜstteki cümle bu metnin tercümesidir.\n\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/14-15. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Fatiha Sûresi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/7. âyetin tefsiri/İkinci Bir Mukaddeme/Yedincisi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/23-24. âyetlerin tefsiri/Mukaddeme/Altıncı Mesele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/31-33. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/8. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Ecnebî Filozoflarin Kur'ân'i Tasdiklerine Dair Şehadetleri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/14-15. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Ecnebî Filozoflarin Kur'ân'i Tasdiklerine Dair Şehadetleri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/29. âyetin tefsiri/Üçüncü Mes'ele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/25. âyetin tefsiri/Mukaddeme\nRisale-i Nur/İşârâtü'l-İ'câz/Fatiha Sûresi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/31-33. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/2. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/21-22. âyetlerin tefsiri/Tevhide geçiyoruz:\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/8. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/17-20. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Fatiha Sûresi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/23-24. âyetlerin tefsiri/Mukaddeme/Altıncı Mesele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/23-24. âyetlerin tefsiri/Mukaddeme/Birinci Mesele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/25. âyetin tefsiri/Mukaddeme\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/26-27. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/17-20. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/1. âyetin tefsiri/İkinci Mebhas\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/31-33. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Fatiha Sûresi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/23-24. âyetlerin tefsiri/Mukaddeme/Yedinci Mesele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/17-20. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/21-22. âyetlerin tefsiri/Tevhide geçiyoruz:\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/4. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/6. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/23-24. âyetlerin tefsiri/Mukaddeme/Altıncı Mesele\nRisale-i Nur/İşârâtü'l-İ'câz/Fatiha Sûresi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/23-24. âyetlerin tefsiri/Mukaddeme/Üçüncü Mesele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/25. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/21-22. âyetlerin tefsiri/Tevhide geçiyoruz:\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/29. âyetin tefsiri/Üçüncü Mes'ele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/30. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/4. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/25. âyetin tefsiri/Mukaddeme\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/17-20. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/30. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/17-20. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Fatiha Sûresi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/30. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Fatiha Sûresi\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/23-24. âyetlerin tefsiri/Mukaddeme/Dördüncü Mesele\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/3. âyetin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/17-20. âyetlerin tefsiri\nRisale-i Nur/İşârâtü'l-İ'câz/Bakara Sûresi/2. âyetin tefsiri\n\n# INSTRUCTIONS\n\n- Start the answer with a clear definition of the concept, when the question asks about a concept.\n- Explain the concept fully in natural, flowing Turkish and prefer complete paragraphs.\n- Synthesize all relevant evidence into a coherent explanation; do not produce repetitive source-by-source summaries.\n- Compare and connect complementary viewpoints when the retrieved context provides them.\n- Use headings only when they improve readability.\n- Use as much relevant retrieved context as necessary and do not intentionally abbreviate the answer.\n- Use only retrieved context; do not add outside knowledge, guesses, or invented information.\n- If context does not support an answer, return the required insufficient-information sentence exactly.\n- After each supported claim, add its exact supporting Context Chunk ID in square brackets, for example [abc123].\n- For claims supported by multiple context chunks, include every directly supporting Context Chunk ID.\n- Report exactly which Context Chunk IDs directly support the answer.\n- Report ignored chunk IDs for context chunks that were not used.\n- Set answerSupported to false when the answer is not directly supported.\n- Set conflictingEvidence to true if supplied chunks disagree.\n- Set evidenceComplete to true only when the retrieved context fully answers the question.\n\nReturn a JSON object with this exact shape:\n{\n  \"answer\": \"string\",\n  \"usedChunkIds\": [\"chunk-id\"],\n  \"ignoredChunkIds\": [\"chunk-id\"],\n  \"answerSupported\": true,\n  \"conflictingEvidence\": false,\n  \"evidenceComplete\": true\n}"
+      }
+    ]
+  }
+}
